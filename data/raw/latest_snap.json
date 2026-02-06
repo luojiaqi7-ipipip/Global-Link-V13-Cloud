@@ -1,6 +1,6 @@
 {
   "meta": {
-    "timestamp": "20260206_2229",
+    "timestamp": "20260206_2228",
     "timezone": "Asia/Shanghai",
     "version": "V13-Final-Robust"
   },
@@ -138,47 +138,47 @@
     "CNH": {
       "price": 6.9315,
       "status": "SUCCESS",
-      "last_update": "20260206_2229"
+      "last_update": "20260206_2228"
     },
     "Nasdaq": {
       "price": 22540.586,
       "status": "SUCCESS",
-      "last_update": "20260206_2229"
+      "last_update": "20260206_2228"
     },
     "HangSeng": {
       "price": 26559.951,
       "status": "SUCCESS",
-      "last_update": "20260206_2229"
+      "last_update": "20260206_2228"
     },
     "A50_Futures": {
-      "price": 14885.5,
+      "price": 14883.63,
       "status": "SUCCESS",
-      "last_update": "20260206_2229"
+      "last_update": "20260206_2228"
     },
     "Gold": {
-      "price": 4929.059,
+      "price": 4932.253,
       "status": "SUCCESS",
-      "last_update": "20260206_2229"
+      "last_update": "20260206_2228"
     },
     "CrudeOil": {
-      "price": 62.81,
+      "price": 62.826,
       "status": "SUCCESS",
-      "last_update": "20260206_2229"
+      "last_update": "20260206_2228"
     },
     "VIX": {
       "price": 20.149999618530273,
       "status": "SUCCESS",
-      "last_update": "20260206_2229"
+      "last_update": "20260206_2228"
     },
     "US10Y": {
       "price": 4.199999809265137,
       "status": "SUCCESS",
-      "last_update": "20260206_2229"
+      "last_update": "20260206_2228"
     },
     "Northbound": {
       "value": 0.0,
       "status": "SUCCESS",
-      "last_update": "20260206_2229"
+      "last_update": "20260206_2228"
     }
   },
   "hist_data": {
