@@ -1,0 +1,201 @@
+{
+  "timestamp": "20260206_2358",
+  "macro_matrix": {
+    "CNH_Price": 6.9297,
+    "CNH_Change": -1.04,
+    "Liquidity_Rate": null,
+    "Liquidity_Change": null,
+    "CN10Y_Yield": 1.8102,
+    "US10Y_Yield": 4.21,
+    "VIX": 19.428,
+    "A_Share_Amplitude": null,
+    "Margin_Change_Pct": null,
+    "Northbound_Flow_Billion": 0.0,
+    "Inflow_Sectors": [
+      "电池",
+      "化学制品",
+      "电子元件"
+    ],
+    "Outflow_Sectors": [],
+    "Gold_Price": null,
+    "CrudeOil_Price": null,
+    "Nasdaq_Price": 24790.6763,
+    "Nasdaq_Change": 0.99,
+    "HangSeng_Price": 26354.34,
+    "HangSeng_Change": 26885.242,
+    "A50_Futures_Price": 14920.65,
+    "A50_Futures_Change": null
+  },
+  "macro_health": {
+    "CNH": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2358"
+    },
+    "Nasdaq": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2358"
+    },
+    "HangSeng": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2358"
+    },
+    "A50_Futures": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2358"
+    },
+    "VIX": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2358"
+    },
+    "CN10Y": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2358"
+    },
+    "US10Y": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2358"
+    },
+    "Northbound": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2358"
+    },
+    "Sector_Flow": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2358"
+    },
+    "Margin_Debt": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2358"
+    }
+  },
+  "technical_matrix": [
+    {
+      "code": "159995",
+      "name": "芯片ETF",
+      "price": 1.85,
+      "bias": -1.64,
+      "vol_ratio": 0.81,
+      "real_time_ma5": 1.881
+    },
+    {
+      "code": "512660",
+      "name": "军工ETF",
+      "price": 1.44,
+      "bias": -1.56,
+      "vol_ratio": 0.81,
+      "real_time_ma5": 1.463
+    },
+    {
+      "code": "513050",
+      "name": "中概互联网ETF易方达",
+      "price": 1.404,
+      "bias": -1.53,
+      "vol_ratio": 0.85,
+      "real_time_ma5": 1.426
+    },
+    {
+      "code": "512760",
+      "name": "芯片ETF",
+      "price": 1.73,
+      "bias": -1.47,
+      "vol_ratio": 0.76,
+      "real_time_ma5": 1.756
+    },
+    {
+      "code": "512480",
+      "name": "半导体ETF",
+      "price": 1.577,
+      "bias": -1.38,
+      "vol_ratio": 0.8,
+      "real_time_ma5": 1.599
+    },
+    {
+      "code": "588000",
+      "name": "科创50ETF",
+      "price": 1.499,
+      "bias": -1.19,
+      "vol_ratio": 0.89,
+      "real_time_ma5": 1.517
+    },
+    {
+      "code": "159915",
+      "name": "创业板ETF易方达",
+      "price": 3.229,
+      "bias": -0.99,
+      "vol_ratio": 0.81,
+      "real_time_ma5": 3.261
+    },
+    {
+      "code": "510500",
+      "name": "中证500ETF",
+      "price": 8.213,
+      "bias": -0.8,
+      "vol_ratio": 0.78,
+      "real_time_ma5": 8.279
+    },
+    {
+      "code": "512690",
+      "name": "酒ETF",
+      "price": 0.554,
+      "bias": -0.57,
+      "vol_ratio": 0.69,
+      "real_time_ma5": 0.557
+    },
+    {
+      "code": "510300",
+      "name": "沪深300ETF华泰柏瑞",
+      "price": 4.649,
+      "bias": -0.44,
+      "vol_ratio": 0.67,
+      "real_time_ma5": 4.67
+    },
+    {
+      "code": "512880",
+      "name": "证券ETF",
+      "price": 1.186,
+      "bias": 0.0,
+      "vol_ratio": 0.66,
+      "real_time_ma5": 1.186
+    },
+    {
+      "code": "159928",
+      "name": "消费ETF",
+      "price": 0.798,
+      "bias": 0.08,
+      "vol_ratio": 0.71,
+      "real_time_ma5": 0.797
+    },
+    {
+      "code": "515080",
+      "name": "中证红利ETF",
+      "price": 1.598,
+      "bias": 0.19,
+      "vol_ratio": 0.57,
+      "real_time_ma5": 1.595
+    },
+    {
+      "code": "510880",
+      "name": "红利ETF华泰柏瑞",
+      "price": 3.126,
+      "bias": 0.26,
+      "vol_ratio": 0.55,
+      "real_time_ma5": 3.118
+    },
+    {
+      "code": "512010",
+      "name": "医药ETF易方达",
+      "price": 0.383,
+      "bias": 0.42,
+      "vol_ratio": 0.71,
+      "real_time_ma5": 0.381
+    },
+    {
+      "code": "512800",
+      "name": "银行ETF",
+      "price": 0.79,
+      "bias": 0.79,
+      "vol_ratio": 0.86,
+      "real_time_ma5": 0.784
+    }
+  ]
+}

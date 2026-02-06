@@ -41,7 +41,7 @@ class Harvester:
             # 添加 Headers 避免被屏蔽
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Referer": "http://finance.sina.com.cn"
+                "Referer": "https://finance.sina.com.cn"
             }
             r = requests.get(f"http://qt.gtimg.cn/q=s_{','.join(symbols)}", headers=headers, timeout=5)
             if r.status_code == 200:
@@ -74,15 +74,23 @@ class Harvester:
         }
         try:
             url = f"http://hq.sinajs.cn/list={','.join(sina_map.values())}"
-            r = requests.get(url, headers={"Referer": "http://finance.sina.com.cn"}, timeout=5)
+            headers = {
+                "Referer": "https://finance.sina.com.cn",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+            r = requests.get(url, headers=headers, timeout=5)
             lines = r.text.strip().split('\n')
             inv_map = {v: k for k, v in sina_map.items()}
             for line in lines:
                 try:
                     sym = line.split('=')[0].replace('var hq_str_', '').strip()
-                    data = line.split('"')[1].split(',')
+                    content = line.split('"')[1]
+                    if not content: 
+                        print(f"⚠️ Sina {sym} returned empty")
+                        continue
+                    data = content.split(',')
                     key = inv_map.get(sym)
-                    if not key or not data or len(data) < 2: continue
+                    if not key: continue
                     
                     if sym.startswith("fx_"): 
                         price = float(data[1])
@@ -95,20 +103,25 @@ class Harvester:
                         change_pct = (float(data[2]) / float(data[3]) - 1) * 100 if len(data) > 3 and data[3] else None
                     elif sym.startswith("hf_"): 
                         price = float(data[0])
-                        change_pct = (float(data[0]) / float(data[7]) - 1) * 100 if len(data) > 7 and data[7] and float(data[7]) != 0 else None
-                    elif sym.startswith("sh"): # 沪深指数
+                        prev_close = float(data[7]) if len(data) > 7 and data[7] else 0
+                        change_pct = (float(data[0]) / prev_close - 1) * 100 if prev_close != 0 else None
+                    elif sym.startswith("sh"): # 沪深指数 sh000300
                         price = float(data[3])
-                        change_pct = (float(data[3]) / float(data[2]) - 1) * 100 if float(data[2]) != 0 else None
-                        amp = (float(data[4]) - float(data[5])) / float(data[2]) * 100 if float(data[2]) != 0 else None
+                        prev_close = float(data[2])
+                        change_pct = (price / prev_close - 1) * 100 if prev_close != 0 else None
+                        amp = (float(data[4]) - float(data[5])) / prev_close * 100 if prev_close != 0 else None
                         macro['CSI300_Vol'] = wrap({"amplitude": round(amp, 3), "pct_change": round(change_pct, 3)})
-                        continue # CSI300 special handle
+                        print(f"✅ CSI300 Captured: Amp {amp:.2f}%")
+                        continue 
                     else: 
                         price = float(data[1])
                         change_pct = None
                     
                     macro[key] = wrap({"price": price, "change_pct": change_pct})
-                except: pass
-        except: pass
+                except Exception as e:
+                    print(f"❌ Error parsing Sina {sym}: {e}")
+        except Exception as e:
+            print(f"❌ Sina Request Failed: {e}")
 
         # 2. 国债收益率 (CN & US)
         try:
@@ -128,14 +141,23 @@ class Harvester:
             macro['Southbound'] = wrap({"value": val, "note": "Northbound hidden; using Southbound as proxy"})
         except: pass
 
-        # 4. 行业流入 (尝试使用备选源或增加重试)
+        # 4. 行业流入 (东财 Push2 - 使用更稳健的 Token)
         try:
-            headers = {"User-Agent": "Mozilla/5.0", "Referer": "http://finance.eastmoney.com/"}
-            url = "https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10&po=1&np=1&ut=b2884a51627f511a683671f901ad97a9&fltt=2&invt=2&fid=f62&fs=m:90+t:2+f:!50&fields=f14,f62"
+            ut = "bd1d9ddb04089700cf9c27f6f7426281"
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Referer": "http://quote.eastmoney.com/center/gridlist.html"
+            }
+            url = f"https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10&po=1&np=1&ut={ut}&fltt=2&invt=2&fid=f62&fs=m:90+t:2+f:!50&fields=f14,f62"
             r = requests.get(url, headers=headers, timeout=5).json()
             diff = r.get('data', {}).get('diff', [])
-            if diff: macro['Sector_Flow'] = wrap({"top_inflow": [{"名称": d['f14'], "今日净额": d['f62']} for d in diff[:3]]})
-        except: pass
+            if diff: 
+                macro['Sector_Flow'] = wrap({"top_inflow": [{"名称": d['f14'], "今日净额": d['f62']} for d in diff[:3]]})
+                print(f"✅ Sector Flow Captured: {[d['f14'] for d in diff[:3]]}")
+            else:
+                print("⚠️ Sector Flow Empty")
+        except Exception as e:
+            print(f"⚠️ Sector Flow Error: {e}")
 
         # 5. 两融 (AkShare 宏观两融接口)
         try:
@@ -153,12 +175,14 @@ class Harvester:
 
         # 6. 国内流动性 (SHIBOR)
         try:
-            # 简化参数提高成功率
             shibor = ak.rate_interbank(market="上海银行同业拆借市场", symbol="Shibor人民币", indicator="隔夜")
             if not shibor.empty:
                 macro['SHIBOR'] = wrap({"value": float(shibor.iloc[-1]['利率'])})
-        except: pass
+                print(f"✅ SHIBOR Captured: {macro['SHIBOR']['value']}%")
+        except Exception as e:
+            print(f"⚠️ SHIBOR Error: {e}")
 
+        print(f"📡 Macro Keys Captured: {list(macro.keys())}")
         return macro
 
     def _get_hist_context(self):

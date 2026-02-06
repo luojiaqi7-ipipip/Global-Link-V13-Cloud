@@ -1,0 +1,72 @@
+{
+  "timestamp": "20260206_2357",
+  "macro_matrix": {
+    "CNH_Price": 6.9311,
+    "CNH_Change": -0.8999999999999999,
+    "Liquidity_Rate": null,
+    "Liquidity_Change": null,
+    "CN10Y_Yield": 1.8102,
+    "US10Y_Yield": 4.21,
+    "VIX": 19.523,
+    "A_Share_Amplitude": null,
+    "Margin_Change_Pct": null,
+    "Northbound_Flow_Billion": 0.0,
+    "Inflow_Sectors": [
+      "电池",
+      "化学制品",
+      "电子元件"
+    ],
+    "Outflow_Sectors": [],
+    "Gold_Price": null,
+    "CrudeOil_Price": null,
+    "Nasdaq_Price": 24783.801,
+    "Nasdaq_Change": 0.96,
+    "HangSeng_Price": 26354.34,
+    "HangSeng_Change": 26885.242,
+    "A50_Futures_Price": 14923.32,
+    "A50_Futures_Change": null
+  },
+  "macro_health": {
+    "CNH": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2357"
+    },
+    "Nasdaq": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2357"
+    },
+    "HangSeng": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2357"
+    },
+    "A50_Futures": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2357"
+    },
+    "VIX": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2357"
+    },
+    "CN10Y": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2357"
+    },
+    "US10Y": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2357"
+    },
+    "Northbound": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2357"
+    },
+    "Sector_Flow": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2357"
+    },
+    "Margin_Debt": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2357"
+    }
+  },
+  "technical_matrix": []
+}
