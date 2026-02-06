@@ -12,6 +12,8 @@ on:
 jobs:
   audit:
     runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Shanghai
     permissions:
       contents: write
     steps:

@@ -99,8 +99,12 @@ class DataEngine:
         return macro
 
     def sync_all(self):
+        # 强制使用北京时间 (Asia/Shanghai)
+        import pytz
+        tz = pytz.timezone('Asia/Shanghai')
+        beijing_now = datetime.now(tz)
         data = {
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": beijing_now.strftime("%Y-%m-%d %H:%M:%S"),
             "technical": self.fetch_etf_technical(),
             "macro": self.fetch_macro_indicators()
         }
