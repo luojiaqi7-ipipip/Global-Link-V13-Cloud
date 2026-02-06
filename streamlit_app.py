@@ -246,10 +246,9 @@ if audit_data:
     def format_val(val, unit="", suffix=""):
         if val is None or val == "N/A" or val == "...":
             return "等待同步"
-        # 修复：如果是 0，也可能是尚未抓取到有效值，或者真的是 0
-        # 这里根据用户需求，如果不想要 N/A，可以显示具体数值 0 或 "等待同步"
-        if val == 0 or val == 0.0:
-            return f"0{unit}{suffix}"
+        # 允许 0.0 显示，除非是特定的北向资金或乖离率，在这些情况下 0.0 极大概率是抓取失败
+        if (val == 0 or val == 0.0):
+            return "0.0" + unit + suffix
         return f"{val}{unit}{suffix}"
 
     # 映射宏观指标到 raw 里的 key
