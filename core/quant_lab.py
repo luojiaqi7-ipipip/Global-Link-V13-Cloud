@@ -4,8 +4,8 @@ import pandas as pd
 
 class QuantLab:
     """
-    模块 B: 逻辑计算引擎
-    负责将原始 JSON 转化为结构化的量化指标矩阵。
+    模块 B: 逻辑计算引擎 - V5 (Unit Normalization)
+    负责统一成交量度量衡，确保量比计算准确。
     """
     def __init__(self, raw_file="data/raw/latest_snap.json", out_dir="data/processed"):
         self.raw_file = raw_file
@@ -37,7 +37,7 @@ class QuantLab:
         return processed
 
     def _calc_macro(self, raw_macro):
-        """处理宏观矩阵，提取核心变化率"""
+        """处理宏观矩阵"""
         m = {}
         # 1. 汇率
         if 'CNH' in raw_macro:
@@ -55,58 +55,51 @@ class QuantLab:
         if 'Northbound' in raw_macro:
             m['Northbound_Flow_Billion'] = round(raw_macro['Northbound'].get('value', 0) / 1e8, 2)
         
-        # 4. 全球指数 (纳指、恒指、富时A50)
-        if 'Nasdaq' in raw_macro:
-            m['Nasdaq_Price'] = raw_macro['Nasdaq'].get('price', 'N/A')
-        if 'HangSeng' in raw_macro:
-            m['HangSeng_Price'] = raw_macro['HangSeng'].get('price', 'N/A')
-        if 'A50_Futures' in raw_macro:
-            m['A50_Futures_Price'] = raw_macro['A50_Futures'].get('price', 'N/A')
-            
-        # 5. 美债收益率
-        if 'US_10Y_Yield' in raw_macro:
-            m['US_10Y_Yield'] = raw_macro['US_10Y_Yield'].get('price', 'N/A')
+        # 4. 全球指数
+        for key in ['Nasdaq', 'HangSeng', 'A50_Futures', 'US_10Y_Yield']:
+            if key in raw_macro:
+                m[f'{key}_Price'] = raw_macro[key].get('price', 'N/A')
             
         return m
 
     def _calc_tech(self, spot, hist_map):
-        """计算核心技术指标：Bias, Vol_Ratio"""
+        """统一单位：所有成交量转换为‘股’"""
         matrix = []
-        if not spot:
-            return []
+        if not spot: return []
             
         for s in spot:
             try:
                 code = s.get('代码')
-                if not code: continue
+                if not code or code not in hist_map: continue
                 
-                # 计算乖离率与量比
-                if code in hist_map and hist_map[code]:
-                    df_hist = pd.DataFrame(hist_map[code])
-                    if len(df_hist) < 5: continue
-                    
-                    # 统一列名（支持 EM 和 Sina 两种格式）
-                    closes = df_hist['收盘'].tolist() if '收盘' in df_hist else df_hist['收盘价'].tolist()
-                    vols = df_hist['成交量'].tolist()
-                    
-                    ma5 = sum(closes[-5:]) / 5
-                    current_price = float(s.get('最新价', 0))
-                    
-                    bias = ((current_price - ma5) / ma5) * 100
-                    
-                    vol_avg = sum(vols[-5:]) / 5
-                    current_vol = float(s.get('成交量', 0))
-                    vol_ratio = current_vol / vol_avg if vol_avg > 0 else 0
-                    
-                    matrix.append({
-                        "code": code,
-                        "name": s.get('名称', 'N/A'),
-                        "price": current_price,
-                        "bias": round(bias, 2),
-                        "vol_ratio": round(vol_ratio, 2)
-                    })
+                df_hist = pd.DataFrame(hist_map[code])
+                if len(df_hist) < 5: continue
+                
+                # 价格计算
+                closes = df_hist['收盘'].tolist() if '收盘' in df_hist else df_hist['收盘价'].tolist()
+                current_price = float(s.get('最新价', 0))
+                ma5 = sum(closes[-5:]) / 5
+                bias = ((current_price - ma5) / ma5) * 100
+                
+                # 成交量单位归一化：
+                # 1. 历史数据 (EM hist) 通常为“手”
+                # 2. 实时行情 (EM spot 或 Sina) 通常为“股”
+                # 我们将历史成交量乘 100 统一到“股”
+                vols_hist = (df_hist['成交量'] * 100).tolist()
+                current_vol_shares = float(s.get('成交量', 0))
+                
+                vol_avg_shares = sum(vols_hist[-5:]) / 5
+                vol_ratio = current_vol_shares / vol_avg_shares if vol_avg_shares > 0 else 0
+                
+                matrix.append({
+                    "code": code,
+                    "name": s.get('名称', 'N/A'),
+                    "price": current_price,
+                    "bias": round(bias, 2),
+                    "vol_ratio": round(vol_ratio, 2)
+                })
             except Exception as e:
-                print(f"    [!] 计算指标失败 {s.get('代码')}: {e}")
+                print(f"    [!] 指标计算失败 {s.get('代码')}: {e}")
                 
         return sorted(matrix, key=lambda x: x['bias'])
 
