@@ -1,26 +1,18 @@
 {
-  "timestamp": "2026-02-06T03:41:48.412317",
+  "timestamp": "2026-02-06T03:52:03.218486",
   "decision": "WAIT",
   "target": "NONE",
   "attack_factor": 0.8,
-  "rationale": "Technical audit failed to identify any assets meeting the mandatory threshold of MA5 Bias < -2.5% and Volume Ratio > 1.2. Market liquidity is currently stagnant with all volume ratios significantly below 1.0 (mean ~0.48). 513050 (China Internet) shows the strongest negative bias (-1.94%) but lacks the volume confirmation (0.52) required for a high-conviction mean-reversion entry. Macro data absence necessitates a defensive stance.",
+  "rationale": "Audit failed on Technical Weight 1.0. All monitored assets report Volume Ratio < 0.60, failing the 1.2 requirement. MA5 Bias levels (-1.94 to 0.44) are significantly above the -2.5% trigger threshold, indicating insufficient oversold exhaustion. Macro data is null, triggering a defensive override. No entry signals detected.",
   "parameters": {
     "entry": 0.0,
-    "stop_loss": 0.0,
-    "stop_profit": 0.0,
+    "stop_loss": 1.2,
+    "stop_profit": 2.4,
     "time_limit": "4 Days"
   },
-  "macro": {},
-  "top_candidates": [
-    {
-      "code": "513050",
-      "bias": -1.94,
-      "vol": 0.52
-    },
-    {
-      "code": "159995",
-      "bias": -1.64,
-      "vol": 0.46
-    }
-  ]
+  "macro": {
+    "status": "DATA_MISSING",
+    "risk_level": "NEUTRAL_CAUTIOUS"
+  },
+  "top_candidates": []
 }
