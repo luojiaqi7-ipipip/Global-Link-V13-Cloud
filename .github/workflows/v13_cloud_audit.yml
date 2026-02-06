@@ -38,4 +38,5 @@ jobs:
           git config --global user.email "bot@v13.cloud"
           git add data/audit_result.json
           git commit -m "Update Audit Result [$(date +'%Y-%m-%d %H:%M')]" || exit 0
-          git push
+          git pull --rebase origin master
+          git push origin master
