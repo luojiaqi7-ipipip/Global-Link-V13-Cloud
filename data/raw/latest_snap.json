@@ -1,6 +1,6 @@
 {
   "meta": {
-    "timestamp": "20260207_0010",
+    "timestamp": "20260207_0009",
     "timezone": "Asia/Shanghai",
     "version": "V13-Final-Robust"
   },
@@ -136,68 +136,62 @@
   ],
   "macro": {
     "CNH": {
-      "price": 6.9311,
-      "change_pct": -0.8999999999999999,
+      "price": 6.9312,
+      "change_pct": -0.89,
       "status": "SUCCESS",
-      "last_update": "20260207_0010"
+      "last_update": "20260207_0009"
     },
     "Nasdaq": {
-      "price": 24896.7479,
-      "change_pct": 1.42,
+      "price": 24886.3443,
+      "change_pct": 1.38,
       "status": "SUCCESS",
-      "last_update": "20260207_0010"
+      "last_update": "20260207_0009"
     },
     "HangSeng": {
       "price": 26354.34,
       "change_pct": -1.974696749986471,
       "status": "SUCCESS",
-      "last_update": "20260207_0010"
+      "last_update": "20260207_0009"
     },
     "A50_Futures": {
-      "price": 14921.54,
-      "change_pct": 0.7735530492334775,
+      "price": 14922.04,
+      "change_pct": 0.7769298304855843,
       "status": "SUCCESS",
-      "last_update": "20260207_0010"
+      "last_update": "20260207_0009"
     },
     "VIX": {
       "price": 19.342,
       "change_pct": -7.232613908872909,
       "status": "SUCCESS",
-      "last_update": "20260207_0010"
+      "last_update": "20260207_0009"
     },
     "Gold": {
-      "price": 4972.148,
-      "change_pct": 1.6903159832293735,
+      "price": 4968.744,
+      "change_pct": 1.6206974128233798,
       "status": "SUCCESS",
-      "last_update": "20260207_0010"
+      "last_update": "20260207_0009"
     },
     "CrudeOil": {
-      "price": 64.091,
-      "change_pct": 1.2656027808500392,
+      "price": 64.025,
+      "change_pct": 1.161320903776275,
       "status": "SUCCESS",
-      "last_update": "20260207_0010"
+      "last_update": "20260207_0009"
     },
     "CN10Y": {
       "yield": 1.8102,
       "status": "SUCCESS",
-      "last_update": "20260207_0010"
+      "last_update": "20260207_0009"
     },
     "US10Y": {
       "price": 4.21,
       "status": "SUCCESS",
-      "last_update": "20260207_0010"
-    },
-    "Northbound": {
-      "value": -6774990000.0,
-      "date": "2024-08-16",
-      "status": "SUCCESS",
-      "last_update": "20260207_0010"
+      "last_update": "20260207_0009"
     },
     "Margin_Debt": {
       "value": 2672187068152.0,
       "change_pct": -0.4447612167194803,
       "status": "SUCCESS",
-      "last_update": "20260207_0010"
+      "last_update": "20260207_0009"
     }
   },
   "hist_data": {
