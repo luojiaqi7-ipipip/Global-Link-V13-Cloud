@@ -38,7 +38,12 @@ class Harvester:
     def _get_spot(self):
         try:
             symbols = [f"sh{c}" if c.startswith(('5', '6')) else f"sz{c}" for c in self.watchlist]
-            r = requests.get(f"http://qt.gtimg.cn/q=s_{','.join(symbols)}", timeout=5)
+            # 添加 Headers 避免被屏蔽
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Referer": "http://finance.sina.com.cn"
+            }
+            r = requests.get(f"http://qt.gtimg.cn/q=s_{','.join(symbols)}", headers=headers, timeout=5)
             if r.status_code == 200:
                 results = []
                 for p in r.text.strip().split(';'):
@@ -62,7 +67,9 @@ class Harvester:
             "Nasdaq": "gb_ndx", 
             "HangSeng": "rt_hkHSI", 
             "A50_Futures": "hf_CHA50CFD", 
-            "VIX": "hf_VX"
+            "VIX": "hf_VX",
+            "Gold": "hf_GC",
+            "CrudeOil": "hf_CL"
         }
         try:
             url = f"http://hq.sinajs.cn/list={','.join(sina_map.values())}"
@@ -84,10 +91,12 @@ class Harvester:
                         change_pct = float(data[2]) if len(data) > 2 and data[2] else None
                     elif sym.startswith("rt_"): 
                         price = float(data[2])
-                        change_pct = float(data[3]) if len(data) > 3 and data[3] else None
+                        # rt_hkHSI: Current=data[2], PrevClose=data[3]
+                        change_pct = (float(data[2]) / float(data[3]) - 1) * 100 if len(data) > 3 and data[3] else None
                     elif sym.startswith("hf_"): 
                         price = float(data[0])
-                        change_pct = float(data[1]) if len(data) > 1 and data[1] else None # Note: hf change pct might be in different index
+                        # hf_: Current=data[0], PrevClose=data[7]
+                        change_pct = (float(data[0]) / float(data[7]) - 1) * 100 if len(data) > 7 and data[7] and float(data[7]) != 0 else None
                     else: 
                         price = float(data[1])
                         change_pct = None
@@ -108,13 +117,16 @@ class Harvester:
                 macro['US10Y'] = wrap({"price": float(us_latest['美国国债收益率10年'])})
         except: pass
 
-        # 3. 北向资金 (新规后净流入已隐藏，此处取成交活跃度或当日资金余额变动)
+        # 3. 北向资金 (由于新规隐藏实时净流入，改用历史接口取最新有效值)
         try:
-            df = ak.stock_hsgt_fund_flow_summary_em()
-            north = df[df['资金方向'] == '北向']
-            # 优先取资金净流入 (含买入+申报未成交)，如果为0则标记为隐藏
-            net_flow = north['资金净流入'].astype(float).sum() * 1e6
-            macro['Northbound'] = wrap({"value": net_flow if net_flow != 0 else None, "note": "Real-time net flow may be hidden by regulation"})
+            df = ak.stock_hsgt_hist_em(symbol="北向资金")
+            if not df.empty:
+                # 过滤掉 NaN 所在的行，取最后一个有效值
+                valid_df = df.dropna(subset=['当日成交净买额'])
+                if not valid_df.empty:
+                    latest = valid_df.iloc[-1]
+                    val = float(latest['当日成交净买额']) * 1e8
+                    macro['Northbound'] = wrap({"value": val, "date": str(latest['日期'])})
         except: pass
 
         # 4. 行业流入 (东财 Push2)
