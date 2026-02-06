@@ -79,13 +79,13 @@ class QuantLab:
         nb = raw_macro.get('Northbound', {})
         if nb.get('status') == 'SUCCESS':
             nb_val = nb.get('value')
-            if nb_val is not None and nb_val != 0:
+            if nb_val is not None:
                 try:
                     m['Northbound_Flow_Billion'] = round(float(nb_val) / 1e8, 2)
-                except (TypeError, ValueError):
-                    m['Northbound_Flow_Billion'] = None
+                except:
+                    m['Northbound_Flow_Billion'] = 0.0
             else:
-                m['Northbound_Flow_Billion'] = None # 严禁 0，若为 0 则显示 None (等待同步)
+                m['Northbound_Flow_Billion'] = None
         else:
             m['Northbound_Flow_Billion'] = None
         
@@ -102,9 +102,11 @@ class QuantLab:
         m['CrudeOil_Price'] = get_val('CrudeOil', 'price')
 
         # 6. 全球指数
-        for key in ['Nasdaq', 'HangSeng', 'A50_Futures']:
+        for key in ['Nasdaq', 'HangSeng']:
             m[f'{key}_Price'] = get_val(key, 'price')
-            m[f'{key}_Change_Pct'] = get_val(key, 'change_pct')
+            
+        # A50 特殊映射
+        m['A50_Futures_Price'] = get_val('A50_Futures', 'price') or get_val('A50', 'price')
             
         return m
 
