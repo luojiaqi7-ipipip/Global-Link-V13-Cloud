@@ -184,12 +184,12 @@ class Harvester:
         if macro.get('A50_Futures', {}).get('status') != 'SUCCESS':
             print(" -> [Backup] 正在通过 AkShare 抓取 A50...")
             try:
-                df_foreign = ak.futures_foreign_index_realtime()
-                if not df_foreign.empty:
-                    a50_row = df_foreign[df_foreign['名称'] == '富时中国A50指数']
+                df_global = ak.index_global_spot_em()
+                if not df_global.empty:
+                    a50_row = df_global[df_global['名称'] == '富时中国A50指数']
                     if not a50_row.empty:
                         price = float(a50_row.iloc[0]['最新价'])
-                        prev_close = float(a50_row.iloc[0]['昨收'])
+                        prev_close = float(a50_row.iloc[0]['昨收价'])
                         change_pct = round((price / prev_close - 1) * 100, 3) if prev_close != 0 else 0
                         macro['A50_Futures'] = wrap_indicator({
                             "price": price,
@@ -317,10 +317,6 @@ class Harvester:
             time.sleep(0.5) # 稍微增加延时，防止被封
             
         return context
-
-if __name__ == "__main__":
-    harvester = Harvester()
-    harvester.harvest_all()
 
 if __name__ == "__main__":
     harvester = Harvester()

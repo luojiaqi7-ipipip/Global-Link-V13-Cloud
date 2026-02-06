@@ -65,9 +65,13 @@ class QuantLab:
         if 'Margin_Debt' in raw_macro:
             m['Margin_Change_Pct'] = raw_macro['Margin_Debt'].get('change_pct')
 
-        # 4. 资金流向 (北向 + 行业热点)
+        # 3. 资金流向 (北向 + 行业热点)
         if 'Northbound' in raw_macro:
-            m['Northbound_Flow_Billion'] = round(raw_macro['Northbound'].get('value', 0) / 1e8, 2)
+            nb_val = raw_macro['Northbound'].get('value')
+            if nb_val is not None:
+                m['Northbound_Flow_Billion'] = round(float(nb_val) / 1e8, 2)
+            else:
+                m['Northbound_Flow_Billion'] = 0.0
         
         if 'Sector_Flow' in raw_macro:
             m['Inflow_Sectors'] = [s['名称'] for s in raw_macro['Sector_Flow'].get('top_inflow', [])]
