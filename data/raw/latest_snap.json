@@ -161,7 +161,7 @@
       "last_update": "20260206_2131"
     },
     "CrudeOil": {
-      "price": 63.150001525878906,
+      "price": 63.15999984741211,
       "status": "SUCCESS",
       "last_update": "20260206_2131"
     },
@@ -172,6 +172,24 @@
     },
     "Northbound": {
       "value": 0.0,
+      "status": "SUCCESS",
+      "last_update": "20260206_2131"
+    },
+    "Sector_Flow": {
+      "top_inflow": [
+        {
+          "名称": "电池",
+          "今日净额": 3164204288.0
+        },
+        {
+          "名称": "化学制品",
+          "今日净额": 3061196032.0
+        },
+        {
+          "名称": "电子元件",
+          "今日净额": 1898080768.0
+        }
+      ],
       "status": "SUCCESS",
       "last_update": "20260206_2131"
     },
@@ -191,11 +209,6 @@
       "last_update": "20260206_2131"
     },
     "Margin_Debt": {
-      "value": null,
-      "status": "FAILED",
-      "last_update": "20260206_2131"
-    },
-    "Sector_Flow": {
       "value": null,
       "status": "FAILED",
       "last_update": "20260206_2131"

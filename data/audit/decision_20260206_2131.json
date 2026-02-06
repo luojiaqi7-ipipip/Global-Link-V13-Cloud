@@ -2,7 +2,7 @@
   "decision": "WAIT",
   "target": null,
   "attack_factor": 0.8,
-  "rationale": "[🚨高警戒-核心数据缺失] 铁血 CIO 审计报告：核心技术指标未触发，所有 ETF 的 Bias 均未低于 -2.5%。宏观层面，CNH、A50_Futures 状态均为 FAILED，触发高警戒模式。此外，CN10Y、Margin_Debt、Sector_Flow 也缺失，数据不全预警。因此，Attack Factor 降至最低 0.8，维持观望。",
+  "rationale": "[🚨高警戒-核心数据缺失] 铁血 CIO 审计报告：核心技术指标未触发，所有标的 Bias 均未低于-2.5%，量比虽高但无意义。宏观层面，CNH、A50_Futures 状态均为 FAILED，CN10Y 也缺失，数据不全预警，流动性、利率、汇率等关键风险无法评估。尽管北向资金流入为正，且行业资金流入电子元件等板块，但无法抵消核心数据缺失带来的风险。黄金和原油价格平稳，VIX 指数处于可接受范围，但不足以支持开火。综合判断，维持 WAIT 策略。",
   "parameters": {
     "stop_loss": -1.5,
     "stop_profit": 3.0,
@@ -43,10 +43,14 @@
     "A_Share_Amplitude": null,
     "Margin_Change_Pct": null,
     "Northbound_Flow_Billion": 0.0,
-    "Inflow_Sectors": null,
-    "Outflow_Sectors": null,
+    "Inflow_Sectors": [
+      "电池",
+      "化学制品",
+      "电子元件"
+    ],
+    "Outflow_Sectors": [],
     "Gold_Price": 4939.10009765625,
-    "CrudeOil_Price": 63.150001525878906,
+    "CrudeOil_Price": 63.15999984741211,
     "Nasdaq_Price": null,
     "HangSeng_Price": 26559.94921875,
     "A50_Futures_Price": null

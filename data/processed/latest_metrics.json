@@ -11,10 +11,14 @@
     "A_Share_Amplitude": null,
     "Margin_Change_Pct": null,
     "Northbound_Flow_Billion": 0.0,
-    "Inflow_Sectors": null,
-    "Outflow_Sectors": null,
+    "Inflow_Sectors": [
+      "电池",
+      "化学制品",
+      "电子元件"
+    ],
+    "Outflow_Sectors": [],
     "Gold_Price": 4939.10009765625,
-    "CrudeOil_Price": 63.150001525878906,
+    "CrudeOil_Price": 63.15999984741211,
     "Nasdaq_Price": null,
     "HangSeng_Price": 26559.94921875,
     "A50_Futures_Price": null
@@ -52,6 +56,10 @@
       "status": "SUCCESS",
       "last_update": "20260206_2131"
     },
+    "Sector_Flow": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2131"
+    },
     "CNH": {
       "status": "FAILED",
       "last_update": "20260206_2131"
@@ -65,10 +73,6 @@
       "last_update": "20260206_2131"
     },
     "Margin_Debt": {
-      "status": "FAILED",
-      "last_update": "20260206_2131"
-    },
-    "Sector_Flow": {
       "status": "FAILED",
       "last_update": "20260206_2131"
     }
