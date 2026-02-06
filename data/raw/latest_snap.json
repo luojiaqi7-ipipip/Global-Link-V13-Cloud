@@ -136,8 +136,8 @@
   ],
   "macro": {
     "CNH": {
-      "price": 6.9308,
-      "change_pct": -0.9299999999999999,
+      "price": 6.9307,
+      "change_pct": -0.9400000000000001,
       "status": "SUCCESS",
       "last_update": "20260207_0110"
     },
@@ -160,20 +160,20 @@
       "last_update": "20260207_0110"
     },
     "VIX": {
-      "price": 19.145,
-      "change_pct": -8.17745803357315,
+      "price": 19.146,
+      "change_pct": -8.172661870503594,
       "status": "SUCCESS",
       "last_update": "20260207_0110"
     },
     "Gold": {
-      "price": 4984.03,
-      "change_pct": 1.933326516003686,
+      "price": 4984.844,
+      "change_pct": 1.9499744350138126,
       "status": "SUCCESS",
       "last_update": "20260207_0110"
     },
     "CrudeOil": {
-      "price": 64.229,
-      "change_pct": 1.4836467056406955,
+      "price": 64.233,
+      "change_pct": 1.489966819402766,
       "status": "SUCCESS",
       "last_update": "20260207_0110"
     },
@@ -196,6 +196,24 @@
     "Southbound": {
       "value": 14859155000.000002,
       "note": "Northbound hidden; using Southbound as proxy",
+      "status": "SUCCESS",
+      "last_update": "20260207_0110"
+    },
+    "Sector_Flow": {
+      "top_inflow": [
+        {
+          "名称": "电池",
+          "今日净额": 3164204288.0
+        },
+        {
+          "名称": "化学制品",
+          "今日净额": 3061196032.0
+        },
+        {
+          "名称": "电子元件",
+          "今日净额": 1898080768.0
+        }
+      ],
       "status": "SUCCESS",
       "last_update": "20260207_0110"
     },

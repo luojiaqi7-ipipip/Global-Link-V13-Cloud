@@ -2,52 +2,34 @@
   "decision": "WAIT",
   "target": null,
   "attack_factor": 0.8,
-  "rationale": "铁血 CIO 审计报告：技术面未触发任何标的。所有 ETF 的乖离率 (Bias) 均未低于 -2.5%，量比 (Vol Ratio) 也均未高于 1.2。鉴于技术面未达标，即使宏观环境整体稳定（CNH 稳定在 6.9308，A50 期货上涨 0.90%，纳斯达克上涨 1.68%），Attack Factor 仍需压制在 0.8，维持观望 (WAIT)。",
+  "rationale": "铁血 CIO 审计报告：技术面未触发任何标的的开火条件（Bias < -2.5% 且 Vol Ratio > 1.2）。尽管宏观环境整体稳定，CNH 贬值至 6.9307，但未达到需要特别关注的程度。VIX 指数为 19.146，处于可控范围。南向资金流入 148.59 亿，表明市场存在一定信心。综合判断，当前不具备开火条件，维持观望。",
   "parameters": {
     "stop_loss": -1.5,
     "stop_profit": 3.0,
     "time_limit": "4天"
   },
-  "top_candidates": [
-    {
-      "code": "159995",
-      "name": "芯片ETF",
-      "bias": -1.64,
-      "vol_ratio": 0.81,
-      "status": "技术面未达标"
-    },
-    {
-      "code": "512660",
-      "name": "军工ETF",
-      "bias": -1.56,
-      "vol_ratio": 0.81,
-      "status": "技术面未达标"
-    },
-    {
-      "code": "513050",
-      "name": "中概互联网ETF易方达",
-      "bias": -1.53,
-      "vol_ratio": 0.85,
-      "status": "技术面未达标"
-    }
-  ],
+  "top_candidates": [],
   "timestamp": "20260207_0110",
   "macro_snapshot": {
-    "CNH_Price": 6.9308,
-    "CNH_Change": -0.9299999999999999,
+    "CNH_Price": 6.9307,
+    "CNH_Change": -0.9400000000000001,
     "Liquidity_Rate": 1.277,
     "Liquidity_Change": null,
     "CN10Y_Yield": 1.8102,
     "US10Y_Yield": 4.21,
-    "VIX": 19.145,
+    "VIX": 19.146,
     "A_Share_Amplitude": 1.534,
     "A_Share_Change": -0.574,
     "Margin_Change_Pct": -0.4447612167194803,
     "Southbound_Flow_Billion": 148.59,
-    "Inflow_Sectors": null,
-    "Outflow_Sectors": null,
-    "Gold_Price": 4984.03,
-    "CrudeOil_Price": 64.229,
+    "Inflow_Sectors": [
+      "电池",
+      "化学制品",
+      "电子元件"
+    ],
+    "Outflow_Sectors": [],
+    "Gold_Price": 4984.844,
+    "CrudeOil_Price": 64.233,
     "Nasdaq_Price": 24961.5841,
     "Nasdaq_Change": 1.68,
     "HangSeng_Price": 26354.34,
