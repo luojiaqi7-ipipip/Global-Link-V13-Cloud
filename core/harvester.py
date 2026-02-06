@@ -140,9 +140,16 @@ class Harvester:
         try:
             m_sh = ak.macro_china_market_margin_sh()
             m_sz = ak.macro_china_market_margin_sz()
-            sh_val = float(m_sh.iloc[-1]['融资融券余额']) if '融资融券余额' in m_sh.columns else float(m_sh.iloc[-1].iloc[-1])
-            sz_val = float(m_sz.iloc[-1]['融资融券余额']) if '融资融券余额' in m_sz.columns else float(m_sz.iloc[-1].iloc[-1])
-            macro['Margin_Debt'] = wrap({"value": sh_val + sz_val})
+            if not m_sh.empty and not m_sz.empty:
+                # 获取最新的两行数据用于计算变动
+                def get_total(df, idx):
+                    col = '融资融券余额' if '融资融券余额' in df.columns else df.columns[-1]
+                    return float(df.iloc[idx][col])
+
+                latest_total = get_total(m_sh, -1) + get_total(m_sz, -1)
+                prev_total = get_total(m_sh, -2) + get_total(m_sz, -2)
+                change_pct = (latest_total / prev_total - 1) * 100 if prev_total != 0 else None
+                macro['Margin_Debt'] = wrap({"value": latest_total, "change_pct": change_pct})
         except: pass
 
         return macro
