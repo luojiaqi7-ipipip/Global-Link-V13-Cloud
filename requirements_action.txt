@@ -2,6 +2,7 @@ akshare
 requests
 pandas
 streamlit
-google-generativeai>=0.8.0
+google-genai
 python-dotenv
 pytz
+yfinance

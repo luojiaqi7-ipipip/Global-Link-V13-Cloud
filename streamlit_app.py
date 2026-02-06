@@ -3,24 +3,108 @@ import json
 import os
 import pandas as pd
 from datetime import datetime
+import time
 
-# 🎨 UI 全面升级：专业量化研判看板
-st.set_page_config(page_title="Global-Link V13 量化研判系统", layout="wide", initial_sidebar_state="expanded")
+# 🎨 UI 全面升级：赛博朋克量化研判看板 - V13 Cloud 汉化精修版
+st.set_page_config(page_title="Global-Link V13 PRO", layout="wide", initial_sidebar_state="expanded")
 
-# 自定义风格：深空灰 + 极光蓝
+# 自定义风格：深空/赛博朋克风格
+# 霓虹蓝: #00f2ff, 霓虹绿: #00ff88, 警戒红: #ff3366, 背景: #0d1117, 金色: #f1e05a
 st.markdown("""
     <style>
-    .main { background-color: #0d1117; color: #c9d1d9; }
-    .stMetric { background-color: #161b22; padding: 15px; border-radius: 10px; border: 1px solid #30363d; }
-    .decision-card {
-        padding: 30px;
-        border-radius: 15px;
-        background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-        border: 1px solid #3b82f6;
-        margin-bottom: 20px;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+    /* 全局字体统一 */
+    html, body, [class*="css"], .stMarkdown {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     }
-    .status-active { color: #10b981; font-weight: bold; }
-    h1, h2, h3 { color: #58a6ff; }
+
+    .main { 
+        background-color: #0d1117; 
+        color: #c9d1d9; 
+    }
+    
+    /* 标题样式 - 移除 Orbitron，改用现代黑体 */
+    .cyber-title {
+        font-weight: 700;
+        color: #00f2ff;
+        text-shadow: 0 0 10px rgba(0, 242, 255, 0.4);
+        margin-bottom: 25px;
+        text-align: center;
+        border-bottom: 2px solid #00f2ff;
+        padding-bottom: 10px;
+        letter-spacing: 2px;
+    }
+
+    /* 决策卡片 - 发光效果 */
+    .decision-card {
+        padding: 25px;
+        border-radius: 15px;
+        background: linear-gradient(145deg, #161b22 0%, #0d1117 100%);
+        border: 2px solid #00f2ff;
+        box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+    .decision-card:hover {
+        box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .decision-buy { border-color: #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
+    .decision-sell { border-color: #ff3366; box-shadow: 0 0 20px rgba(255, 51, 102, 0.2); }
+    .decision-wait { border-color: #8b949e; box-shadow: 0 0 20px rgba(139, 148, 158, 0.1); }
+
+    /* 核心指标数值增强 */
+    .highlight-value {
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    /* 宏观矩阵网格卡片 */
+    .macro-card {
+        background: #161b22;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 3px solid #00f2ff;
+        margin-bottom: 10px;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .macro-label { font-size: 0.85rem; color: #8b949e; margin-bottom: 4px; }
+    .macro-value { font-size: 1.1rem; color: #00f2ff; font-weight: 700; }
+
+    /* 系统日志样式 */
+    .sys-log {
+        background-color: #05070a;
+        color: #00ff88;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: 'Consolas', 'Monaco', monospace;
+        border: 1px solid #30363d;
+        height: 300px;
+        overflow-y: auto;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    /* 侧边栏样式定制 */
+    [data-testid="stSidebar"] {
+        background-color: #0d1117;
+        border-right: 1px solid #30363d;
+    }
+    
+    /* 数据表格美化 */
+    .stDataFrame {
+        border: 1px solid #30363d;
+        border-radius: 8px;
+    }
+    
+    /* 隐藏 Streamlit 默认页脚 */
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
@@ -32,27 +116,6 @@ def load_data(file_path):
         except: return None
     return None
 
-# --- 侧边栏：系统状态与使用指南 ---
-with st.sidebar:
-    st.image("https://img.icons8.com/fluency/96/radar.png", width=80)
-    st.title("V13 审计中枢")
-    st.markdown("---")
-    st.markdown("**系统状态**: <span class='status-active'>● 云端在线</span>", unsafe_allow_html=True)
-    st.markdown(f"**审计大脑**: `Gemini 3 Flash` (Google)")
-    st.markdown(f"**更新频率**: 15:15 收盘终评")
-    st.markdown("---")
-    st.subheader("💡 狙击指南")
-    st.info("""
-    - **乖离率 (Bias)**: 反映超跌程度。<-2.5% 为机会区。
-    - **量比 (Vol Ratio)**: 反映承接力度。>1.2 为确认信号。
-    - **系数 (Factor)**: AI 根据宏观与政策面计算的进攻倍数。
-    """)
-    if st.button("🔄 刷新看板数据"):
-        st.rerun()
-
-# --- 主界面 ---
-st.title("🛡️ GLOBAL-LINK V13 量化研判看板")
-
 # 路径定位
 base_dir = os.path.dirname(os.path.abspath(__file__))
 audit_file = os.path.join(base_dir, 'data', 'audit_result.json')
@@ -61,69 +124,197 @@ metrics_file = os.path.join(base_dir, 'data', 'processed', 'latest_metrics.json'
 audit_data = load_data(audit_file)
 metrics_data = load_data(metrics_file)
 
-timestamp = audit_data.get('timestamp', '正在初始化...') if audit_data else '正在初始化...'
-st.markdown(f"最后同步时间: `{timestamp}` (Asia/Shanghai)")
-st.markdown("---")
+# --- 侧边栏：系统控制中心 ---
+with st.sidebar:
+    st.markdown("<h2 style='text-align: center; color: #00f2ff; font-weight:700;'>系统控制中心</h2>", unsafe_allow_html=True)
+    st.markdown("<div style='text-align:center; margin-bottom:20px;'><img src='https://img.icons8.com/nolan/96/cyber-security.png' width='80'></div>", unsafe_allow_html=True)
+    
+    st.markdown("---")
+    st.subheader("📡 系统健康度")
+    
+    # 数据源状态
+    sources = [
+        {"name": "腾讯数据源 (Tencent)", "status": "在线", "icon": "🟢"},
+        {"name": "雅虎财经 (Yahoo)", "status": "在线", "icon": "🟢"},
+        {"name": "东方财富 (Eastmoney)", "status": "已同步", "icon": "🟢"}
+    ]
+    
+    for s in sources:
+        st.markdown(f"{s['icon']} **{s['name']}**: `{s['status']}`")
+    
+    st.markdown("---")
+    st.subheader("🧠 审计大脑")
+    st.code("模型: Gemini 3 Flash\n潜意识推理: 开启\n逻辑审计: 激活", language="yaml")
+    
+    st.markdown("---")
+    st.subheader("💡 狙击核心指标说明")
+    st.markdown("""
+    - <span style='color:#ff3366'>乖离率 < -2.5%</span>: 极度超跌
+    - <span style='color:#00ff88'>量比 > 1.2</span>: 动能确认
+    - <span style='color:#00f2ff'>进攻系数</span>: 仓位进攻激进程度
+    """, unsafe_allow_html=True)
+    
+    if st.button("🚀 强制重载云端数据"):
+        st.rerun()
+
+# --- 主界面 ---
+st.markdown("<h1 class='cyber-title'>GLOBAL-LINK V13 量化研判系统</h1>", unsafe_allow_html=True)
 
 if audit_data:
-    # 1. 核心审计区域
-    col1, col2 = st.columns([2, 1])
+    # 顶部核心：当前审计指令 & 进攻系数
+    c1, c2 = st.columns([3, 1])
     
-    with col1:
-        decision = audit_data.get('decision', 'WAIT')
-        target = audit_data.get('target', 'N/A')
-        rationale = audit_data.get('rationale', '数据审计中，请稍候。')
-        
-        # 决策色块逻辑
-        decision_color = "#8b949e"
-        if "BUY" in decision.upper(): decision_color = "#238636"
-        elif "SELL" in decision.upper(): decision_color = "#da3633"
-        elif "HOLD" in decision.upper(): decision_color = "#1f6feb"
-        
+    decision = audit_data.get('decision', 'WAIT')
+    target = audit_data.get('target', 'CASH_NEUTRAL')
+    factor = audit_data.get('attack_factor', 0.0)
+    
+    # 决策颜色逻辑
+    card_class = "decision-wait"
+    d_color = "#8b949e"
+    if "BUY" in decision.upper() or "开火" in decision or "买入" in decision:
+        card_class = "decision-buy"
+        d_color = "#00ff88"
+    elif "SELL" in decision.upper() or "撤退" in decision or "卖出" in decision:
+        card_class = "decision-sell"
+        d_color = "#ff3366"
+    
+    # 汉化指令显示
+    display_decision = decision
+    if "WAIT" in decision.upper() or "等待" in decision: display_decision = "⏳ 观望等待"
+    elif "BUY" in decision.upper() or "买入" in decision: display_decision = "⚔️ 执行进攻"
+    elif "SELL" in decision.upper() or "卖出" in decision: display_decision = "🛡️ 执行防御"
+    elif "HOLD" in decision.upper() or "持有" in decision: display_decision = "💎 坚定持有"
+
+    display_target = target
+    if target == "CASH_NEUTRAL": display_target = "🛡️ 现金中性"
+    
+    with c1:
         st.markdown(f"""
-            <div class="decision-card">
-                <h1 style='color: {decision_color}; margin:0;'>{decision}</h1>
-                <h3 style='color: #8b949e; margin-top:5px;'>最优目标: {target}</h3>
-                <p style='font-size: 1.15rem; margin-top: 20px; line-height: 1.6; border-top: 1px solid #30363d; padding-top: 15px;'>
-                    {rationale}
-                </p>
+            <div class="decision-card {card_class}">
+                <div style='display: flex; justify-content: space-between; align-items: center;'>
+                    <div>
+                        <span style='font-size: 1rem; color: #8b949e;'>当前审计指令</span>
+                        <h1 style='color: {d_color}; margin:5px 0 0 0; font-size: 3.8rem;' class='highlight-value'>{display_decision}</h1>
+                    </div>
+                    <div style='text-align: right;'>
+                        <span style='font-size: 1rem; color: #8b949e;'>狙击目标</span>
+                        <h2 style='color: #00f2ff; margin:5px 0 0 0; font-size: 2rem;'>{display_target}</h2>
+                    </div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
-    with col2:
-        st.subheader("📋 铁血执行参数")
-        params = audit_data.get('parameters', {})
-        st.metric("风险调节系数 (Factor)", audit_data.get('attack_factor', 1.0))
-        st.metric("止损红线 (Factor加权)", f"{params.get('stop_loss', 0.0)} %", delta_color="inverse")
-        st.metric("目标止盈位", f"{params.get('stop_profit', 0.0)} %")
-        st.markdown(f"**建议持仓上限**: `{params.get('time_limit', '4天')}`")
+    with c2:
+        st.markdown(f"""
+            <div class="decision-card" style='text-align: center; height: 100%; border-color: #f1e05a; box-shadow: 0 0 20px rgba(241, 224, 90, 0.2);'>
+                <span style='font-size: 1rem; color: #8b949e;'>进攻系数</span>
+                <h1 style='color: #f1e05a; margin:15px 0; font-size: 3.8rem;' class='highlight-value'>{factor}</h1>
+                <div style='font-size: 0.8rem; color: #8b949e;'>风险/倍率系数</div>
+            </div>
+            """, unsafe_allow_html=True)
 
     st.markdown("---")
 
-    # 2. 全景宏观与技术看板
-    st.header("🌐 全景战术看板 (Market Pulse)")
-    m_col, t_col = st.columns([1, 2])
+    # 🌐 全球宏观脉搏 (The Macro Pulse)
+    st.markdown("<h3 style='color: #00f2ff; font-weight:600;'>🌐 全球宏观脉搏</h3>", unsafe_allow_html=True)
     
-    with m_col:
-        st.subheader("📊 宏观指标")
-        # 优先从 metrics_data 读取真实矩阵，否则降级到 audit_data 缓存
-        macro = metrics_data.get('macro_matrix', {}) if metrics_data else audit_data.get('macro_snapshot', {})
-        if macro:
-            for k, v in macro.items():
-                st.markdown(f"**{k}**: `{v}`")
-        else:
-            st.warning("正在同步全量宏观情报...")
+    macro = metrics_data.get('macro_matrix', {}) if metrics_data else audit_data.get('macro_snapshot', {})
+    
+    def format_val(val, unit="", suffix=""):
+        if val is None or val == "N/A" or val == "...":
+            return "N/A"
+        return f"{val}{unit}{suffix}"
+
+    # 对齐 quant_lab.py 的 key
+    macro_items = [
+        {"label": "离岸人民币", "value": f"{macro.get('CNH_Price', 'N/A')} ({macro.get('CNH_Change', 0)}%)"},
+        {"label": "纳斯达克", "value": format_val(macro.get('Nasdaq_Price'))},
+        {"label": "恒生指数", "value": format_val(macro.get('HangSeng_Price'))},
+        {"label": "A50 期货", "value": format_val(macro.get('A50_Futures_Price'))},
+        {"label": "VIX 恐慌指数", "value": format_val(macro.get('VIX'))},
+        {"label": "中债10Y收益率", "value": format_val(macro.get('CN10Y_Yield'), unit="%")},
+        {"label": "美债10Y收益率", "value": format_val(macro.get('US10Y_Yield'), unit="%")},
+        {"label": "纽约黄金", "value": format_val(macro.get('Gold_Price'))},
+        {"label": "原油价格", "value": format_val(macro.get('CrudeOil_Price'))},
+        {"label": "两融变动 %", "value": format_val(macro.get('Margin_Change_Pct'), unit="%")},
+        {"label": "北向资金 (亿)", "value": format_val(macro.get('Northbound_Flow_Billion'))},
+        {"label": "流入行业", "value": ", ".join(macro.get('Inflow_Sectors', [])) if isinstance(macro.get('Inflow_Sectors'), list) and macro.get('Inflow_Sectors') else "N/A"},
+    ]
+    
+    # 每行 6 个指标，共两行
+    cols = st.columns(6)
+    for i, item in enumerate(macro_items):
+        with cols[i % 6]:
+            st.markdown(f"""
+                <div class="macro-card">
+                    <div class="macro-label">{item['label']}</div>
+                    <div class="macro-value">{item['value']}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # ⚔️ 狙击监测池 (Target Scanner) 与 AI 审计逻辑
+    t_col, l_col = st.columns([2, 1])
 
     with t_col:
-        st.subheader("⚔️ ETF 监测池实时态势")
-        # 优先展示全量矩阵
+        st.markdown("<h3 style='color: #00f2ff; font-weight:600;'>⚔️ 狙击监测池</h3>", unsafe_allow_html=True)
         technical = metrics_data.get('technical_matrix', []) if metrics_data else []
         if technical:
             df = pd.DataFrame(technical)
-            st.dataframe(df, use_container_width=True, hide_index=True)
+            # 列名汉化
+            df = df.rename(columns={
+                "code": "代码", 
+                "name": "名称", 
+                "price": "价格", 
+                "bias": "乖离率 %", 
+                "vol_ratio": "量比"
+            })
+            
+            # 高亮逻辑
+            def highlight_cells(s):
+                styles = ['' for _ in s]
+                if s.name == '乖离率 %':
+                    for i, v in enumerate(s):
+                        try:
+                            if float(v) < -2.5: styles[i] = 'background-color: rgba(255, 51, 102, 0.2); color: #ff3366; font-weight: bold;'
+                        except: pass
+                elif s.name == '量比':
+                    for i, v in enumerate(s):
+                        try:
+                            if float(v) > 1.2: styles[i] = 'background-color: rgba(0, 255, 136, 0.2); color: #00ff88; font-weight: bold;'
+                        except: pass
+                return styles
+
+            st.dataframe(
+                df.style.apply(highlight_cells),
+                use_container_width=True,
+                hide_index=True
+            )
         else:
-            st.info("当前监测池内无触发预警的标的。")
+            st.info("监测池休眠中。等待市场脉搏触发...")
+
+    with l_col:
+        st.markdown("<h3 style='color: #00f2ff; font-weight:600;'>📜 AI 审计报告 (CIO 执行综述)</h3>", unsafe_allow_html=True)
+        rationale = audit_data.get('rationale', "正在连接神经链路...")
+        
+        # 汉化系统日志
+        log_content = f"""
+[系统初始化完成...]
+[AI 核心已连接: GEMINI-3-FLASH]
+[正在审计数据集]
+---------------------------------
+{rationale}
+---------------------------------
+[审计任务执行完毕]
+[系统状态: 待命]
+        """
+        st.markdown(f"<div class='sys-log'>{log_content.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
+
+    # 底部页脚
+    st.markdown("---")
+    st.markdown(f"<p style='text-align: center; color: #8b949e; font-size: 0.8rem;'>V13-Cloud 云端引擎 | 最后同步: {audit_data.get('timestamp', 'N/A')} | 亚洲/上海</p>", unsafe_allow_html=True)
 
 else:
-    st.error("❌ 无法加载审计结果 JSON。可能是云端 Action 尚未完成首轮同步。")
-    st.info("请检查 GitHub Actions 的运行状态。")
+    st.error("❌ 致命错误: 任务数据缺失")
+    st.info("请检查 GitHub Actions 运行状态及 JSON 完整性。")

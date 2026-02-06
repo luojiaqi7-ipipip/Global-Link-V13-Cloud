@@ -42,5 +42,29 @@ jobs:
           git config --global user.name "V13-Archiver"
           git config --global user.email "archive@v13.cloud"
           git add data/raw/*.json data/processed/*.json data/audit/*.json data/audit_result.json
-          git commit -m "V13 Persistence: [$(date +'%Y-%m-%d %H:%M')]" || exit 0
-          git push origin master --force
+          git status
+          git commit -m "V13 Persistence: [$(date +'%Y-%m-%d %H:%M')]" || echo "No changes to commit"
+          
+          # 优雅推送：先拉取再推送，避免 --force 破坏历史
+          git pull --rebase origin master
+          git push origin master
+
+      - name: Generate Job Summary
+        if: always()
+        run: |
+          echo "## 🚀 V13 Quantum Audit Summary" >> $GITHUB_STEP_SUMMARY
+          if [ -f data/audit_result.json ]; then
+            DECISION=$(jq -r '.decision' data/audit_result.json)
+            TARGET=$(jq -r '.target' data/audit_result.json)
+            FACTOR=$(jq -r '.attack_factor' data/audit_result.json)
+            RATIONALE=$(jq -r '.rationale' data/audit_result.json)
+            echo "### ⚖️ Decision: **$DECISION**" >> $GITHUB_STEP_SUMMARY
+            echo "- **Target**: $TARGET" >> $GITHUB_STEP_SUMMARY
+            echo "- **Attack Factor**: $FACTOR" >> $GITHUB_STEP_SUMMARY
+            echo "- **Rationale**: $RATIONALE" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### 📊 Top Candidates" >> $GITHUB_STEP_SUMMARY
+            jq -r '.top_candidates[] | "- \(.name) (\(.code)): Bias \(.bias)% | Status: \(.status)"' data/audit_result.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Audit failed or no data generated." >> $GITHUB_STEP_SUMMARY
+          fi
