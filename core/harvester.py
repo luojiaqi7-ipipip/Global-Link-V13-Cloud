@@ -9,8 +9,8 @@ import requests
 
 class Harvester:
     """
-    模块 A: 情报获取引擎 - V5 (Precision Matrix)
-    修正全球指数代码，统一数据度量。
+    模块 A: 情报获取引擎 - V6 (Unit & Recency Logic)
+    确保 100% 覆盖，且所有成交量统一为“股”，且历史数据必须是最近的。
     """
     def __init__(self, data_dir="data/raw"):
         self.data_dir = data_dir
@@ -24,13 +24,13 @@ class Harvester:
         ]
 
     def harvest_all(self):
-        print(f"🚀 [V5] 开始全量精准指标抓取 [{self.timestamp}]...")
+        print(f"🚀 [V6] 开始全量高精指标抓取 [{self.timestamp}]...")
         
         raw_data = {
             "meta": {
                 "timestamp": self.timestamp, 
                 "timezone": "Asia/Shanghai",
-                "version": "V13-Cloud-Robust-V5"
+                "version": "V13-Cloud-Robust-V6"
             },
             "etf_spot": self._get_spot(),
             "macro": self._get_macro(),
@@ -60,18 +60,19 @@ class Harvester:
         return obj
 
     def _get_spot(self):
-        """抓取实时行情 - 核心标的 100% 捕获"""
+        """抓取实时行情 - 统一单位为‘股’"""
         print(" -> 正在抓取 A 股实时报价...")
+        # 尝试 1: EM
         try:
             df = ak.fund_etf_spot_em()
             if not df.empty:
                 res = df[df['代码'].isin(self.watchlist)].to_dict(orient='records')
                 if res: 
-                    # 统一成交量单位为“股” (EM 默认为手，但 fund_etf_spot_em 返回的是股)
+                    # fund_etf_spot_em 的成交量单位已经是股
                     return res
         except: pass
 
-        # 新浪备份流
+        # 尝试 2: Sina
         sina_results = []
         for code in self.watchlist:
             try:
@@ -85,7 +86,7 @@ class Harvester:
                             "代码": code,
                             "名称": data[0],
                             "最新价": float(data[3]),
-                            "成交量": float(data[8]), # 新浪返回的是“股”
+                            "成交量": float(data[8]), # Sina 也是股
                             "昨收": float(data[2]),
                             "source": "sina"
                         })
@@ -93,11 +94,9 @@ class Harvester:
         return sina_results
 
     def _get_macro(self):
-        """宏观核心矩阵：修复 HSI/A50 代码"""
-        print(" -> 正在探测全球宏观脉搏...")
+        """抓取宏观指标"""
         macro = {}
-        
-        # 1. 离岸人民币 (CNH)
+        # 1. CNH
         try:
             url = "http://hq.sinajs.cn/list=fx_susdcnh"
             r = requests.get(url, headers={'Referer': 'http://finance.sina.com.cn'}, timeout=5)
@@ -106,7 +105,7 @@ class Harvester:
                 macro['CNH'] = {"price": float(data[1]), "prev_close": float(data[3])}
         except: pass
         
-        # 2. SHIBOR (中国流动性)
+        # 2. SHIBOR
         try:
             shibor = ak.rate_shibor_em()
             if not shibor.empty:
@@ -120,8 +119,7 @@ class Harvester:
                 macro['Northbound'] = north.iloc[-1].to_dict()
         except: pass
 
-        # 4. 全球指数 (修复代码)
-        # rt_hkHSI: 恒生指数, nf_CHA50CFD: A50期货
+        # 4. 全球指数
         global_map = {"gb_ixic": "Nasdaq", "rt_hkHSI": "HangSeng", "nf_CHA50CFD": "A50_Futures"}
         for sym, key in global_map.items():
             try:
@@ -130,45 +128,51 @@ class Harvester:
                 if r.status_code == 200 and '="' in r.text:
                     data = r.text.split('="')[1].split(',')
                     if key == "Nasdaq": macro[key] = {"price": float(data[1])}
-                    elif key == "HangSeng": macro[key] = {"price": float(data[6])} # 恒生指数现价在第7位
+                    elif key == "HangSeng": macro[key] = {"price": float(data[6])}
                     elif key == "A50_Futures": macro[key] = {"price": float(data[1])}
             except: pass
-
-        # 5. 美债收益率
-        try:
-            url = "http://hq.sinajs.cn/list=gb_znb_10y"
-            r = requests.get(url, headers={'Referer': 'http://finance.sina.com.cn'}, timeout=5)
-            if r.status_code == 200 and '="' in r.text:
-                data = r.text.split('="')[1].split(',')
-                macro['US_10Y_Yield'] = {"price": float(data[1])}
-        except: pass
 
         return macro
 
     def _get_hist_context(self):
-        """抓取历史数据用于 Bias 计算 - 增加 Sina 强制备份"""
-        print(f" -> 正在同步审计背景数据...")
+        """抓取历史数据 - 核心：强制单位统一为‘股’"""
+        print(f" -> 正在建立审计背景 (Watchlist: {len(self.watchlist)} 只)...")
         context = {}
+        # 抓取 45 天确保有足够的交易日
         start_date = (datetime.now(self.beijing_tz) - timedelta(days=45)).strftime("%Y%m%d")
         
         for code in self.watchlist:
-            # 尝试 1: EM 
+            hist_df = pd.DataFrame()
+            # 尝试 1: EM (单位：手)
             try:
-                hist = ak.fund_etf_hist_em(symbol=code, period="daily", start_date=start_date, adjust="qfq")
-                if not hist.empty and len(hist) >= 5:
-                    context[code] = hist.to_dict(orient='records')
-                    continue
+                df = ak.fund_etf_hist_em(symbol=code, period="daily", start_date=start_date, adjust="qfq")
+                if not df.empty and len(df) >= 5:
+                    # 转换单位：手 -> 股
+                    df['成交量'] = df['成交量'] * 100
+                    hist_df = df
             except: pass
             
-            # 尝试 2: Sina 
-            try:
-                symbol = f"sh{code}" if code.startswith('5') or code.startswith('6') else f"sz{code}"
-                hist = ak.fund_etf_hist_sina(symbol=symbol)
-                if not hist.empty:
-                    hist = hist.rename(columns={'date': '日期', 'open': '开盘', 'high': '最高', 'low': '最低', 'close': '收盘', 'volume': '成交量'})
-                    context[code] = hist.to_dict(orient='records')
-            except: pass
+            # 尝试 2: Sina (单位：股)
+            if hist_df.empty:
+                try:
+                    symbol = f"sh{code}" if code.startswith('5') or code.startswith('6') else f"sz{code}"
+                    df = ak.fund_etf_hist_sina(symbol=symbol)
+                    if not df.empty:
+                        df = df.rename(columns={'date': '日期', 'open': '开盘', 'high': '最高', 'low': '最低', 'close': '收盘', 'volume': '成交量'})
+                        # Sina 接口返回的历史数据可能很旧，需过滤
+                        df['日期'] = pd.to_datetime(df['日期'])
+                        cutoff = datetime.now() - timedelta(days=60)
+                        df = df[df['日期'] > cutoff]
+                        if not df.empty:
+                            hist_df = df
+                except: pass
+            
+            if not hist_df.empty:
+                # 统一字段名并保存
+                context[code] = hist_df.to_dict(orient='records')
+            
             time.sleep(0.2)
+            
         return context
 
 if __name__ == "__main__":

@@ -4,8 +4,8 @@ import pandas as pd
 
 class QuantLab:
     """
-    模块 B: 逻辑计算引擎 - V5 (Unit Normalization)
-    负责统一成交量度量衡，确保量比计算准确。
+    模块 B: 逻辑计算引擎 - V6 (Consistent Units)
+    假设原始数据成交量单位已由 Harvester 统一为“股”。
     """
     def __init__(self, raw_file="data/raw/latest_snap.json", out_dir="data/processed"):
         self.raw_file = raw_file
@@ -56,14 +56,14 @@ class QuantLab:
             m['Northbound_Flow_Billion'] = round(raw_macro['Northbound'].get('value', 0) / 1e8, 2)
         
         # 4. 全球指数
-        for key in ['Nasdaq', 'HangSeng', 'A50_Futures', 'US_10Y_Yield']:
+        for key in ['Nasdaq', 'HangSeng', 'A50_Futures']:\
             if key in raw_macro:
                 m[f'{key}_Price'] = raw_macro[key].get('price', 'N/A')
             
         return m
 
     def _calc_tech(self, spot, hist_map):
-        """统一单位：所有成交量转换为‘股’"""
+        """单位已在 Harvester 统一为股"""
         matrix = []
         if not spot: return []
             
@@ -76,20 +76,16 @@ class QuantLab:
                 if len(df_hist) < 5: continue
                 
                 # 价格计算
-                closes = df_hist['收盘'].tolist() if '收盘' in df_hist else df_hist['收盘价'].tolist()
+                closes = df_hist['收盘'].tolist()
                 current_price = float(s.get('最新价', 0))
                 ma5 = sum(closes[-5:]) / 5
                 bias = ((current_price - ma5) / ma5) * 100
                 
-                # 成交量单位归一化：
-                # 1. 历史数据 (EM hist) 通常为“手”
-                # 2. 实时行情 (EM spot 或 Sina) 通常为“股”
-                # 我们将历史成交量乘 100 统一到“股”
-                vols_hist = (df_hist['成交量'] * 100).tolist()
-                current_vol_shares = float(s.get('成交量', 0))
-                
-                vol_avg_shares = sum(vols_hist[-5:]) / 5
-                vol_ratio = current_vol_shares / vol_avg_shares if vol_avg_shares > 0 else 0
+                # 成交量计算 (单位均为股)
+                vols_hist = df_hist['成交量'].tolist()
+                current_vol = float(s.get('成交量', 0))
+                vol_avg = sum(vols_hist[-5:]) / 5
+                vol_ratio = current_vol / vol_avg if vol_avg > 0 else 0
                 
                 matrix.append({
                     "code": code,
