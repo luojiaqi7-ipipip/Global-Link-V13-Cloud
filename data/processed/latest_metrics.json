@@ -1,7 +1,7 @@
 {
   "timestamp": "20260206_2142",
   "macro_matrix": {
-    "CNH_Price": 6.9323,
+    "CNH_Price": 6.9325,
     "CNH_Change": null,
     "Liquidity_Rate": null,
     "Liquidity_Change": null,
@@ -13,12 +13,12 @@
     "Northbound_Flow_Billion": null,
     "Inflow_Sectors": null,
     "Outflow_Sectors": null,
-    "Gold_Price": 4961.0,
-    "CrudeOil_Price": 62.826,
+    "Gold_Price": 4957.815,
+    "CrudeOil_Price": 62.801,
     "Nasdaq_Price": 22540.586,
     "HangSeng_Price": 26559.951,
-    "A50_Price": 14881.33,
-    "A50_Futures_Price": 14881.33
+    "A50_Price": 14882.18,
+    "A50_Futures_Price": 14882.18
   },
   "macro_health": {
     "CNH": {
@@ -42,6 +42,10 @@
       "last_update": "20260206_2142"
     },
     "CrudeOil": {
+      "status": "SUCCESS",
+      "last_update": "20260206_2142"
+    },
+    "Northbound": {
       "status": "SUCCESS",
       "last_update": "20260206_2142"
     }
@@ -86,30 +90,6 @@
       "bias": -1.19,
       "vol_ratio": 89.21,
       "real_time_ma5": 1.517
-    },
-    {
-      "code": "159915",
-      "name": "创业板ETF易方达",
-      "price": 3.229,
-      "bias": -0.99,
-      "vol_ratio": 81.44,
-      "real_time_ma5": 3.261
-    },
-    {
-      "code": "510500",
-      "name": "中证500ETF",
-      "price": 8.213,
-      "bias": -0.8,
-      "vol_ratio": 78.22,
-      "real_time_ma5": 8.279
-    },
-    {
-      "code": "510300",
-      "name": "沪深300ETF华泰柏瑞",
-      "price": 4.649,
-      "bias": -0.44,
-      "vol_ratio": 67.08,
-      "real_time_ma5": 4.67
     }
   ]
 }

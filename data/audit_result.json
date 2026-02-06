@@ -2,7 +2,7 @@
   "decision": "WAIT",
   "target": null,
   "attack_factor": 0.8,
-  "rationale": "铁血 CIO 审计报告：技术面未触发开火条件。虽然多个 ETF 的 Vol Ratio 较高，但 Bias 均未低于 -2.5%。鉴于技术面核心指标未达标，宏观环境数据完整，但无明显利好，Attack Factor 压制在 0.8，维持 WAIT 决策。",
+  "rationale": "铁血 CIO 审计报告：技术面未触发，所有标的的乖离率（Bias）均未低于-2.5%。宏观层面，虽然 CNH 汇率稳定，但流动性数据缺失，且北向资金流入为0，无法形成有效支撑。因此，维持观望（WAIT）策略，Attack Factor 降至最低 0.8。",
   "parameters": {
     "stop_loss": -1.5,
     "stop_profit": 3.0,
@@ -14,19 +14,40 @@
       "name": "芯片ETF",
       "bias": -1.64,
       "vol_ratio": 80.92,
-      "status": "Potential"
+      "status": "NOT_TRIGGERED"
     },
     {
       "code": "513050",
       "name": "中概互联网ETF易方达",
       "bias": -1.53,
       "vol_ratio": 85.25,
-      "status": "Potential"
+      "status": "NOT_TRIGGERED"
+    },
+    {
+      "code": "512760",
+      "name": "芯片ETF",
+      "bias": -1.47,
+      "vol_ratio": 76.05,
+      "status": "NOT_TRIGGERED"
+    },
+    {
+      "code": "512480",
+      "name": "半导体ETF",
+      "bias": -1.38,
+      "vol_ratio": 79.62,
+      "status": "NOT_TRIGGERED"
+    },
+    {
+      "code": "588000",
+      "name": "科创50ETF",
+      "bias": -1.19,
+      "vol_ratio": 89.21,
+      "status": "NOT_TRIGGERED"
     }
   ],
   "timestamp": "20260206_2142",
   "macro_snapshot": {
-    "CNH_Price": 6.9323,
+    "CNH_Price": 6.9325,
     "CNH_Change": null,
     "Liquidity_Rate": null,
     "Liquidity_Change": null,
@@ -38,11 +59,11 @@
     "Northbound_Flow_Billion": null,
     "Inflow_Sectors": null,
     "Outflow_Sectors": null,
-    "Gold_Price": 4961.0,
-    "CrudeOil_Price": 62.826,
+    "Gold_Price": 4957.815,
+    "CrudeOil_Price": 62.801,
     "Nasdaq_Price": 22540.586,
     "HangSeng_Price": 26559.951,
-    "A50_Price": 14881.33,
-    "A50_Futures_Price": 14881.33
+    "A50_Price": 14882.18,
+    "A50_Futures_Price": 14882.18
   }
 }
