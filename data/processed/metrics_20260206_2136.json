@@ -1,19 +1,19 @@
 {
   "timestamp": "20260206_2136",
   "macro_matrix": {
-    "CNH_Price": 6.934070110321045,
+    "CNH_Price": 6.933680057525635,
     "CNH_Change": null,
     "Liquidity_Rate": null,
     "Liquidity_Change": null,
     "CN10Y_Yield": null,
-    "US10Y_Yield": 4.203999996185303,
-    "VIX": 20.1200008392334,
+    "US10Y_Yield": 4.206000328063965,
+    "VIX": 20.09000015258789,
     "A_Share_Amplitude": null,
     "Margin_Change_Pct": null,
     "Northbound_Flow_Billion": 0.0,
     "Inflow_Sectors": null,
     "Outflow_Sectors": null,
-    "Gold_Price": 4943.39990234375,
+    "Gold_Price": 4936.7998046875,
     "CrudeOil_Price": 63.20000076293945,
     "Nasdaq_Price": 22540.58984375,
     "HangSeng_Price": 26559.94921875,
@@ -54,54 +54,5 @@
       "last_update": "20260206_2136"
     }
   },
-  "technical_matrix": [
-    {
-      "code": "159995",
-      "name": "芯片ETF",
-      "price": 1.85,
-      "bias": -1.64,
-      "vol_ratio": 80.92,
-      "real_time_ma5": 1.881
-    },
-    {
-      "code": "513050",
-      "name": "中概互联网ETF易方达",
-      "price": 1.404,
-      "bias": -1.53,
-      "vol_ratio": 85.25,
-      "real_time_ma5": 1.426
-    },
-    {
-      "code": "512760",
-      "name": "芯片ETF",
-      "price": 1.73,
-      "bias": -1.47,
-      "vol_ratio": 76.05,
-      "real_time_ma5": 1.756
-    },
-    {
-      "code": "512480",
-      "name": "半导体ETF",
-      "price": 1.577,
-      "bias": -1.38,
-      "vol_ratio": 79.62,
-      "real_time_ma5": 1.599
-    },
-    {
-      "code": "588000",
-      "name": "科创50ETF",
-      "price": 1.499,
-      "bias": -1.19,
-      "vol_ratio": 89.21,
-      "real_time_ma5": 1.517
-    },
-    {
-      "code": "159915",
-      "name": "创业板ETF易方达",
-      "price": 3.229,
-      "bias": -0.99,
-      "vol_ratio": 81.44,
-      "real_time_ma5": 3.261
-    }
-  ]
+  "technical_matrix": []
 }

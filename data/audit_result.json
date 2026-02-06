@@ -1,44 +1,29 @@
 {
   "decision": "WAIT",
-  "target": null,
+  "target": "N/A",
   "attack_factor": 0.8,
-  "rationale": "铁血 CIO 审计报告：技术面未触发开火条件。虽然量比(Vol Ratio)普遍较高，但乖离率(Bias)均未低于-2.5%。鉴于技术面核心指标未达标，Attack Factor 强降至 0.8。宏观层面，虽 CNH 稳定，VIX 处于可控范围，但缺乏足够的技术面支撑，维持 WAIT 策略。",
+  "rationale": "铁血 CIO 审计报告：鉴于 technical_matrix 为空，缺乏核心技术指标支撑，Attack Factor 强制降至 0.8。当前不具备任何“开火”基础，维持观望。",
   "parameters": {
     "stop_loss": -1.5,
     "stop_profit": 3.0,
     "time_limit": "4天"
   },
-  "top_candidates": [
-    {
-      "code": "159995",
-      "name": "芯片ETF",
-      "bias": -1.64,
-      "vol_ratio": 80.92,
-      "status": "Potential"
-    },
-    {
-      "code": "513050",
-      "name": "中概互联网ETF易方达",
-      "bias": -1.53,
-      "vol_ratio": 85.25,
-      "status": "Potential"
-    }
-  ],
+  "top_candidates": [],
   "timestamp": "20260206_2136",
   "macro_snapshot": {
-    "CNH_Price": 6.934070110321045,
+    "CNH_Price": 6.933680057525635,
     "CNH_Change": null,
     "Liquidity_Rate": null,
     "Liquidity_Change": null,
     "CN10Y_Yield": null,
-    "US10Y_Yield": 4.203999996185303,
-    "VIX": 20.1200008392334,
+    "US10Y_Yield": 4.206000328063965,
+    "VIX": 20.09000015258789,
     "A_Share_Amplitude": null,
     "Margin_Change_Pct": null,
     "Northbound_Flow_Billion": 0.0,
     "Inflow_Sectors": null,
     "Outflow_Sectors": null,
-    "Gold_Price": 4943.39990234375,
+    "Gold_Price": 4936.7998046875,
     "CrudeOil_Price": 63.20000076293945,
     "Nasdaq_Price": 22540.58984375,
     "HangSeng_Price": 26559.94921875,
