@@ -49,7 +49,7 @@ class QuantLab:
             return default
 
         # 1. 核心汇率 (人民币情绪)
-        m['CNH_Price'] = get_val('CNH', 'price')
+        m['CNH_Price'] = get_val('CNH', 'price') or get_val('CNH', 'value')
         m['CNH_Change'] = get_val('CNH', 'change_pct')
         
         # 2. 流动性深度 (国内 SHIBOR + 中美利差背景)
@@ -102,7 +102,7 @@ class QuantLab:
         m['CrudeOil_Price'] = get_val('CrudeOil', 'price')
 
         # 6. 全球指数
-        for key in ['Nasdaq', 'HangSeng']:
+        for key in ['Nasdaq', 'HangSeng', 'A50']:
             m[f'{key}_Price'] = get_val(key, 'price')
             
         # A50 特殊映射

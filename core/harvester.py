@@ -9,24 +9,17 @@ import requests
 import yfinance as yf
 
 class Harvester:
-    """
-    模块 A: 情报获取引擎 - V13 Cloud (Ultra Robust)
-    """
     def __init__(self, data_dir="data/raw"):
         self.data_dir = data_dir
         os.makedirs(self.data_dir, exist_ok=True)
         self.beijing_tz = pytz.timezone('Asia/Shanghai')
         self.timestamp = datetime.now(self.beijing_tz).strftime("%Y%m%d_%H%M")
-        self.watchlist = [
-            "159995", "513050", "512760", "512480", "588000",
-            "159915", "510500", "510300", "512660", "512880",
-            "510880", "515080", "512010", "512800", "512690", "159928"
-        ]
+        self.watchlist = ["159995", "513050", "512760", "512480", "588000", "159915", "510500", "510300", "512660", "512880", "510880", "515080", "512010", "512800", "512690", "159928"]
 
     def harvest_all(self):
-        print(f"🚀 [V13] 开始全量数据抓取 [{self.timestamp}]...")
+        print(f"🚀 [V13] 开始数据抓取 [{self.timestamp}]...")
         raw_data = {
-            "meta": {"timestamp": self.timestamp, "timezone": "Asia/Shanghai", "version": "V13-Cloud-Ultra-Robust"},
+            "meta": {"timestamp": self.timestamp, "timezone": "Asia/Shanghai", "version": "V13-Final"},
             "etf_spot": self._get_spot(),
             "macro": self._get_macro(),
             "hist_data": self._get_hist_context()
@@ -39,7 +32,6 @@ class Harvester:
     def _serialize_clean(self, obj):
         if isinstance(obj, dict): return {k: self._serialize_clean(v) for k, v in obj.items()}
         elif isinstance(obj, list): return [self._serialize_clean(i) for i in obj]
-        elif isinstance(obj, (datetime, date)): return obj.isoformat()
         elif pd.isna(obj): return None
         return obj
 
@@ -56,16 +48,17 @@ class Harvester:
         macro = {}
         def wrap(data): return {**(data if isinstance(data, dict) else {"value": data}), "status": "SUCCESS" if data is not None else "FAILED", "last_update": self.timestamp}
 
-        # 1. 全球宏观 (Yahoo Finance - 云端最稳)
+        # 1. 全球宏观 (Yahoo Finance)
         print(" -> 抓取 Yahoo 宏观...")
-        try:
-            tk = {"Nasdaq": "^IXIC", "HangSeng": "^HSI", "VIX": "^VIX", "US10Y": "^TNX", "Gold": "GC=F", "CrudeOil": "CL=F", "A50": "XIN9.F"}
-            df = yf.download(list(tk.values()), period="2d", interval="1d", progress=False)['Close']
-            for k, t in tk.items():
-                if t in df: macro[k] = wrap({"price": float(df[t].iloc[-1])})
-        except: pass
+        tk = {"Nasdaq": "^IXIC", "HangSeng": "^HSI", "VIX": "^VIX", "US10Y": "^TNX", "Gold": "GC=F", "CrudeOil": "CL=F", "A50": "XIN9.F", "CNH": "USDCNH=X"}
+        for k, t in tk.items():
+            try:
+                data = yf.Ticker(t).history(period="2d")
+                if not data.empty:
+                    macro[k] = wrap({"price": float(data['Close'].iloc[-1])})
+            except: pass
 
-        # 2. 北向资金 (Hybrid)
+        # 2. 北向资金
         print(" -> 抓取北向资金...")
         try:
             r = requests.get("https://push2.eastmoney.com/api/qt/kamt/get?fields1=f1&fields2=f51,f52", timeout=5).json().get('data', {})
@@ -77,16 +70,15 @@ class Harvester:
             macro['Northbound'] = wrap({"value": val})
         except: pass
 
-        # 3. 行业流入 (Direct Push2)
+        # 3. 行业流入
         print(" -> 抓取行业流入...")
         try:
-            headers = {"Referer": "https://data.eastmoney.com/zjlx/dpzjlx.html", "User-Agent": "Mozilla/5.0"}
-            r = requests.get("https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10&po=1&np=1&fltt=2&invt=2&fid=f62&fs=m:90+t:2+f:!50&fields=f14,f62", headers=headers, timeout=5).json()
+            r = requests.get("https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10&po=1&np=1&fltt=2&invt=2&fid=f62&fs=m:90+t:2+f:!50&fields=f14,f62", timeout=5).json()
             diff = r.get('data', {}).get('diff', [])
             if diff: macro['Sector_Flow'] = wrap({"top_inflow": [{"名称": d['f14'], "今日净额": d['f62']} for d in diff[:3]]})
         except: pass
 
-        # 4. 两融 & 国债 (AkShare)
+        # 4. 两融 & 国债
         print(" -> 抓取 AkShare 指标...")
         try:
             m = ak.stock_margin_sh()
@@ -97,8 +89,6 @@ class Harvester:
             if not y.empty: macro['CN10Y'] = wrap({"yield": float(y['10年'].iloc[-1])})
         except: pass
 
-        for k in ["CNH", "Nasdaq", "HangSeng", "A50_Futures", "VIX", "US10Y", "Gold", "CrudeOil", "Northbound", "CN10Y", "Margin_Debt", "Sector_Flow"]:
-            if k not in macro: macro[k] = wrap(None)
         return macro
 
     def _get_hist_context(self):
