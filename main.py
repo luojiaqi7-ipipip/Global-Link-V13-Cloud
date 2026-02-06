@@ -12,6 +12,13 @@ def main():
     
     # 2. Perform AI Audit
     audit_engine = AuditEngine()
+    
+    # Debug: List available models
+    import google.generativeai as genai
+    print("Available Models:")
+    for m in genai.list_models():
+        print(f" - {m.name}")
+    
     result = audit_engine.perform_audit(market_data)
     
     # 3. Save Results
