@@ -1,5 +1,5 @@
 {
-  "timestamp": "20260206_1859",
+  "timestamp": "20260206_1858",
   "macro_matrix": {
     "CNH_Price": 0,
     "CNH_Change": 0,
@@ -13,8 +13,8 @@
     "Northbound_Flow_Billion": 0.0,
     "Inflow_Sectors": [],
     "Outflow_Sectors": [],
-    "Gold_Price": 4889.7998046875,
-    "CrudeOil_Price": 63.33000183105469,
+    "Gold_Price": 4892.39990234375,
+    "CrudeOil_Price": 63.34000015258789,
     "Nasdaq_Price": 22540.58984375,
     "Nasdaq_Change_Pct": -1.589,
     "HangSeng_Price": 26559.94921875,
@@ -24,101 +24,93 @@
   "macro_health": {
     "CNH": {
       "status": "FAILED",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "Nasdaq": {
       "status": "SUCCESS",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "HangSeng": {
       "status": "SUCCESS",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "A50_Futures": {
       "status": "FAILED",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "VIX": {
       "status": "SUCCESS",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "US10Y": {
       "status": "SUCCESS",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "Gold": {
       "status": "SUCCESS",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "CrudeOil": {
       "status": "SUCCESS",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "SHIBOR": {
       "status": "FAILED",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "Northbound": {
       "status": "FAILED",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "CSI300_Vol": {
       "status": "FAILED",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "CN10Y": {
       "status": "SUCCESS",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "Margin_Debt": {
       "status": "FAILED",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     },
     "Sector_Flow": {
       "status": "FAILED",
-      "last_update": "20260206_1859"
+      "last_update": "20260206_1858"
     }
   },
   "technical_matrix": [
     {
-      "code": "513050",
-      "name": "中概互联网ETF易方达",
-      "price": 1.404,
-      "bias": -2.45,
-      "vol_ratio": 0.92,
-      "real_time_ma5": 1.439
-    },
-    {
       "code": "159995",
       "name": "芯片ETF",
       "price": 1.85,
-      "bias": -2.27,
-      "vol_ratio": 0.72,
-      "real_time_ma5": 1.893
+      "bias": -1.64,
+      "vol_ratio": 0.81,
+      "real_time_ma5": 1.881
+    },
+    {
+      "code": "513050",
+      "name": "中概互联网ETF易方达",
+      "price": 1.404,
+      "bias": -1.53,
+      "vol_ratio": 0.85,
+      "real_time_ma5": 1.426
     },
     {
       "code": "512760",
       "name": "芯片ETF",
       "price": 1.73,
-      "bias": -2.03,
-      "vol_ratio": 0.74,
-      "real_time_ma5": 1.766
+      "bias": -1.47,
+      "vol_ratio": 0.76,
+      "real_time_ma5": 1.756
     },
     {
       "code": "512480",
       "name": "半导体ETF",
       "price": 1.577,
-      "bias": -1.88,
-      "vol_ratio": 0.76,
-      "real_time_ma5": 1.607
-    },
-    {
-      "code": "588000",
-      "name": "科创50ETF",
-      "price": 1.499,
-      "bias": -1.56,
-      "vol_ratio": 0.85,
-      "real_time_ma5": 1.523
+      "bias": -1.38,
+      "vol_ratio": 0.8,
+      "real_time_ma5": 1.599
     },
     {
       "code": "512660",
@@ -129,20 +121,36 @@
       "real_time_ma5": 1.459
     },
     {
+      "code": "588000",
+      "name": "科创50ETF",
+      "price": 1.499,
+      "bias": -1.19,
+      "vol_ratio": 0.89,
+      "real_time_ma5": 1.517
+    },
+    {
       "code": "159915",
       "name": "创业板ETF易方达",
       "price": 3.229,
-      "bias": -1.13,
-      "vol_ratio": 0.76,
-      "real_time_ma5": 3.266
+      "bias": -0.99,
+      "vol_ratio": 0.81,
+      "real_time_ma5": 3.261
     },
     {
       "code": "510500",
       "name": "中证500ETF",
       "price": 8.213,
-      "bias": -0.41,
-      "vol_ratio": 0.74,
-      "real_time_ma5": 8.247
+      "bias": -0.8,
+      "vol_ratio": 0.78,
+      "real_time_ma5": 8.279
+    },
+    {
+      "code": "510300",
+      "name": "沪深300ETF华泰柏瑞",
+      "price": 4.649,
+      "bias": -0.44,
+      "vol_ratio": 0.67,
+      "real_time_ma5": 4.67
     },
     {
       "code": "512690",
@@ -151,14 +159,6 @@
       "bias": -0.4,
       "vol_ratio": 0.59,
       "real_time_ma5": 0.556
-    },
-    {
-      "code": "510300",
-      "name": "沪深300ETF华泰柏瑞",
-      "price": 4.649,
-      "bias": -0.23,
-      "vol_ratio": 0.6,
-      "real_time_ma5": 4.66
     },
     {
       "code": "512880",
