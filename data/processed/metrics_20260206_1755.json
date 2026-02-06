@@ -1,11 +1,11 @@
 {
-  "timestamp": "20260206_1756",
+  "timestamp": "20260206_1755",
   "macro_matrix": {
     "CN10Y_Yield": 1.8102,
     "US10Y_Yield": 4.210000038146973,
-    "VIX": 20.5,
-    "Gold_Price": 4881.2001953125,
-    "CrudeOil_Price": 64.11000061035156,
+    "VIX": 20.510000228881836,
+    "Gold_Price": 4880.39990234375,
+    "CrudeOil_Price": 64.0999984741211,
     "Nasdaq_Price": 22540.58984375,
     "HangSeng_Price": 26559.94921875
   },
@@ -14,43 +14,36 @@
       "code": "513050",
       "name": "中概互联网ETF易方达",
       "price": 1.404,
-      "bias": -4.02,
-      "vol_ratio": 0.92
+      "bias": -2.45,
+      "vol_ratio": 0.85
     },
     {
       "code": "159995",
       "name": "芯片ETF",
       "price": 1.85,
-      "bias": -3.9,
-      "vol_ratio": 0.72
+      "bias": -2.27,
+      "vol_ratio": 0.81
     },
     {
       "code": "512760",
       "name": "芯片ETF",
       "price": 1.73,
-      "bias": -3.61,
-      "vol_ratio": 0.74
+      "bias": -2.03,
+      "vol_ratio": 0.76
     },
     {
       "code": "512480",
       "name": "半导体ETF",
       "price": 1.577,
-      "bias": -3.49,
-      "vol_ratio": 0.76
+      "bias": -1.88,
+      "vol_ratio": 0.8
     },
     {
       "code": "588000",
       "name": "科创50ETF",
       "price": 1.499,
-      "bias": -2.7,
-      "vol_ratio": 0.85
-    },
-    {
-      "code": "159915",
-      "name": "创业板ETF易方达",
-      "price": 3.229,
-      "bias": -1.76,
-      "vol_ratio": 0.76
+      "bias": -1.56,
+      "vol_ratio": 0.89
     },
     {
       "code": "512660",
@@ -60,11 +53,11 @@
       "vol_ratio": 0.72
     },
     {
-      "code": "510500",
-      "name": "中证500ETF",
-      "price": 8.213,
-      "bias": -0.95,
-      "vol_ratio": 0.74
+      "code": "159915",
+      "name": "创业板ETF易方达",
+      "price": 3.229,
+      "bias": -1.13,
+      "vol_ratio": 0.81
     },
     {
       "code": "510300",
@@ -72,6 +65,13 @@
       "price": 4.649,
       "bias": -0.5,
       "vol_ratio": 0.6
+    },
+    {
+      "code": "510500",
+      "name": "中证500ETF",
+      "price": 8.213,
+      "bias": -0.41,
+      "vol_ratio": 0.78
     },
     {
       "code": "512880",

@@ -1,0 +1,30 @@
+{
+  "decision": "WAIT",
+  "target": null,
+  "attack_factor": 0.9,
+  "rationale": "铁血 CIO 审计报告：当前技术面未触发任何标的的开火条件（Bias < -2.5% 且 Vol Ratio > 1.2）。尽管VIX指数偏高，但CNH汇率尚稳定，且10年期国债收益率维持低位，宏观环境并非极度恶劣。因此，维持观望，等待更明确的信号。",
+  "parameters": {
+    "stop_loss": -1.5,
+    "stop_profit": 3.0,
+    "time_limit": "4天"
+  },
+  "top_candidates": [
+    {
+      "code": "513050",
+      "name": "中概互联网ETF易方达",
+      "bias": -2.45,
+      "vol_ratio": 0.85,
+      "status": "Potential"
+    }
+  ],
+  "timestamp": "20260206_1755",
+  "macro_snapshot": {
+    "CN10Y_Yield": 1.8102,
+    "US10Y_Yield": 4.210000038146973,
+    "VIX": 20.510000228881836,
+    "Gold_Price": 4880.39990234375,
+    "CrudeOil_Price": 64.0999984741211,
+    "Nasdaq_Price": 22540.58984375,
+    "HangSeng_Price": 26559.94921875
+  }
+}
