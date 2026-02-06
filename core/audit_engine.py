@@ -9,13 +9,14 @@ class AuditEngine:
     def __init__(self, api_key=None):
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
         genai.configure(api_key=self.api_key)
-        # Using gemini-1.5-flash which is widely supported in v1beta
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        # Using the exact Model ID found in the cloud environment list:
+        # models/gemini-3-flash-preview
+        self.model = genai.GenerativeModel('gemini-3-flash-preview')
 
     def perform_audit(self, market_data):
         prompt = f"""
 [SYSTEM ROLE]
-You are the Chief Investment Officer for Global-Link A-Quant V13. 
+You are the Chief Investment Officer for Global-Link A-Quant V13 (Gemini 3 Flash Powered). 
 Perform a cold-blooded, high-stakes audit using the "Weight Pyramid".
 
 [DECISION PYRAMID]
