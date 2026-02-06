@@ -1,26 +1,30 @@
 {
   "timestamp": "20260207_0007",
   "macro_matrix": {
-    "CNH_Price": 6.9309,
-    "CNH_Change": -0.9199999999999999,
+    "CNH_Price": 6.9311,
+    "CNH_Change": -0.8999999999999999,
     "Liquidity_Rate": null,
     "Liquidity_Change": null,
     "CN10Y_Yield": 1.8102,
     "US10Y_Yield": 4.21,
-    "VIX": 19.296,
+    "VIX": 19.294,
     "A_Share_Amplitude": null,
     "Margin_Change_Pct": null,
     "Northbound_Flow_Billion": -67.75,
-    "Inflow_Sectors": null,
-    "Outflow_Sectors": null,
-    "Gold_Price": 4970.89,
-    "CrudeOil_Price": 63.964,
-    "Nasdaq_Price": 24896.7459,
-    "Nasdaq_Change": 1.42,
+    "Inflow_Sectors": [
+      "电池",
+      "化学制品",
+      "电子元件"
+    ],
+    "Outflow_Sectors": [],
+    "Gold_Price": 4973.047,
+    "CrudeOil_Price": 64.019,
+    "Nasdaq_Price": 24899.5593,
+    "Nasdaq_Change": 1.43,
     "HangSeng_Price": 26354.34,
     "HangSeng_Change": -1.974696749986471,
-    "A50_Futures_Price": 14921.4,
-    "A50_Futures_Change": 0.7726075504828733
+    "A50_Futures_Price": 14921.26,
+    "A50_Futures_Change": 0.7716620517322914
   },
   "macro_health": {
     "CNH": {
@@ -60,6 +64,10 @@
       "last_update": "20260207_0007"
     },
     "Northbound": {
+      "status": "SUCCESS",
+      "last_update": "20260207_0007"
+    },
+    "Sector_Flow": {
       "status": "SUCCESS",
       "last_update": "20260207_0007"
     },

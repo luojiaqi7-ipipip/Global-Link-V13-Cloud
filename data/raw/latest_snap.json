@@ -136,14 +136,14 @@
   ],
   "macro": {
     "CNH": {
-      "price": 6.9309,
-      "change_pct": -0.9199999999999999,
+      "price": 6.9311,
+      "change_pct": -0.8999999999999999,
       "status": "SUCCESS",
       "last_update": "20260207_0007"
     },
     "Nasdaq": {
-      "price": 24896.7459,
-      "change_pct": 1.42,
+      "price": 24899.5593,
+      "change_pct": 1.43,
       "status": "SUCCESS",
       "last_update": "20260207_0007"
     },
@@ -154,26 +154,26 @@
       "last_update": "20260207_0007"
     },
     "A50_Futures": {
-      "price": 14921.4,
-      "change_pct": 0.7726075504828733,
+      "price": 14921.26,
+      "change_pct": 0.7716620517322914,
       "status": "SUCCESS",
       "last_update": "20260207_0007"
     },
     "VIX": {
-      "price": 19.296,
-      "change_pct": -7.453237410071956,
+      "price": 19.294,
+      "change_pct": -7.462829736211029,
       "status": "SUCCESS",
       "last_update": "20260207_0007"
     },
     "Gold": {
-      "price": 4970.89,
-      "change_pct": 1.6645873811228284,
+      "price": 4973.047,
+      "change_pct": 1.7087023213007368,
       "status": "SUCCESS",
       "last_update": "20260207_0007"
     },
     "CrudeOil": {
-      "price": 63.964,
-      "change_pct": 1.0649391689050436,
+      "price": 64.019,
+      "change_pct": 1.1518407331332137,
       "status": "SUCCESS",
       "last_update": "20260207_0007"
     },
@@ -190,6 +190,24 @@
     "Northbound": {
       "value": -6774990000.0,
       "date": "2024-08-16",
+      "status": "SUCCESS",
+      "last_update": "20260207_0007"
+    },
+    "Sector_Flow": {
+      "top_inflow": [
+        {
+          "名称": "电池",
+          "今日净额": 3164204288.0
+        },
+        {
+          "名称": "化学制品",
+          "今日净额": 3061196032.0
+        },
+        {
+          "名称": "电子元件",
+          "今日净额": 1898080768.0
+        }
+      ],
       "status": "SUCCESS",
       "last_update": "20260207_0007"
     },
