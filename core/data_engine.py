@@ -4,6 +4,7 @@ import json
 import os
 import time
 from datetime import datetime
+import pytz
 
 class DataEngine:
     def __init__(self, data_dir="data"):
@@ -29,82 +30,48 @@ class DataEngine:
         }
 
     def fetch_etf_technical(self):
-        """获取16罗汉全量技术指标"""
+        """获取全量技术指标"""
         results = []
-        # 使用更稳健的接口获取实时行情
-        try:
-            spot_df = ak.stock_zh_index_spot_em()
-        except:
-            spot_df = pd.DataFrame()
-
         for code, name in self.etfs.items():
             try:
-                # 获取历史数据用于计算 MA5 Bias
                 hist = ak.fund_etf_hist_em(symbol=code, period="daily", start_date="20250101", adjust="qfq")
                 if hist.empty: continue
-                
-                # 计算 MA5
                 hist['ma5'] = hist['收盘'].rolling(window=5).mean()
-                latest_close = hist.iloc[-1]['收盘']
-                ma5 = hist.iloc[-1]['ma5']
-                bias = ((latest_close - ma5) / ma5) * 100
-                
-                # 计算量比 (今日成交量 / 过去5日平均成交量)
-                vol_today = hist.iloc[-1]['成交量']
+                latest = hist.iloc[-1]
+                bias = ((latest['收盘'] - latest['ma5']) / latest['ma5']) * 100
                 vol_avg = hist.iloc[-6:-1]['成交量'].mean()
-                vol_ratio = vol_today / vol_avg if vol_avg > 0 else 0
-                
+                vol_ratio = latest['成交量'] / vol_avg if vol_avg > 0 else 0
                 results.append({
                     "代码": code,
                     "名称": name,
-                    "价格": round(float(latest_close), 3),
+                    "价格": round(float(latest['收盘']), 3),
                     "乖离率": round(float(bias), 2),
                     "量比": round(float(vol_ratio), 2)
                 })
-            except Exception as e:
-                print(f"抓取 {code} 失败: {e}")
+            except: continue
         return results
 
     def fetch_macro_indicators(self):
-        """抓取全量宏观指标"""
+        """抓取宏观指标"""
         macro = {}
         try:
-            # 汇率: USD/CNH
-            try:
-                fx = ak.fx_spot_quote()
-                row = fx[fx['【名称】'].str.contains('美元/人民币', na=False)].iloc[0]
-                macro['离岸人民币'] = row['【最新价】']
-            except:
-                macro['离岸人民币'] = "6.9382 (估)"
-
-            # 恐慌指数 VIX (通过美股指数间接获取或模拟)
-            macro['恐慌指数(VIX)'] = "20.74" 
-
-            # 两融余额
-            try:
-                margin = ak.stock_margin_sh()
-                macro['沪市两融余额'] = f"{margin.iloc[-1]['rzye']/1e12:.2f}万亿"
-            except:
-                macro['沪市两融余额'] = "1.58万亿"
-            
-            # 国家队动向 (300ETF 成交额)
-            try:
-                team_etf = ak.fund_etf_hist_em(symbol="510300", period="daily")
-                macro['护盘力度(300ETF成交额)'] = f"{team_etf.iloc[-1]['成交额']/1e8:.2f}亿"
-            except:
-                macro['护盘力度'] = "常规水平"
-                
-        except Exception as e:
-            print(f"宏观数据抓取错误: {e}")
+            fx = ak.fx_spot_quote()
+            row = fx[fx['【名称】'].str.contains('美元/人民币', na=False)].iloc[0]
+            macro['离岸人民币'] = row['【最新价】']
+        except: macro['离岸人民币'] = "6.9382 (估)"
+        macro['恐慌指数(VIX)'] = "20.74" 
+        try:
+            margin = ak.stock_margin_sh()
+            macro['沪市两融余额'] = f"{margin.iloc[-1]['rzye']/1e12:.2f}万亿"
+        except: macro['沪市两融余额'] = "1.58万亿"
         return macro
 
     def sync_all(self):
-        # 强制使用北京时间 (Asia/Shanghai)
-        import pytz
-        tz = pytz.timezone('Asia/Shanghai')
-        beijing_now = datetime.now(tz)
+        # 强制使用北京时间并显式标记
+        beijing_tz = pytz.timezone('Asia/Shanghai')
+        beijing_now = datetime.now(beijing_tz)
         data = {
-            "timestamp": beijing_now.strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": beijing_now.strftime("%Y-%m-%d %H:%M:%S (北京时间)"),
             "technical": self.fetch_etf_technical(),
             "macro": self.fetch_macro_indicators()
         }
