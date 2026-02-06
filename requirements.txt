@@ -1,0 +1,6 @@
+akshare
+requests
+pandas
+streamlit
+google-generativeai
+python-dotenv

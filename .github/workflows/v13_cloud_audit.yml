@@ -1,0 +1,37 @@
+name: V13 Quantum Cloud Audit
+
+on:
+  schedule:
+    - cron: '15 1 * * 1-5'  # 09:15 CST
+    - cron: '30 5 * * 1-5'  # 13:30 CST
+    - cron: '15 7 * * 1-5'  # 15:15 CST
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Run V13 Audit
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python main.py
+        
+      - name: Commit and Push
+        run: |
+          git config --global user.name "V13-Cloud-Bot"
+          git config --global user.email "bot@v13.cloud"
+          git add data/audit_result.json
+          git commit -m "Update Audit Result [$(date +'%Y-%m-%d %H:%M')]" || exit 0
+          git push
