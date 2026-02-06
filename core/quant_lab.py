@@ -101,11 +101,7 @@ class QuantLab:
         # 6. 全球指数
         for key in ['Nasdaq', 'HangSeng', 'A50_Futures']:
             m[f'{key}_Price'] = get_val(key, 'price')
-            
-        return m
-            
-        # A50 特殊映射
-        m['A50_Futures_Price'] = get_val('A50_Futures', 'price') or get_val('A50', 'price')
+            m[f'{key}_Change'] = get_val(key, 'change_pct')
             
         return m
 

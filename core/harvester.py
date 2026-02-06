@@ -57,7 +57,13 @@ class Harvester:
         def wrap(data): return {**(data if isinstance(data, dict) else {"value": data}), "status": "SUCCESS" if data is not None else "FAILED", "last_update": self.timestamp}
 
         # 1. 全球宏观 (Sina Global)
-        sina_map = {"CNH": "fx_susdcnh", "Nasdaq": "gb_ixic", "HangSeng": "rt_hkHSI", "A50_Futures": "hf_CHA50CFD", "Gold": "hf_GC", "CrudeOil": "hf_CL"}
+        sina_map = {
+            "CNH": "fx_susdcnh", 
+            "Nasdaq": "gb_ndx", 
+            "HangSeng": "rt_hkHSI", 
+            "A50_Futures": "hf_CHA50CFD", 
+            "VIX": "hf_VX"
+        }
         try:
             url = f"http://hq.sinajs.cn/list={','.join(sina_map.values())}"
             r = requests.get(url, headers={"Referer": "http://finance.sina.com.cn"}, timeout=5)
@@ -68,33 +74,47 @@ class Harvester:
                     sym = line.split('=')[0].replace('var hq_str_', '').strip()
                     data = line.split('"')[1].split(',')
                     key = inv_map.get(sym)
-                    if not key: continue
-                    price = float(data[0]) if "hf_" in sym else float(data[1]) if key != "HangSeng" else float(data[6])
-                    macro[key] = wrap({"price": price})
+                    if not key or not data or len(data) < 2: continue
+                    
+                    if sym.startswith("fx_"): 
+                        price = float(data[1])
+                        change_pct = float(data[11]) * 100 if len(data) > 11 and data[11] else None
+                    elif sym.startswith("gb_"): 
+                        price = float(data[1])
+                        change_pct = float(data[2]) if len(data) > 2 and data[2] else None
+                    elif sym.startswith("rt_"): 
+                        price = float(data[2])
+                        change_pct = float(data[3]) if len(data) > 3 and data[3] else None
+                    elif sym.startswith("hf_"): 
+                        price = float(data[0])
+                        change_pct = float(data[1]) if len(data) > 1 and data[1] else None # Note: hf change pct might be in different index
+                    else: 
+                        price = float(data[1])
+                        change_pct = None
+                    
+                    macro[key] = wrap({"price": price, "change_pct": change_pct})
                 except: pass
         except: pass
 
-        # 2. VIX & US10Y (Yahoo Finance)
+        # 2. 国债收益率 (CN & US) - 使用综合接口
         try:
-            for k, t in {"VIX": "^VIX", "US10Y": "^TNX"}.items():
-                val = yf.Ticker(t).history(period="1d")['Close'].iloc[-1]
-                macro[k] = wrap({"price": float(val)})
+            df_rates = ak.bond_zh_us_rate()
+            if not df_rates.empty:
+                # 寻找最新的有效数据
+                cn_latest = df_rates.dropna(subset=['中国国债收益率10年']).iloc[-1]
+                macro['CN10Y'] = wrap({"yield": float(cn_latest['中国国债收益率10年'])})
+                
+                us_latest = df_rates.dropna(subset=['美国国债收益率10年']).iloc[-1]
+                macro['US10Y'] = wrap({"price": float(us_latest['美国国债收益率10年'])})
         except: pass
 
-        # 3. 北向资金 (由于新规，每日净流入已停止实时披露，改用成交总额作为活跃度指标)
+        # 3. 北向资金 (新规后净流入已隐藏，此处取成交活跃度或当日资金余额变动)
         try:
-            r = requests.get("https://push2.eastmoney.com/api/qt/kamt/get?fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54", timeout=5).json().get('data', {})
-            # 这里的 dayNetAmtIn 在盘后通常为 0，我们优先取历史结算终值
-            url_hist = "https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_MUTUAL_DEAL_HISTORY&columns=ALL&filter=(MUTUAL_TYPE%3D%22005%22)&sortColumns=TRADE_DATE&sortTypes=-1&pageSize=5"
-            hist = requests.get(url_hist, timeout=5).json().get('result', {}).get('data', [])
-            val = None
-            for i in hist:
-                if i.get('NET_DEAL_AMT') and i.get('NET_DEAL_AMT') != 0:
-                    val = float(i['NET_DEAL_AMT']) * 1e8
-                    break
-            if val is None: # 如果历史也没数，取成交额作为替代参考
-                val = (float(r.get('hk2sh', {}).get('dayAmtRemain', 0)) + float(r.get('hk2sz', {}).get('dayAmtRemain', 0))) # 这不是净额，仅作占位
-            macro['Northbound'] = wrap({"value": val})
+            df = ak.stock_hsgt_fund_flow_summary_em()
+            north = df[df['资金方向'] == '北向']
+            # 优先取资金净流入 (含买入+申报未成交)，如果为0则标记为隐藏
+            net_flow = north['资金净流入'].astype(float).sum() * 1e6
+            macro['Northbound'] = wrap({"value": net_flow if net_flow != 0 else None, "note": "Real-time net flow may be hidden by regulation"})
         except: pass
 
         # 4. 行业流入 (东财 Push2)
@@ -104,15 +124,16 @@ class Harvester:
             if diff: macro['Sector_Flow'] = wrap({"top_inflow": [{"名称": d['f14'], "今日净额": d['f62']} for d in diff[:3]]})
         except: pass
 
-        # 5. 两融 & 国债 (AkShare)
+        # 5. 两融 (AkShare 宏观两融接口)
         try:
-            m = ak.stock_margin_sh()
-            if not m.empty: macro['Margin_Debt'] = wrap({"value": float(m.iloc[-1].iloc[-1]), "change_pct": round((m.iloc[-1].iloc[-1]/m.iloc[-2].iloc[-1]-1)*100, 3)})
+            m_sh = ak.macro_china_market_margin_sh()
+            m_sz = ak.macro_china_market_margin_sz()
+            sh_val = float(m_sh.iloc[-1]['融资融券余额']) if '融资融券余额' in m_sh.columns else float(m_sh.iloc[-1].iloc[-1])
+            sz_val = float(m_sz.iloc[-1]['融资融券余额']) if '融资融券余额' in m_sz.columns else float(m_sz.iloc[-1].iloc[-1])
+            macro['Margin_Debt'] = wrap({"value": sh_val + sz_val})
         except: pass
-        try:
-            y = ak.bond_china_yield(start_date=(datetime.now()-timedelta(days=10)).strftime("%Y%m%d"))
-            if not y.empty: macro['CN10Y'] = wrap({"yield": float(y['10年'].iloc[-1])})
-        except: pass
+
+        return macro
 
         return macro
 
@@ -120,10 +141,20 @@ class Harvester:
         ctx = {}
         for c in self.watchlist:
             try:
-                df = ak.fund_etf_hist_em(symbol=c, period="daily", start_date=(datetime.now()-timedelta(days=45)).strftime("%Y%m%d"), adjust="qfq")
-                if not df.empty:
-                    df['unit'] = 'LOT'
-                    ctx[c] = df.to_dict(orient='records')
+                # 使用新浪 K 线接口，比 AkShare 更稳定
+                prefix = "sh" if c.startswith(('5', '6')) else "sz"
+                url = f"http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol={prefix}{c}&scale=240&ma=no&datalen=45"
+                r = requests.get(url, timeout=5).json()
+                if r:
+                    ctx[c] = [{
+                        "日期": item['day'],
+                        "开盘": float(item['open']),
+                        "最高": float(item['high']),
+                        "最低": float(item['low']),
+                        "收盘": float(item['close']),
+                        "成交量": float(item['volume']),
+                        "unit": "SHARE"
+                    } for item in r]
             except: pass
         return ctx
 
