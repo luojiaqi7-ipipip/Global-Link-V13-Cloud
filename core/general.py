@@ -46,6 +46,12 @@ class General:
 - 只有技术面达标，才能赋予 > 1.0 的 Attack Factor。
 - 若技术面未达标但宏观环境极佳，Attack Factor 应压制在 1.0 以下或维持 WAIT。
 
+[数据完整性风控]
+- 你必须首先审计 [数据矩阵] 中的 `macro_health` 和 `technical_matrix` 的完整性。
+- 强制指令 1: 若核心技术指标 (technical_matrix) 缺失或为空，Attack Factor 必须强降至 0.8，决策倾向于 WAIT。
+- 强制指令 2: 若宏观背景指标 (macro_matrix) 缺失比例 > 30% (即 FAILED 状态超过 4 项)，Attack Factor 严禁超过 1.0，并须在 Rationale 中明确标注“数据不全预警”。
+- 实时性审计: 若 `macro_health` 中任何关键项的 `status` 为 FAILED 或 `last_update` 距离当前时间过久，必须在审计报告中体现，并据此调低 Attack Factor 或触发 WAIT 指令。
+
 [多标的择优原则]
 若当前数据矩阵中触发了多个符合“开火”条件的 ETF（即 Bias < -2.5% 且 Vol Ratio > 1.2），必须进行二次筛选：
 1. 宏观共振优先：利用“宏观背景层”进行二次过滤。优先选择那些与宏观利好共振最强的标的（例如：如果芯片 ETF 触发了，且 `Inflow_Sectors` 行业流入中包含电子/半导体，则其优先级最高）。

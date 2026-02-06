@@ -23,6 +23,7 @@ class QuantLab:
         processed = {
             "timestamp": raw.get('meta', {}).get('timestamp', 'unknown'),
             "macro_matrix": self._calc_macro(raw.get('macro', {})),
+            "macro_health": {k: {"status": v.get('status', 'FAILED'), "last_update": v.get('last_update', 'unknown')} for k, v in raw.get('macro', {}).items()},
             "technical_matrix": self._calc_tech(raw.get('etf_spot', []), raw.get('hist_data', {}))
         }
 
@@ -82,11 +83,23 @@ class QuantLab:
         for key in ['Nasdaq', 'HangSeng', 'A50_Futures']:
             if key in raw_macro:
                 m[f'{key}_Price'] = raw_macro[key].get('price', 'N/A')
+                # V13 增强：增加变动率输出，供 AI 决策参考
+                if 'change_pct' in raw_macro[key]:
+                    m[f'{key}_Change_Pct'] = raw_macro[key].get('change_pct')
+                elif 'prev_close' in raw_macro[key] and raw_macro[key].get('price') != 'N/A':
+                    p = raw_macro[key].get('price')
+                    pc = raw_macro[key].get('prev_close')
+                    if pc and pc != 0:
+                        m[f'{key}_Change_Pct'] = round((p/pc - 1)*100, 3)
             
         return m
 
     def _calc_tech(self, spot, hist_map):
-        """单位已在 Harvester 统一为股"""
+        """
+        V13 Cloud 增强版：
+        1. 实时 MA5 重构 (过去 4 日 + 今日当前价)
+        2. 成交量单位强校验 (LOT -> SHARE)
+        """
         matrix = []
         if not spot: return []
             
@@ -96,18 +109,31 @@ class QuantLab:
                 if not code or code not in hist_map: continue
                 
                 df_hist = pd.DataFrame(hist_map[code])
-                if len(df_hist) < 5: continue
+                if len(df_hist) < 4: continue # 至少需要 4 天历史数据来算实时 MA5
                 
-                # 价格计算
-                closes = df_hist['收盘'].tolist()
+                # 1. 价格与实时乖离率 (Bias) 重构
+                # 新公式：实时 MA5 = (过去 4 日收盘价总和 + 今日当前价格) / 5
+                closes_hist = df_hist['收盘'].tolist()
                 current_price = float(s.get('最新价', 0))
-                ma5 = sum(closes[-5:]) / 5
-                bias = ((current_price - ma5) / ma5) * 100
                 
-                # 成交量计算 (单位均为股)
-                vols_hist = df_hist['成交量'].tolist()
+                real_time_ma5 = (sum(closes_hist[-4:]) + current_price) / 5
+                bias = (current_price / real_time_ma5 - 1) * 100 if real_time_ma5 != 0 else 0
+                
+                # 2. 成交量单位强校验 (强制统一为“股”)
+                # 处理历史数据成交量
+                hist_unit = df_hist.iloc[0].get('unit', 'SHARE')
+                vols_hist = df_hist['成交量'].astype(float).tolist()
+                if hist_unit == 'LOT':
+                    vols_hist = [v * 100 for v in vols_hist]
+                
+                # 处理实时成交量
                 current_vol = float(s.get('成交量', 0))
-                vol_avg = sum(vols_hist[-5:]) / 5
+                spot_unit = s.get('unit', 'SHARE')
+                if spot_unit == 'LOT':
+                    current_vol *= 100
+                
+                # 计算量比 (Vol Ratio)
+                vol_avg = sum(vols_hist[-5:]) / 5 if len(vols_hist) >= 5 else sum(vols_hist) / len(vols_hist)
                 vol_ratio = current_vol / vol_avg if vol_avg > 0 else 0
                 
                 matrix.append({
@@ -115,7 +141,8 @@ class QuantLab:
                     "name": s.get('名称', 'N/A'),
                     "price": current_price,
                     "bias": round(bias, 2),
-                    "vol_ratio": round(vol_ratio, 2)
+                    "vol_ratio": round(vol_ratio, 2),
+                    "real_time_ma5": round(real_time_ma5, 3)
                 })
             except Exception as e:
                 print(f"    [!] 指标计算失败 {s.get('代码')}: {e}")

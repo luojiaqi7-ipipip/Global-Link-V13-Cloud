@@ -49,6 +49,15 @@ jobs:
           git pull --rebase origin master
           git push origin master
 
+      - name: Storage Optimization
+        run: |
+          python core/maintenance.py
+          git config --global user.name "V13-Archiver"
+          git config --global user.email "archive@v13.cloud"
+          git add -u
+          git commit -m "V13 Storage: [$(date +'%Y-%m-%d %H:%M')] Cleaning old data" || echo "Nothing to clean"
+          git push origin master
+
       - name: Generate Job Summary
         if: always()
         run: |

@@ -83,8 +83,9 @@ class Harvester:
                         "代码": code,
                         "名称": parts[1],
                         "最新价": float(parts[3]),
-                        "成交量": float(parts[6]) * 100, # 腾讯 s_ 接口返回的是手，转为股
+                        "成交量": float(parts[6]), # 腾讯 s_ 接口返回的是手 (LOT)
                         "涨跌幅": float(parts[5]),
+                        "unit": "LOT",
                         "source": "tencent"
                     })
                 if len(results) >= len(self.watchlist):
@@ -97,7 +98,10 @@ class Harvester:
             try:
                 df = ak.fund_etf_spot_em()
                 if not df.empty:
-                    res = df[df['代码'].isin(self.watchlist)].to_dict(orient='records')
+                    matched = df[df['代码'].isin(self.watchlist)].copy()
+                    matched['unit'] = 'SHARE'
+                    matched['source'] = 'em'
+                    res = matched.to_dict(orient='records')
                     if res: return res
             except: pass
 
@@ -118,6 +122,7 @@ class Harvester:
                                 "最新价": float(data[3]),
                                 "成交量": float(data[8]), # Sina 是股
                                 "昨收": float(data[2]),
+                                "unit": "SHARE",
                                 "source": "sina"
                             })
                 except: pass
@@ -129,58 +134,105 @@ class Harvester:
         """抓取宏观指标 - GitHub Actions 优化 (yf + ak)"""
         macro = {}
         
+        def wrap_indicator(data, status="SUCCESS"):
+            if data is None: status = "FAILED"
+            if isinstance(data, dict):
+                data.update({"status": status, "last_update": self.timestamp})
+                return data
+            return {"value": data, "status": status, "last_update": self.timestamp}
+
         # 1. Global Macro & Risk (Yahoo Finance)
         print(" -> 正在抓取国际宏观指标 (Yahoo Finance)...")
+        tickers = {
+            "CNH": "USDCNH=X",
+            "Nasdaq": "^IXIC",
+            "HangSeng": "^HSI",
+            "A50_Futures": "XIN9.F",
+            "VIX": "^VIX",
+            "US10Y": "^TNX",
+            "Gold": "GC=F",
+            "CrudeOil": "CL=F"
+        }
+        
         try:
-            tickers = {
-                "CNH": "USDCNH=X",
-                "Nasdaq": "^IXIC",
-                "HangSeng": "^HSI",
-                "A50_Futures": "XIN9.F",
-                "VIX": "^VIX",
-                "US10Y": "^TNX",
-                "Gold": "GC=F",
-                "CrudeOil": "CL=F"
-            }
-            # 获取最近 5 天数据以计算昨收
             yf_data = yf.download(list(tickers.values()), period="5d", interval="1d", progress=False)
-            
             for key, ticker in tickers.items():
                 try:
                     if ticker in yf_data['Close']:
                         series = yf_data['Close'][ticker].dropna()
                         if len(series) >= 2:
-                            current_price = series.iloc[-1]
-                            prev_close = series.iloc[-2]
-                            macro[key] = {"price": float(current_price), "prev_close": float(prev_close)}
-                except: pass
+                            current_price = float(series.iloc[-1])
+                            prev_close = float(series.iloc[-2])
+                            change_pct = round((current_price / prev_close - 1) * 100, 3) if prev_close != 0 else 0
+                            macro[key] = wrap_indicator({
+                                "price": current_price, 
+                                "prev_close": prev_close,
+                                "change_pct": change_pct
+                            })
+                        else:
+                            macro[key] = wrap_indicator(None)
+                    else:
+                        macro[key] = wrap_indicator(None)
+                except:
+                    macro[key] = wrap_indicator(None)
         except Exception as e:
             print(f"⚠️ Yahoo Finance 抓取受限: {e}")
+            for key in tickers:
+                if key not in macro: macro[key] = wrap_indicator(None)
+
+        # 1.1 A50 Backup (if Yahoo Finance failed or XIN9.F is missing)
+        if macro.get('A50_Futures', {}).get('status') != 'SUCCESS':
+            print(" -> [Backup] 正在通过 AkShare 抓取 A50...")
+            try:
+                df_foreign = ak.futures_foreign_index_realtime()
+                if not df_foreign.empty:
+                    a50_row = df_foreign[df_foreign['名称'] == '富时中国A50指数']
+                    if not a50_row.empty:
+                        price = float(a50_row.iloc[0]['最新价'])
+                        prev_close = float(a50_row.iloc[0]['昨收'])
+                        change_pct = round((price / prev_close - 1) * 100, 3) if prev_close != 0 else 0
+                        macro['A50_Futures'] = wrap_indicator({
+                            "price": price,
+                            "prev_close": prev_close,
+                            "change_pct": change_pct,
+                            "source": "akshare_backup"
+                        })
+            except Exception as e:
+                print(f"⚠️ A50 备份抓取失败: {e}")
 
         # 2. SHIBOR (国内流动性)
         try:
             shibor = ak.rate_shibor_em()
             if not shibor.empty:
-                macro['SHIBOR'] = shibor.iloc[-1].to_dict()
-        except: pass
+                macro['SHIBOR'] = wrap_indicator(shibor.iloc[-1].to_dict())
+            else:
+                macro['SHIBOR'] = wrap_indicator(None)
+        except:
+            macro['SHIBOR'] = wrap_indicator(None)
         
         # 3. 北向资金
         try:
             north = ak.stock_hsgt_north_net_flow_em()
             if not north.empty:
-                macro['Northbound'] = north.iloc[-1].to_dict()
-        except: pass
+                macro['Northbound'] = wrap_indicator(north.iloc[-1].to_dict())
+            else:
+                macro['Northbound'] = wrap_indicator(None)
+        except:
+            macro['Northbound'] = wrap_indicator(None)
 
         # 4. A股实时波动率 (沪深300)
         try:
             df_300 = ak.stock_zh_index_spot_em(symbol="sh000300")
             if not df_300.empty:
                 row = df_300.iloc[0]
-                macro['CSI300_Vol'] = {
+                macro['CSI300_Vol'] = wrap_indicator({
                     "amplitude": round((float(row['最高']) - float(row['最低'])) / float(row['昨收']) * 100, 3),
                     "pct_change": float(row['涨跌幅'])
-                }
-        except: pass
+                })
+            else:
+                macro['CSI300_Vol'] = wrap_indicator(None)
+        except:
+            macro['CSI300_Vol'] = wrap_indicator(None)
 
         # 5. 中国国债 10Y
         try:
@@ -188,10 +240,12 @@ class Harvester:
             start_date = (datetime.now() - timedelta(days=10)).strftime("%Y%m%d")
             df_yield = ak.bond_china_yield(start_date=start_date, end_date=end_date)
             if not df_yield.empty:
-                # 获取最后一行 10 年期的值
                 val_10y = df_yield['10年'].iloc[-1]
-                macro['CN10Y'] = {"yield": float(val_10y)}
-        except: pass
+                macro['CN10Y'] = wrap_indicator({"yield": float(val_10y)})
+            else:
+                macro['CN10Y'] = wrap_indicator(None)
+        except:
+            macro['CN10Y'] = wrap_indicator(None)
 
         # 6. 两融余额
         try:
@@ -199,21 +253,27 @@ class Harvester:
             if not margin.empty:
                 curr_m = float(margin.iloc[-1]['本日融资融券余额(元)'])
                 prev_m = float(margin.iloc[-2]['本日融资融券余额(元)'])
-                macro['Margin_Debt'] = {
+                macro['Margin_Debt'] = wrap_indicator({
                     "value": curr_m,
                     "change_pct": round((curr_m / prev_m - 1) * 100, 3)
-                }
-        except: pass
+                })
+            else:
+                macro['Margin_Debt'] = wrap_indicator(None)
+        except:
+            macro['Margin_Debt'] = wrap_indicator(None)
 
         # 7. 行业资金流向
         try:
             flow = ak.stock_sector_fund_flow_rank(indicator="今日", sector_type="行业资金流")
             if not flow.empty:
-                macro['Sector_Flow'] = {
+                macro['Sector_Flow'] = wrap_indicator({
                     "top_inflow": flow.head(3)[['名称', '今日净额']].to_dict(orient='records'),
                     "top_outflow": flow.tail(3)[['名称', '今日净额']].to_dict(orient='records')
-                }
-        except: pass
+                })
+            else:
+                macro['Sector_Flow'] = wrap_indicator(None)
+        except:
+            macro['Sector_Flow'] = wrap_indicator(None)
 
         return macro
 
@@ -230,7 +290,7 @@ class Harvester:
                 try:
                     df = ak.fund_etf_hist_em(symbol=code, period="daily", start_date=start_date, adjust="qfq")
                     if not df.empty and len(df) >= 5:
-                        df['成交量'] = df['成交量'] * 100
+                        df['unit'] = 'LOT'
                         hist_df = df
                         break
                 except:
@@ -247,6 +307,7 @@ class Harvester:
                         cutoff = datetime.now() - timedelta(days=60)
                         df = df[df['日期'] > cutoff]
                         if not df.empty:
+                            df['unit'] = 'SHARE'
                             hist_df = df
                 except: pass
             

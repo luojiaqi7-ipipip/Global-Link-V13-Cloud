@@ -72,9 +72,18 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         justify-content: center;
+        position: relative;
     }
-    .macro-label { font-size: 0.85rem; color: #8b949e; margin-bottom: 4px; }
+    .macro-label { font-size: 0.85rem; color: #8b949e; margin-bottom: 4px; display: flex; align-items: center; }
     .macro-value { font-size: 1.1rem; color: #00f2ff; font-weight: 700; }
+    
+    .status-light {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 6px;
+    }
 
     /* 系统日志样式 */
     .sys-log {
@@ -219,35 +228,53 @@ if audit_data:
     st.markdown("<h3 style='color: #00f2ff; font-weight:600;'>🌐 全球宏观脉搏</h3>", unsafe_allow_html=True)
     
     macro = metrics_data.get('macro_matrix', {}) if metrics_data else audit_data.get('macro_snapshot', {})
-    
+    health = metrics_data.get('macro_health', {}) if metrics_data else {}
+    ref_time = metrics_data.get('timestamp') if metrics_data else audit_data.get('timestamp')
+
+    def get_status_color(key):
+        if not health or key not in health: return "#ff3366" # 红色 (缺失)
+        h = health[key]
+        if h.get('status') == 'FAILED': return "#ff3366"
+        
+        try:
+            up_dt = datetime.strptime(h.get('last_update', '20000101_0000'), "%Y%m%d_%H%M")
+            ref_dt = datetime.strptime(ref_time, "%Y%m%d_%H%M")
+            if (ref_dt - up_dt).total_seconds() / 60 > 15: return "#f1e05a" # 黄色 (延迟)
+            return "#00ff88" # 绿色 (实时)
+        except: return "#f1e05a"
+
     def format_val(val, unit="", suffix=""):
         if val is None or val == "N/A" or val == "...":
             return "N/A"
         return f"{val}{unit}{suffix}"
 
-    # 对齐 quant_lab.py 的 key
+    # 映射宏观指标到 raw 里的 key
     macro_items = [
-        {"label": "离岸人民币", "value": f"{macro.get('CNH_Price', 'N/A')} ({macro.get('CNH_Change', 0)}%)"},
-        {"label": "纳斯达克", "value": format_val(macro.get('Nasdaq_Price'))},
-        {"label": "恒生指数", "value": format_val(macro.get('HangSeng_Price'))},
-        {"label": "A50 期货", "value": format_val(macro.get('A50_Futures_Price'))},
-        {"label": "VIX 恐慌指数", "value": format_val(macro.get('VIX'))},
-        {"label": "中债10Y收益率", "value": format_val(macro.get('CN10Y_Yield'), unit="%")},
-        {"label": "美债10Y收益率", "value": format_val(macro.get('US10Y_Yield'), unit="%")},
-        {"label": "纽约黄金", "value": format_val(macro.get('Gold_Price'))},
-        {"label": "原油价格", "value": format_val(macro.get('CrudeOil_Price'))},
-        {"label": "两融变动 %", "value": format_val(macro.get('Margin_Change_Pct'), unit="%")},
-        {"label": "北向资金 (亿)", "value": format_val(macro.get('Northbound_Flow_Billion'))},
-        {"label": "流入行业", "value": ", ".join(macro.get('Inflow_Sectors', [])) if isinstance(macro.get('Inflow_Sectors'), list) and macro.get('Inflow_Sectors') else "N/A"},
+        {"label": "离岸人民币", "value": f"{macro.get('CNH_Price', 'N/A')} ({macro.get('CNH_Change', 0)}%)", "key": "CNH"},
+        {"label": "纳斯达克", "value": format_val(macro.get('Nasdaq_Price')), "key": "Nasdaq"},
+        {"label": "恒生指数", "value": format_val(macro.get('HangSeng_Price')), "key": "HangSeng"},
+        {"label": "A50 期货", "value": format_val(macro.get('A50_Futures_Price')), "key": "A50_Futures"},
+        {"label": "VIX 恐慌指数", "value": format_val(macro.get('VIX')), "key": "VIX"},
+        {"label": "中债10Y收益率", "value": format_val(macro.get('CN10Y_Yield'), unit="%"), "key": "CN10Y"},
+        {"label": "美债10Y收益率", "value": format_val(macro.get('US10Y_Yield'), unit="%"), "key": "US10Y"},
+        {"label": "纽约黄金", "value": format_val(macro.get('Gold_Price')), "key": "Gold"},
+        {"label": "原油价格", "value": format_val(macro.get('CrudeOil_Price')), "key": "CrudeOil"},
+        {"label": "两融变动 %", "value": format_val(macro.get('Margin_Change_Pct'), unit="%"), "key": "Margin_Debt"},
+        {"label": "北向资金 (亿)", "value": format_val(macro.get('Northbound_Flow_Billion')), "key": "Northbound"},
+        {"label": "流入行业", "value": ", ".join(macro.get('Inflow_Sectors', [])) if isinstance(macro.get('Inflow_Sectors'), list) and macro.get('Inflow_Sectors') else "N/A", "key": "Sector_Flow"},
     ]
     
     # 每行 6 个指标，共两行
     cols = st.columns(6)
     for i, item in enumerate(macro_items):
+        color = get_status_color(item['key'])
         with cols[i % 6]:
             st.markdown(f"""
                 <div class="macro-card">
-                    <div class="macro-label">{item['label']}</div>
+                    <div class="macro-label">
+                        <span class="status-light" style="background-color: {color}; box-shadow: 0 0 5px {color};"></span>
+                        {item['label']}
+                    </div>
                     <div class="macro-value">{item['value']}</div>
                 </div>
                 """, unsafe_allow_html=True)
