@@ -56,7 +56,7 @@ class QuantLab:
             m['Northbound_Flow_Billion'] = round(raw_macro['Northbound'].get('value', 0) / 1e8, 2)
         
         # 4. 全球指数
-        for key in ['Nasdaq', 'HangSeng', 'A50_Futures']:\
+        for key in ['Nasdaq', 'HangSeng', 'A50_Futures']:
             if key in raw_macro:
                 m[f'{key}_Price'] = raw_macro[key].get('price', 'N/A')
             
