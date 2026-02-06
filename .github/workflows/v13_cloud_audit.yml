@@ -1,6 +1,8 @@
 name: V13 Quantum Cloud Audit
 
 on:
+  push:
+    branches: [ master ]
   schedule:
     - cron: '15 1 * * 1-5'  # 09:15 CST
     - cron: '30 5 * * 1-5'  # 13:30 CST
