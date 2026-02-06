@@ -63,7 +63,8 @@ class QuantLab:
             m['Liquidity_Change'] = None
         
         m['CN10Y_Yield'] = get_val('CN10Y', 'yield')
-        m['US10Y_Yield'] = get_val('US10Y', 'price')
+        # US10Y 可能在 price 或 yield 字段
+        m['US10Y_Yield'] = get_val('US10Y', 'price') or get_val('US10Y', 'yield')
             
         # 3. 风险偏好 (VIX + A股波动率 + 杠杆情绪)
         m['VIX'] = get_val('VIX', 'price')
