@@ -1,6 +1,6 @@
 {
   "decision": "WAIT",
-  "target": "N/A",
+  "target": null,
   "attack_factor": 0.8,
   "rationale": "铁血 CIO 审计报告：核心技术指标未满足触发条件 (Bias < -2.5% 且 Vol Ratio > 1.2)。尽管 CNH 稳定在 6.9341，A50期货价格为14870.18，纳斯达克指数为22540.586，恒生指数为26559.951，黄金价格为4934.101，原油价格为63.093，但技术面未触底，不具备开火基础。此外，VIX、US10Y、Northbound、CN10Y、Margin_Debt、Sector_Flow 数据缺失，宏观数据不全预警，进一步降低 Attack Factor。 [🚨高警戒-核心数据缺失] 由于缺乏流动性变化、利率、北向资金流向和行业资金流向等关键数据，无法进行有效的宏观验证，因此维持观望。",
   "parameters": {
