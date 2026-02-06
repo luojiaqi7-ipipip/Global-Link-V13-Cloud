@@ -3,9 +3,8 @@ import pandas as pd
 import json
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
-import requests
 
 class DataEngine:
     def __init__(self, data_dir="data"):
@@ -30,109 +29,119 @@ class DataEngine:
             "159928": "消费ETF"
         }
 
-    def _safe_fetch(self, func, *args, **kwargs):
-        """通用安全抓取装饰逻辑，带重试"""
-        for _ in range(2):
+    def _safe_fetch_spot(self):
+        """尝试获取全量实时行情，带重试和更长的间隔"""
+        for i in range(5):
             try:
-                return func(*args, **kwargs)
-            except:
-                time.sleep(1)
-        return None
+                df = ak.stock_zh_index_spot_em()
+                if not df.empty:
+                    return df
+            except Exception as e:
+                print(f"实时行情获取失败 (尝试 {i+1}/5): {e}")
+                time.sleep(5)
+        return pd.DataFrame()
 
     def fetch_etf_technical(self):
-        """获取ETF全量技术面数据 - 100% 实时计算"""
+        """获取ETF全量技术面数据 - 增加重试逻辑以应对GitHub环境"""
         results = []
-        spot_df = self._safe_fetch(ak.stock_zh_index_spot_em)
+        spot_df = self._safe_fetch_spot()
         
+        if spot_df.empty:
+            print("❌ 警告：全量实时行情抓取失败，ETF技术面审计将受限。")
+            return []
+
         for code, name in self.etfs.items():
             try:
-                # 1. 实时价格与成交量
-                if spot_df is not None and not spot_df.empty:
-                    match = spot_df[spot_df['代码'] == code]
-                    if match.empty: continue
-                    latest_price = float(match['最新价'].values[0])
-                    vol_today = float(match['成交量'].values[0])
-                else:
-                    continue
+                match = spot_df[spot_df['代码'] == code]
+                if match.empty: continue
+                
+                latest_price = float(match['最新价'].values[0])
+                vol_today = float(match['成交量'].values[0])
+                # 涨跌幅
+                pct_chg = float(match['涨跌幅'].values[0])
 
-                # 2. 历史均线与偏离度
-                hist = self._safe_fetch(ak.fund_etf_hist_em, symbol=code, period="daily", start_date=(datetime.now() - timedelta(days=20)).strftime("%Y%m%d"), adjust="qfq")
-                if hist is None or hist.empty: continue
+                # 为了减少 API 调用（防止GitHub IP被封），我们在这里做个折中：
+                # 如果是交易时间内，MA5 暂时用上一交易日收盘和今日实时估算
+                # 或者尝试抓取极简历史
+                hist = None
+                for _ in range(2):
+                    try:
+                        hist = ak.fund_etf_hist_em(symbol=code, period="daily", start_date=(datetime.now() - pd.Timedelta(days=10)).strftime("%Y%m%d"), adjust="qfq")
+                        if not hist.empty: break
+                    except:
+                        time.sleep(2)
                 
-                closes = hist['收盘'].tolist()
-                closes[-1] = latest_price
-                ma5 = sum(closes[-5:]) / 5
-                bias = ((latest_price - ma5) / ma5) * 100
-                
-                # 3. 量比 (实时成交量 / 过去4日平均成交量)
-                vol_avg = hist['成交量'].iloc[-5:-1].mean()
-                vol_ratio = vol_today / vol_avg if vol_avg > 0 else 0
+                if hist is not None and not hist.empty:
+                    closes = hist['收盘'].tolist()
+                    # 如果今日未在历史中，添加进去
+                    if len(closes) >= 4:
+                        ma5 = (sum(closes[-4:]) + latest_price) / 5
+                        bias = ((latest_price - ma5) / ma5) * 100
+                        vol_avg = hist['成交量'].iloc[-5:].mean()
+                        vol_ratio = vol_today / vol_avg if vol_avg > 0 else 0
+                    else:
+                        bias, vol_ratio = 0, 0
+                else:
+                    bias, vol_ratio = 0, 0
                 
                 results.append({
                     "代码": code,
                     "名称": name,
-                    "现价": round(latest_price, 3),
-                    "MA5乖离率": f"{round(bias, 2)}%",
-                    "量比": round(vol_ratio, 2)
+                    "价格": round(latest_price, 3),
+                    "涨跌幅": f"{round(pct_chg, 2)}%",
+                    "乖离率": round(float(bias), 2),
+                    "量比": round(float(vol_ratio), 2)
                 })
-            except: continue
+            except Exception as e:
+                print(f"处理 {code} 时出错: {e}")
+                continue
         return results
 
     def fetch_macro_indicators(self):
         """宏观参数全量扩容：国内+国际、实时+变化"""
         macro = {}
-
-        # --- 1. 货币与流动性 (Domestic) ---
+        
+        # 1. 离岸人民币
         try:
-            shibor = self._safe_fetch(ak.rate_shibor_em) # SHIBOR 利率
-            if shibor is not None:
-                latest_shibor = shibor.iloc[-1]
-                macro['SHIBOR_隔夜'] = f"{latest_shibor['利率']}% (变动: {latest_shibor['涨跌']}bp)"
-        except: pass
-
-        # --- 2. 市场情绪与杠杆 (Domestic) ---
-        try:
-            margin = self._safe_fetch(ak.stock_margin_sh)
-            if margin is not None:
-                curr = margin.iloc[-1]['rzye']
-                prev = margin.iloc[-2]['rzye']
-                change = (curr - prev) / 1e8
-                macro['沪市两融余额'] = f"{curr/1e12:.2f}万亿 (日增减: {round(change, 2)}亿)"
-        except: pass
-
-        # --- 3. 跨境资金 (Northbound) ---
-        try:
-            hsgt = self._safe_fetch(ak.stock_hsgt_north_net_flow_em)
-            if hsgt is not None:
-                macro['北向资金净流入'] = f"{round(hsgt.iloc[-1]['value']/1e8, 2)}亿"
-        except: pass
-
-        # --- 4. 国际宏观与避险 (Global) ---
-        # 实时汇率
-        try:
-            fx = self._safe_fetch(ak.fx_spot_quote)
-            if fx is not None:
+            fx = ak.fx_spot_quote()
+            if not fx.empty:
                 cnh = fx[fx['【名称】'].str.contains('美元/人民币', na=False)].iloc[0]
-                macro['离岸人民币'] = cnh['【最新价】']
+                macro['离岸人民币'] = f"{cnh['【最新价】']} (变动: {cnh['【涨跌幅】']}%)"
+        except: macro['离岸人民币'] = "同步中..."
+
+        # 2. 市场流动性 (SHIBOR)
+        try:
+            shibor = ak.rate_shibor_em()
+            if not shibor.empty:
+                latest = shibor.iloc[-1]
+                macro['SHIBOR隔夜'] = f"{latest['利率']}% ({latest['涨跌']}bp)"
         except: pass
 
-        # 全球波动率与商品 (通过特殊通道避免IP封锁)
+        # 3. 北向资金 (实时流向)
         try:
-            # 尝试通过新浪财经接口抓取美债和VIX替代品
-            # VIX 我们用 A股实际振幅计算 (100% 真实)
-            hs300 = self._safe_fetch(ak.stock_zh_index_daily_em, symbol="sh000300")
-            if hs300 is not None:
-                recent = hs300.tail(5)
-                volatility = ((recent['最高'] - recent['最低']) / recent['收盘'].shift(1)).mean() * 100
-                macro['A股5日平均波动率'] = f"{round(volatility, 2)}%"
+            flow = ak.stock_hsgt_north_net_flow_em()
+            if not flow.empty:
+                macro['北向资金(日内)'] = f"{round(flow.iloc[-1]['value']/1e8, 2)}亿"
         except: pass
 
-        # 国际指数趋势
+        # 4. 恐慌度 (用沪深300日内波幅代替)
         try:
-            # 获取隔夜美股涨跌幅
-            us_stocks = self._safe_fetch(ak.index_investing_global, country="美国", index_name="纳斯达克综合指数", period="每日", start_date="20250101")
-            if us_stocks is not None:
-                macro['隔夜纳指涨跌'] = f"{us_stocks.iloc[-1]['涨跌幅']}%"
+            hs300 = ak.stock_zh_index_spot_em()
+            row = hs300[hs300['代码'] == '000300']
+            if not row.empty:
+                # 振幅估算
+                high = float(row['最高'].values[0])
+                low = float(row['最低'].values[0])
+                prev_close = float(row['昨收'].values[0])
+                volatility = ((high - low) / prev_close) * 100
+                macro['A股实时波动率'] = f"{round(volatility, 2)}%"
+        except: pass
+
+        # 5. 两融余额
+        try:
+            margin = ak.stock_margin_sh()
+            if not margin.empty:
+                macro['沪市两融余额'] = f"{margin.iloc[-1]['rzye']/1e12:.2f}万亿"
         except: pass
 
         return macro
@@ -141,11 +150,9 @@ class DataEngine:
         beijing_tz = pytz.timezone('Asia/Shanghai')
         beijing_now = datetime.now(beijing_tz)
         
-        # 强制执行所有真实抓取
         technical_data = self.fetch_etf_technical()
         macro_data = self.fetch_macro_indicators()
         
-        # 最终审计：确保没有任何 Key 是写死的 Placeholder
         data = {
             "timestamp": beijing_now.strftime("%Y-%m-%d %H:%M:%S (北京时间)"),
             "technical": technical_data,
@@ -155,7 +162,3 @@ class DataEngine:
         with open(f"{self.data_dir}/raw_market.json", "w", encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         return data
-
-if __name__ == "__main__":
-    engine = DataEngine()
-    print(json.dumps(engine.sync_all(), indent=2, ensure_ascii=False))
