@@ -38,8 +38,7 @@ jobs:
         run: |
           git config --global user.name "V13-Cloud-Bot"
           git config --global user.email "bot@v13.cloud"
-          git fetch origin master
-          git checkout origin/master data/audit_result.json || echo "First data file"
           git add data/audit_result.json
           git commit -m "Update Audit Result [$(date +'%Y-%m-%d %H:%M')]" || exit 0
+          git pull --rebase origin master
           git push origin master
