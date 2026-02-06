@@ -2,7 +2,7 @@
   "decision": "WAIT",
   "target": null,
   "attack_factor": 0.8,
-  "rationale": "铁血 CIO 审计报告：技术面未触发任何标的的开火条件 (Bias < -2.5% 且 Vol Ratio > 1.2)。尽管 A50 期货略有上涨 (0.358%)，但纳斯达克下跌 (-1.589%)，市场情绪复杂。宏观层面，流动性数据、两融数据、行业资金流向缺失，数据不全预警。SHIBOR 和 Margin_Debt 数据状态为 FAILED，进一步降低了Attack Factor。因此，维持观望。",
+  "rationale": "铁血 CIO 审计报告：技术面未触发任何标的的开火条件 (Bias < -2.5% 且 Vol Ratio > 1.2)。尽管 A50 期货表现出一定的积极性 (A50_Futures_Change_Pct: 0.358)，但 Nasdaq 下跌 (-1.589%)，且宏观数据中流动性指标、两融数据和行业资金流向缺失，数据不全预警。因此，维持观望。",
   "parameters": {
     "stop_loss": -1.5,
     "stop_profit": 3.0,
