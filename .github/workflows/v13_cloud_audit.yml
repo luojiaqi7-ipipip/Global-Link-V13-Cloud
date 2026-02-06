@@ -32,7 +32,10 @@ jobs:
       - name: Run V13 Audit
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python main.py
+        run: |
+          git fetch origin master
+          git reset --hard origin/master
+          python main.py
         
       - name: Commit and Push
         run: |
@@ -40,5 +43,4 @@ jobs:
           git config --global user.email "bot@v13.cloud"
           git add data/audit_result.json
           git commit -m "Update Audit Result [$(date +'%Y-%m-%d %H:%M')]" || exit 0
-          git pull --rebase origin master
           git push origin master
