@@ -17,9 +17,9 @@ class Harvester:
         self.watchlist = ["159995", "513050", "512760", "512480", "588000", "159915", "510500", "510300", "512660", "512880", "510880", "515080", "512010", "512800", "512690", "159928"]
 
     def harvest_all(self):
-        print(f"🚀 [V13] 开始数据抓取 [{self.timestamp}]...")
+        print(f"🚀 [V13] 开始全量数据抓取 [{self.timestamp}]...")
         raw_data = {
-            "meta": {"timestamp": self.timestamp, "timezone": "Asia/Shanghai", "version": "V13-Final"},
+            "meta": {"timestamp": self.timestamp, "timezone": "Asia/Shanghai", "version": "V13-Full-Restore"},
             "etf_spot": self._get_spot(),
             "macro": self._get_macro(),
             "hist_data": self._get_hist_context()
@@ -36,30 +36,59 @@ class Harvester:
         return obj
 
     def _get_spot(self):
+        print(" -> 正在抓取实时报价 (Tencent)...")
         try:
             symbols = [f"sh{c}" if c.startswith(('5', '6')) else f"sz{c}" for c in self.watchlist]
             r = requests.get(f"http://qt.gtimg.cn/q=s_{','.join(symbols)}", timeout=5)
             if r.status_code == 200:
-                return [{"代码": p.split('~')[2], "名称": p.split('~')[1], "最新价": float(p.split('~')[3]), "成交量": float(p.split('~')[6]), "涨跌幅": float(p.split('~')[5]), "unit": "LOT"} for p in r.text.strip().split(';') if '~' in p]
-        except: pass
+                results = []
+                for p in r.text.strip().split(';'):
+                    if '~' not in p: continue
+                    parts = p.split('~')
+                    results.append({
+                        "代码": parts[2], "名称": parts[1], "最新价": float(parts[3]),
+                        "成交量": float(parts[6]), "涨跌幅": float(parts[5]), "unit": "LOT"
+                    })
+                return results
+        except Exception as e: print(f"Spot Error: {e}")
         return []
 
     def _get_macro(self):
         macro = {}
         def wrap(data): return {**(data if isinstance(data, dict) else {"value": data}), "status": "SUCCESS" if data is not None else "FAILED", "last_update": self.timestamp}
 
-        # 1. 全球宏观 (Yahoo Finance)
-        print(" -> 抓取 Yahoo 宏观...")
-        tk = {"Nasdaq": "^IXIC", "HangSeng": "^HSI", "VIX": "^VIX", "US10Y": "^TNX", "Gold": "GC=F", "CrudeOil": "CL=F", "A50": "XIN9.F", "CNH": "USDCNH=X"}
-        for k, t in tk.items():
-            try:
-                data = yf.Ticker(t).history(period="2d")
-                if not data.empty:
-                    macro[k] = wrap({"price": float(data['Close'].iloc[-1])})
-            except: pass
+        # 1. 全球宏观 (Sina Global - 最快)
+        print(" -> 正在抓取 Sina 全球宏观...")
+        sina_map = {
+            "CNH": "fx_susdcnh", "Nasdaq": "gb_ixic", "HangSeng": "rt_hkHSI",
+            "A50": "hf_CHA50CFD", "VIX": "gb_$vix", "Gold": "hf_GC", "CrudeOil": "hf_CL", "US10Y": "fx_sus10y"
+        }
+        try:
+            url = f"http://hq.sinajs.cn/list={','.join(sina_map.values())}"
+            r = requests.get(url, headers={"Referer": "http://finance.sina.com.cn"}, timeout=5)
+            lines = r.text.strip().split('\n')
+            inv_map = {v: k for k, v in sina_map.items()}
+            for line in lines:
+                try:
+                    sym = line.split('=')[0].replace('var hq_str_', '').strip()
+                    data = line.split('"')[1].split(',')
+                    key = inv_map.get(sym)
+                    if not key or not data or len(data) < 2: continue
+                    
+                    price = 0.0
+                    if key == "A50": price = float(data[0])
+                    elif key == "CNH": price = float(data[1])
+                    elif key == "Nasdaq": price = float(data[1])
+                    elif key == "HangSeng": price = float(data[6])
+                    elif key == "VIX": price = float(data[1])
+                    elif key == "US10Y": price = float(data[1])
+                    elif "hf_" in sym: price = float(data[0])
+                    macro[key] = wrap({"price": price})
+                except: continue
+        except: pass
 
         # 2. 北向资金
-        print(" -> 抓取北向资金...")
+        print(" -> 正在抓取北向资金...")
         try:
             r = requests.get("https://push2.eastmoney.com/api/qt/kamt/get?fields1=f1&fields2=f51,f52", timeout=5).json().get('data', {})
             val = (float(r.get('hk2sh', {}).get('dayNetAmtIn', 0)) + float(r.get('hk2sz', {}).get('dayNetAmtIn', 0))) * 10000
@@ -71,15 +100,15 @@ class Harvester:
         except: pass
 
         # 3. 行业流入
-        print(" -> 抓取行业流入...")
+        print(" -> 正在抓取行业流入...")
         try:
             r = requests.get("https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10&po=1&np=1&fltt=2&invt=2&fid=f62&fs=m:90+t:2+f:!50&fields=f14,f62", timeout=5).json()
             diff = r.get('data', {}).get('diff', [])
             if diff: macro['Sector_Flow'] = wrap({"top_inflow": [{"名称": d['f14'], "今日净额": d['f62']} for d in diff[:3]]})
         except: pass
 
-        # 4. 两融 & 国债
-        print(" -> 抓取 AkShare 指标...")
+        # 4. 两融 & 国债 (AkShare)
+        print(" -> 正在抓取 AkShare 指标...")
         try:
             m = ak.stock_margin_sh()
             if not m.empty: macro['Margin_Debt'] = wrap({"value": float(m.iloc[-1].iloc[-1]), "change_pct": round((m.iloc[-1].iloc[-1]/m.iloc[-2].iloc[-1]-1)*100, 3)})
@@ -92,6 +121,7 @@ class Harvester:
         return macro
 
     def _get_hist_context(self):
+        print(" -> 正在抓取历史背景...")
         ctx = {}
         for c in self.watchlist:
             try:
