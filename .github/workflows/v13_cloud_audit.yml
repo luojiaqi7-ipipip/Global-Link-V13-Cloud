@@ -24,6 +24,8 @@ jobs:
           
       - name: Install Dependencies
         run: |
+          pip install --upgrade pip
+          pip install --upgrade akshare
           pip install -r requirements_action.txt
           
       - name: Run Global-Link SOP Cycle
