@@ -254,17 +254,17 @@ if audit_data:
     # 映射宏观指标到 raw 里的 key
     macro_items = [
         {"label": "离岸人民币", "value": f"{format_val(macro.get('CNH_Price'))} ({format_val(macro.get('CNH_Change'), unit='%')})", "key": "CNH"},
-        {"label": "纳斯达克", "value": format_val(macro.get('Nasdaq_Price')), "key": "Nasdaq"},
-        {"label": "恒生指数", "value": format_val(macro.get('HangSeng_Price')), "key": "HangSeng"},
-        {"label": "A50 期货", "value": format_val(macro.get('A50_Futures_Price')), "key": "A50_Futures"},
+        {"label": "纳斯达克", "value": f"{format_val(macro.get('Nasdaq_Price'))} ({format_val(macro.get('Nasdaq_Change'), unit='%')})", "key": "Nasdaq"},
+        {"label": "恒生指数", "value": f"{format_val(macro.get('HangSeng_Price'))} ({format_val(macro.get('HangSeng_Change'), unit='%')})", "key": "HangSeng"},
+        {"label": "A50 期货", "value": f"{format_val(macro.get('A50_Futures_Price'))} ({format_val(macro.get('A50_Futures_Change'), unit='%')})", "key": "A50_Futures"},
         {"label": "VIX 恐慌指数", "value": format_val(macro.get('VIX')), "key": "VIX"},
+        {"label": "沪深300振幅", "value": f"{format_val(macro.get('A_Share_Amplitude'), unit='%')} ({format_val(macro.get('A_Share_Change'), unit='%')})", "key": "CSI300_Vol"},
         {"label": "中债10Y收益率", "value": format_val(macro.get('CN10Y_Yield'), unit="%"), "key": "CN10Y"},
         {"label": "美债10Y收益率", "value": format_val(macro.get('US10Y_Yield'), unit="%"), "key": "US10Y"},
-        {"label": "纽约黄金", "value": format_val(macro.get('Gold_Price')), "key": "Gold"},
-        {"label": "原油价格", "value": format_val(macro.get('CrudeOil_Price')), "key": "CrudeOil"},
+        {"label": "国内隔夜拆借", "value": format_val(macro.get('Liquidity_Rate'), unit="%"), "key": "SHIBOR"},
+        {"label": "南向净流入(亿)", "value": format_val(macro.get('Southbound_Flow_Billion')), "key": "Southbound"},
         {"label": "两融变动 %", "value": format_val(macro.get('Margin_Change_Pct'), unit="%"), "key": "Margin_Debt"},
-        {"label": "北向资金 (亿)", "value": format_val(macro.get('Northbound_Flow_Billion')), "key": "Northbound"},
-        {"label": "流入行业", "value": ", ".join(macro.get('Inflow_Sectors', [])) if isinstance(macro.get('Inflow_Sectors'), list) and macro.get('Inflow_Sectors') else "等待同步", "key": "Sector_Flow"},
+        {"label": "行业流入", "value": ", ".join(macro.get('Inflow_Sectors', [])) if isinstance(macro.get('Inflow_Sectors'), list) and macro.get('Inflow_Sectors') else "等待同步", "key": "Sector_Flow"},
     ]
     
     # 每行 6 个指标，共两行
