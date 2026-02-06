@@ -53,14 +53,8 @@ class QuantLab:
         m['CNH_Change'] = get_val('CNH', 'change_pct')
         
         # 2. 流动性深度 (国内 SHIBOR + 中美利差背景)
-        shibor = raw_macro.get('SHIBOR', {})
-        if shibor.get('status') == 'SUCCESS':
-            # 适配 AkShare 或 NetEase 的 SHIBOR 结构
-            m['Liquidity_Rate'] = shibor.get('ON')
-            m['Liquidity_Change'] = None # 确保不再硬编码为 0.0
-        else:
-            m['Liquidity_Rate'] = None
-            m['Liquidity_Change'] = None
+        m['Liquidity_Rate'] = get_val('SHIBOR', 'value')
+        m['Liquidity_Change'] = None 
         
         m['CN10Y_Yield'] = get_val('CN10Y', 'yield')
         # US10Y 可能在 price 或 yield 字段
@@ -69,22 +63,18 @@ class QuantLab:
         # 3. 风险偏好 (VIX + A股波动率 + 杠杆情绪)
         m['VIX'] = get_val('VIX', 'price')
         # 优先取 amplitude，没有则取 pct_change
-        amp = get_val('CSI300_Vol', 'amplitude')
-        if amp is None: amp = get_val('CSI300_Vol', 'pct_change')
-        m['A_Share_Amplitude'] = amp
+        m['A_Share_Amplitude'] = get_val('CSI300_Vol', 'amplitude')
+        m['A_Share_Change'] = get_val('CSI300_Vol', 'pct_change')
         
         m['Margin_Change_Pct'] = get_val('Margin_Debt', 'change_pct')
 
-        # 4. 资金流向 (北向 + 行业热点)
-        nb = raw_macro.get('Northbound', {})
-        if nb.get('status') == 'SUCCESS':
-            nb_val = nb.get('value')
-            if nb_val is not None:
-                m['Northbound_Flow_Billion'] = round(float(nb_val) / 1e8, 2)
-            else:
-                m['Northbound_Flow_Billion'] = 0.0 # 默认为 0
+        # 4. 资金流向 (南向/跨境 + 行业热点)
+        sb = raw_macro.get('Southbound', {})
+        if sb.get('status') == 'SUCCESS':
+            val = sb.get('value')
+            m['Southbound_Flow_Billion'] = round(float(val) / 1e8, 2) if val is not None else 0.0
         else:
-            m['Northbound_Flow_Billion'] = None
+            m['Southbound_Flow_Billion'] = None
         
         sf = raw_macro.get('Sector_Flow', {})
         if sf.get('status') == 'SUCCESS':

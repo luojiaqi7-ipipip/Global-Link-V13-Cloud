@@ -61,7 +61,7 @@ class Harvester:
         macro = {}
         def wrap(data): return {**(data if isinstance(data, dict) else {"value": data}), "status": "SUCCESS" if data is not None else "FAILED", "last_update": self.timestamp}
 
-        # 1. 全球宏观 (Sina Global)
+        # 1. 全球宏观 + 国内核心指数 (Sina Global & Domestic)
         sina_map = {
             "CNH": "fx_susdcnh", 
             "Nasdaq": "gb_ndx", 
@@ -69,7 +69,8 @@ class Harvester:
             "A50_Futures": "hf_CHA50CFD", 
             "VIX": "hf_VX",
             "Gold": "hf_GC",
-            "CrudeOil": "hf_CL"
+            "CrudeOil": "hf_CL",
+            "CSI300_Spot": "sh000300"
         }
         try:
             url = f"http://hq.sinajs.cn/list={','.join(sina_map.values())}"
@@ -91,12 +92,16 @@ class Harvester:
                         change_pct = float(data[2]) if len(data) > 2 and data[2] else None
                     elif sym.startswith("rt_"): 
                         price = float(data[2])
-                        # rt_hkHSI: Current=data[2], PrevClose=data[3]
                         change_pct = (float(data[2]) / float(data[3]) - 1) * 100 if len(data) > 3 and data[3] else None
                     elif sym.startswith("hf_"): 
                         price = float(data[0])
-                        # hf_: Current=data[0], PrevClose=data[7]
                         change_pct = (float(data[0]) / float(data[7]) - 1) * 100 if len(data) > 7 and data[7] and float(data[7]) != 0 else None
+                    elif sym.startswith("sh"): # 沪深指数
+                        price = float(data[3])
+                        change_pct = (float(data[3]) / float(data[2]) - 1) * 100 if float(data[2]) != 0 else None
+                        amp = (float(data[4]) - float(data[5])) / float(data[2]) * 100 if float(data[2]) != 0 else None
+                        macro['CSI300_Vol'] = wrap({"amplitude": round(amp, 3), "pct_change": round(change_pct, 3)})
+                        continue # CSI300 special handle
                     else: 
                         price = float(data[1])
                         change_pct = None
@@ -105,33 +110,29 @@ class Harvester:
                 except: pass
         except: pass
 
-        # 2. 国债收益率 (CN & US) - 使用综合接口
+        # 2. 国债收益率 (CN & US)
         try:
             df_rates = ak.bond_zh_us_rate()
             if not df_rates.empty:
-                # 寻找最新的有效数据
                 cn_latest = df_rates.dropna(subset=['中国国债收益率10年']).iloc[-1]
                 macro['CN10Y'] = wrap({"yield": float(cn_latest['中国国债收益率10年'])})
-                
                 us_latest = df_rates.dropna(subset=['美国国债收益率10年']).iloc[-1]
                 macro['US10Y'] = wrap({"price": float(us_latest['美国国债收益率10年'])})
         except: pass
 
-        # 3. 北向资金 (由于新规隐藏实时净流入，改用历史接口取最新有效值)
+        # 3. 跨境资金 (由于新规隐藏北向实时净流入，此处取南向净流入作为对冲情绪参考)
         try:
-            df = ak.stock_hsgt_hist_em(symbol="北向资金")
-            if not df.empty:
-                # 过滤掉 NaN 所在的行，取最后一个有效值
-                valid_df = df.dropna(subset=['当日成交净买额'])
-                if not valid_df.empty:
-                    latest = valid_df.iloc[-1]
-                    val = float(latest['当日成交净买额']) * 1e8
-                    macro['Northbound'] = wrap({"value": val, "date": str(latest['日期'])})
+            df = ak.stock_hsgt_fund_flow_summary_em()
+            south = df[df['资金方向'] == '南向']
+            val = south['成交净买额'].astype(float).sum() * 1e8
+            macro['Southbound'] = wrap({"value": val, "note": "Northbound hidden; using Southbound as proxy"})
         except: pass
 
-        # 4. 行业流入 (东财 Push2)
+        # 4. 行业流入 (尝试使用备选源或增加重试)
         try:
-            r = requests.get("https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10&po=1&np=1&fltt=2&invt=2&fid=f62&fs=m:90+t:2+f:!50&fields=f14,f62", timeout=5).json()
+            headers = {"User-Agent": "Mozilla/5.0", "Referer": "http://finance.eastmoney.com/"}
+            url = "https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10&po=1&np=1&ut=b2884a51627f511a683671f901ad97a9&fltt=2&invt=2&fid=f62&fs=m:90+t:2+f:!50&fields=f14,f62"
+            r = requests.get(url, headers=headers, timeout=5).json()
             diff = r.get('data', {}).get('diff', [])
             if diff: macro['Sector_Flow'] = wrap({"top_inflow": [{"名称": d['f14'], "今日净额": d['f62']} for d in diff[:3]]})
         except: pass
@@ -141,18 +142,22 @@ class Harvester:
             m_sh = ak.macro_china_market_margin_sh()
             m_sz = ak.macro_china_market_margin_sz()
             if not m_sh.empty and not m_sz.empty:
-                # 获取最新的两行数据用于计算变动
                 def get_total(df, idx):
                     col = '融资融券余额' if '融资融券余额' in df.columns else df.columns[-1]
                     return float(df.iloc[idx][col])
-
                 latest_total = get_total(m_sh, -1) + get_total(m_sz, -1)
                 prev_total = get_total(m_sh, -2) + get_total(m_sz, -2)
                 change_pct = (latest_total / prev_total - 1) * 100 if prev_total != 0 else None
                 macro['Margin_Debt'] = wrap({"value": latest_total, "change_pct": change_pct})
         except: pass
 
-        return macro
+        # 6. 国内流动性 (SHIBOR)
+        try:
+            # 简化参数提高成功率
+            shibor = ak.rate_interbank(market="上海银行同业拆借市场", symbol="Shibor人民币", indicator="隔夜")
+            if not shibor.empty:
+                macro['SHIBOR'] = wrap({"value": float(shibor.iloc[-1]['利率'])})
+        except: pass
 
         return macro
 
