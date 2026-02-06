@@ -1,6 +1,6 @@
 {
   "meta": {
-    "timestamp": "20260207_0007",
+    "timestamp": "20260207_0010",
     "timezone": "Asia/Shanghai",
     "version": "V13-Final-Robust"
   },
@@ -139,82 +139,65 @@
       "price": 6.9311,
       "change_pct": -0.8999999999999999,
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     },
     "Nasdaq": {
-      "price": 24899.5593,
-      "change_pct": 1.43,
+      "price": 24896.7479,
+      "change_pct": 1.42,
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     },
     "HangSeng": {
       "price": 26354.34,
       "change_pct": -1.974696749986471,
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     },
     "A50_Futures": {
-      "price": 14921.26,
-      "change_pct": 0.7716620517322914,
+      "price": 14921.54,
+      "change_pct": 0.7735530492334775,
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     },
     "VIX": {
-      "price": 19.294,
-      "change_pct": -7.462829736211029,
+      "price": 19.342,
+      "change_pct": -7.232613908872909,
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     },
     "Gold": {
-      "price": 4973.047,
-      "change_pct": 1.7087023213007368,
+      "price": 4972.148,
+      "change_pct": 1.6903159832293735,
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     },
     "CrudeOil": {
-      "price": 64.019,
-      "change_pct": 1.1518407331332137,
+      "price": 64.091,
+      "change_pct": 1.2656027808500392,
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     },
     "CN10Y": {
       "yield": 1.8102,
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     },
     "US10Y": {
       "price": 4.21,
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     },
     "Northbound": {
       "value": -6774990000.0,
       "date": "2024-08-16",
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
-    },
-    "Sector_Flow": {
-      "top_inflow": [
-        {
-          "名称": "电池",
-          "今日净额": 3164204288.0
-        },
-        {
-          "名称": "化学制品",
-          "今日净额": 3061196032.0
-        },
-        {
-          "名称": "电子元件",
-          "今日净额": 1898080768.0
-        }
-      ],
-      "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     },
     "Margin_Debt": {
       "value": 2672187068152.0,
+      "change_pct": -0.4447612167194803,
       "status": "SUCCESS",
-      "last_update": "20260207_0007"
+      "last_update": "20260207_0010"
     }
   },
   "hist_data": {
