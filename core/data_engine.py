@@ -32,7 +32,6 @@ class DataEngine:
     def fetch_etf_technical(self):
         """获取全量技术指标"""
         results = []
-        # 获取最新的实时快照行情
         try:
             spot_df = ak.stock_zh_index_spot_em()
         except:
@@ -40,56 +39,59 @@ class DataEngine:
 
         for code, name in self.etfs.items():
             try:
-                # 1. 获取最新实时成交价
-                if not spot_df.empty:
-                    match = spot_df[spot_df['代码'] == code]
-                    latest_price = float(match['最新价'].values[0])
-                    vol_today = float(match['成交量'].values[0])
-                else:
-                    latest_price = None
+                if spot_df.empty: continue
+                match = spot_df[spot_df['代码'] == code]
+                if match.empty: continue
+                
+                latest_price = float(match['最新价'].values[0])
+                vol_today = float(match['成交量'].values[0])
 
-                # 2. 获取历史数据计算 MA5 和 均量
                 hist = ak.fund_etf_hist_em(symbol=code, period="daily", start_date="20250101", adjust="qfq")
                 if hist.empty: continue
                 
-                # 计算包含今日实时价的 MA5
-                # 我们取历史前4天 + 今日最新价
                 closes = hist['收盘'].tolist()
-                if latest_price:
-                    closes[-1] = latest_price # 替换历史最后一天（可能尚未收盘）为最新价
-                
+                closes[-1] = latest_price
                 ma5 = sum(closes[-5:]) / 5
-                bias = ((latest_price - ma5) / ma5) * 100 if latest_price else 0
+                bias = ((latest_price - ma5) / ma5) * 100
                 
-                # 计算量比 (今日实时量 / 过去5日平均量)
                 vol_avg = hist.iloc[-6:-1]['成交量'].mean()
                 vol_ratio = vol_today / vol_avg if vol_avg > 0 else 0
                 
                 results.append({
                     "代码": code,
                     "名称": name,
-                    "价格": round(float(latest_price), 3) if latest_price else 0,
+                    "价格": round(latest_price, 3),
                     "乖离率": round(float(bias), 2),
                     "量比": round(float(vol_ratio), 2)
                 })
-            except Exception as e:
-                print(f"抓取 {code} 异常: {e}")
-                continue
+            except: continue
         return results
 
     def fetch_macro_indicators(self):
-        """抓取宏观指标"""
+        """抓取真实宏观指标 - 严禁硬编码"""
         macro = {}
+        # 1. 离岸人民币 (实时)
         try:
             fx = ak.fx_spot_quote()
             row = fx[fx['【名称】'].str.contains('美元/人民币', na=False)].iloc[0]
             macro['离岸人民币'] = row['【最新价】']
-        except: macro['离岸人民币'] = "6.9382 (估)"
-        macro['恐慌指数(VIX)'] = "20.74" 
+        except: macro['离岸人民币'] = "获取失败"
+
+        # 2. A股实际波动率 (用沪深300近5日振幅均值代替 VIX)
+        try:
+            hs300 = ak.stock_zh_index_daily_em(symbol="sh000300")
+            recent = hs300.tail(5)
+            # 振幅 = (最高 - 最低) / 昨收
+            volatility = ((recent['最高'] - recent['最低']) / recent['收盘'].shift(1)).mean() * 100
+            macro['A股实际波动率'] = f"{round(volatility, 2)}%"
+        except: macro['A股实际波动率'] = "获取失败"
+
+        # 3. 两融余额 (最新)
         try:
             margin = ak.stock_margin_sh()
             macro['沪市两融余额'] = f"{margin.iloc[-1]['rzye']/1e12:.2f}万亿"
-        except: macro['沪市两融余额'] = "1.58万亿"
+        except: macro['沪市两融余额'] = "获取失败"
+
         return macro
 
     def sync_all(self):
