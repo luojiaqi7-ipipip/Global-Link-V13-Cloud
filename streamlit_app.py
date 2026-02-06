@@ -4,26 +4,26 @@ import os
 import pandas as pd
 
 # 🎨 页面配置：黑色科技风，宽屏显示
-st.set_page_config(page_title="Global-Link V13 量化狙击看板", layout="wide")
+st.set_page_config(page_title="Global-Link V13 量化研判系统", layout="wide")
 
-# 加载自定义 CSS 提升视觉效果
+# 自定义 CSS 优化视觉，去除中二风格
 st.markdown("""
     <style>
     .main { background-color: #0a0b10; color: #e0e0e0; }
     .decision-card {
         padding: 30px;
-        border-radius: 20px;
-        background: linear-gradient(135deg, rgba(0, 242, 255, 0.1), rgba(112, 0, 255, 0.1));
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.02);
         border: 1px solid rgba(255, 255, 255, 0.1);
         margin-bottom: 25px;
     }
     .metric-container {
-        background: rgba(255, 255, 255, 0.03);
-        padding: 15px;
+        background: rgba(255, 255, 255, 0.01);
+        padding: 20px;
         border-radius: 12px;
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    h1, h2, h3 { font-family: 'Inter', sans-serif; }
+    [data-testid="stMetricValue"] { font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -39,100 +39,92 @@ def load_data():
 
 data = load_data()
 
-# --- 头部标题 ---
-st.title("🛰️ GLOBAL-LINK V13 量化狙击系统")
-st.write(f"**当前大脑**: `Gemini 3 Flash (顶级审计模式)` | **运行环境**: `GitHub Actions 全云端`")
+# --- 头部 ---
+st.title("🛡️ Global-Link V13 量化研判系统")
+st.write(f"模型：`Gemini 3 Flash` | 运行环境：`云端全自动集群` | 状态：`监测中`")
 st.markdown("---")
 
 if data:
-    # --- 第一行：核心决策区 ---
-    decision = data.get('decision', '等待')
-    target = data.get('target', '无')
+    # --- 核心决策区 ---
+    decision = data.get('decision', 'WAIT')
+    target = data.get('target', 'N/A')
     
-    # 颜色逻辑
-    color = "#888888"
-    if decision == "BUY": color = "#00ff88"; decision_zh = "🎯 建议开火 (BUY)"
-    elif decision == "SELL": color = "#ff3366"; decision_zh = "🏳️ 建议平仓 (SELL)"
-    elif decision == "HOLD": color = "#00f2ff"; decision_zh = "🛡️ 继续持仓 (HOLD)"
-    else: decision_zh = "🔭 观望 (WAIT)"
+    # 颜色与翻译
+    color_map = {"BUY": "#00ff88", "SELL": "#ff3366", "HOLD": "#00f2ff", "WAIT": "#888888"}
+    decision_map = {"BUY": "建议买入", "SELL": "建议卖出", "HOLD": "继续持有", "WAIT": "持币观望"}
+    
+    color = color_map.get(decision, "#888888")
+    decision_zh = decision_map.get(decision, "等待数据")
 
     col_main, col_params = st.columns([2, 1])
     
     with col_main:
         st.markdown(f"""
             <div class="decision-card">
-                <h1 style='color: {color}; margin: 0; font-size: 3rem;'>{decision_zh}</h1>
-                <h2 style='color: #888888; margin-top: 10px;'>目标标的: {target}</h2>
-                <p style='font-size: 1.2rem; margin-top: 20px; line-height: 1.6; color: #ffffff;'>
-                    <b>AI 审计核心逻辑:</b><br>{data.get('rationale', '正在搜集情报...') }
+                <h1 style='color: {color}; margin: 0;'>{decision_zh} ({decision})</h1>
+                <h3 style='color: #888888; margin-top: 10px;'>核心标的: {target}</h3>
+                <div style='height: 1px; background: rgba(255,255,255,0.1); margin: 20px 0;'></div>
+                <p style='font-size: 1.1rem; line-height: 1.6;'>
+                    <b>审计逻辑摘要：</b><br>{data.get('rationale', '数据同步中...') }
                 </p>
             </div>
             """, unsafe_allow_html=True)
 
     with col_params:
-        st.subheader("🛡️ 铁血执行参数")
+        st.subheader("执行参考参数")
         params = data.get('parameters', {})
         st.markdown(f"""
             <div class="metric-container">
-                <p style='color: #888888;'>进攻系数 (Factor)</p>
-                <h2 style='color: #ffcc00;'>{data.get('attack_factor', 1.0)}</h2>
-                <hr style='opacity: 0.1'>
-                <p style='color: #888888;'>铁血止损线</p>
+                <small style='color: #888888;'>风险调节系数 (Factor)</small>
+                <h2 style='color: #ffcc00; margin-bottom: 15px;'>{data.get('attack_factor', 1.0)}</h2>
+                <small style='color: #888888;'>铁血止损线 (Factor已加权)</small>
                 <h3 style='color: #ff3366;'>{params.get('stop_loss', '0.0')} %</h3>
-                <p style='color: #888888; margin-top: 10px;'>目标止盈线</p>
+                <small style='color: #888888;'>目标止盈线</small>
                 <h3 style='color: #00ff88;'>{params.get('stop_profit', '0.0')} %</h3>
-                <p style='color: #888888; margin-top: 10px;'>时间熔断</p>
-                <h3 style='color: #ffffff;'>{params.get('time_limit', '4 天')}</h3>
+                <small style='color: #888888;'>建议持仓时长</small>
+                <h3 style='color: #ffffff;'>{params.get('time_limit', '4个交易日')}</h3>
             </div>
             """, unsafe_allow_html=True)
 
     st.markdown("---")
 
-    # --- 第二行：全景数据区 ---
-    st.header("🌐 全景战术地图")
+    # --- 数据全景区 ---
+    st.header("实时市场快照")
     col_macro, col_full = st.columns([1, 2])
 
     with col_macro:
-        st.subheader("📊 宏观脉冲")
+        st.subheader("宏观环境指标")
         macro = data.get('macro', {})
         if macro:
             for k, v in macro.items():
-                st.info(f"**{k}**: {v}")
+                st.write(f"**{k}**: `{v}`")
         else:
-            st.warning("正在同步全球宏观指标...")
+            st.info("正在获取实时宏观指标...")
 
     with col_full:
-        st.subheader("⚔️ 16罗汉实时战况")
+        st.subheader("ETF 监测池实时数据")
         candidates = data.get('top_candidates', [])
         if candidates:
-            # 转换成中文表头展示
+            # 使用更专业的表格展示，包含中文名称
             df = pd.DataFrame(candidates)
-            df.columns = ["代码", "乖离率(Bias)", "量比"]
-            st.dataframe(df, use_container_width=True)
+            df.columns = ["代码", "名称", "乖离率(%)", "量比"]
+            st.dataframe(df, use_container_width=True, hide_index=True)
         else:
-            st.write("当前无标的进入狙击区间")
+            st.warning("当前监测池中未发现符合超跌条件的标的")
 
     st.write("---")
-    st.caption(f"最后云端同步时间: {data.get('timestamp', '未知')}")
+    st.caption(f"数据更新时间: {data.get('timestamp', 'N/A')} (每 4 小时刷新一次)")
 else:
-    st.warning("⚠️ 正在等待云端第一次审计完成...")
-    st.info("系统正在 GitHub Actions 中抓取全量数据并由 Gemini 3 Flash 进行评审，请在 60 秒后刷新。")
+    st.error("无法加载审计结果数据。请确认 GitHub Actions 是否正常运行。")
 
-# 侧边栏：新手指南
+# 侧边栏：功能解释与说明
 with st.sidebar:
-    st.header("📖 狙击手手册")
+    st.header("系统说明")
+    st.info("本系统由 V13 全云端架构驱动，每日 09:15, 13:30, 15:15 自动执行全量数据抓取与 AI 审计。")
     st.markdown("""
-    **1. 乖离率 (Bias)**
-    反映跌幅是否过载。低于 -2.5% 意味着进入“黄金坑”。
-    
-    **2. 量比**
-    反映成交热度。大于 1.2 意味着有大资金入场承接。
-    
-    **3. 进攻系数 (Factor)**
-    由 AI 根据政策权重计算。1.2 代表全力进攻，0.8 代表轻仓试探。
-    
-    **4. 4天熔断**
-    超跌反弹的时效性极强。4天内不反弹，逻辑即失效，必须撤离。
+    - **乖离率 (Bias)**: 反映价格偏离 5 日均线的程度。
+    - **量比**: 今日成交量与过去 5 日均量的比值。
+    - **系数 (Factor)**: 根据宏观和政策面调整的风险杠杆。
     """)
-    if st.button("🔄 强制云端同步"):
+    if st.button("🔄 刷新页面视图"):
         st.rerun()
