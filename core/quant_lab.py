@@ -102,8 +102,10 @@ class QuantLab:
         m['CrudeOil_Price'] = get_val('CrudeOil', 'price')
 
         # 6. 全球指数
-        for key in ['Nasdaq', 'HangSeng', 'A50']:
+        for key in ['Nasdaq', 'HangSeng', 'A50_Futures']:
             m[f'{key}_Price'] = get_val(key, 'price')
+            
+        return m
             
         # A50 特殊映射
         m['A50_Futures_Price'] = get_val('A50_Futures', 'price') or get_val('A50', 'price')
