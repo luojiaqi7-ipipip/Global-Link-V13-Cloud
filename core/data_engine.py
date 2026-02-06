@@ -32,23 +32,49 @@ class DataEngine:
     def fetch_etf_technical(self):
         """获取全量技术指标"""
         results = []
+        # 获取最新的实时快照行情
+        try:
+            spot_df = ak.stock_zh_index_spot_em()
+        except:
+            spot_df = pd.DataFrame()
+
         for code, name in self.etfs.items():
             try:
+                # 1. 获取最新实时成交价
+                if not spot_df.empty:
+                    match = spot_df[spot_df['代码'] == code]
+                    latest_price = float(match['最新价'].values[0])
+                    vol_today = float(match['成交量'].values[0])
+                else:
+                    latest_price = None
+
+                # 2. 获取历史数据计算 MA5 和 均量
                 hist = ak.fund_etf_hist_em(symbol=code, period="daily", start_date="20250101", adjust="qfq")
                 if hist.empty: continue
-                hist['ma5'] = hist['收盘'].rolling(window=5).mean()
-                latest = hist.iloc[-1]
-                bias = ((latest['收盘'] - latest['ma5']) / latest['ma5']) * 100
+                
+                # 计算包含今日实时价的 MA5
+                # 我们取历史前4天 + 今日最新价
+                closes = hist['收盘'].tolist()
+                if latest_price:
+                    closes[-1] = latest_price # 替换历史最后一天（可能尚未收盘）为最新价
+                
+                ma5 = sum(closes[-5:]) / 5
+                bias = ((latest_price - ma5) / ma5) * 100 if latest_price else 0
+                
+                # 计算量比 (今日实时量 / 过去5日平均量)
                 vol_avg = hist.iloc[-6:-1]['成交量'].mean()
-                vol_ratio = latest['成交量'] / vol_avg if vol_avg > 0 else 0
+                vol_ratio = vol_today / vol_avg if vol_avg > 0 else 0
+                
                 results.append({
                     "代码": code,
                     "名称": name,
-                    "价格": round(float(latest['收盘']), 3),
+                    "价格": round(float(latest_price), 3) if latest_price else 0,
                     "乖离率": round(float(bias), 2),
                     "量比": round(float(vol_ratio), 2)
                 })
-            except: continue
+            except Exception as e:
+                print(f"抓取 {code} 异常: {e}")
+                continue
         return results
 
     def fetch_macro_indicators(self):
@@ -67,7 +93,6 @@ class DataEngine:
         return macro
 
     def sync_all(self):
-        # 强制使用北京时间并显式标记
         beijing_tz = pytz.timezone('Asia/Shanghai')
         beijing_now = datetime.now(beijing_tz)
         data = {
