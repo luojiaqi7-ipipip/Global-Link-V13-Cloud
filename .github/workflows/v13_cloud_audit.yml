@@ -41,12 +41,12 @@ jobs:
         run: |
           git config --global user.name "V13-Archiver"
           git config --global user.email "archive@v13.cloud"
-          git add data/raw/*.json data/processed/*.json data/audit/*.json data/audit_result.json
-          git status
+          git add data/
           git commit -m "V13 Persistence: [$(date +'%Y-%m-%d %H:%M')]" || echo "No changes to commit"
           
-          # 优雅推送：先拉取再推送，避免 --force 破坏历史
-          git pull --rebase origin master
+          # 鲁棒推送：处理冲突，以当前生成的审计结果为准
+          git fetch origin master
+          git rebase -X theirs origin/master
           git push origin master
 
       - name: Storage Optimization
