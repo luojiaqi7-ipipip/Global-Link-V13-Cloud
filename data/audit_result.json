@@ -1,18 +1,31 @@
 {
-  "timestamp": "2026-02-06T03:52:03.218486",
+  "timestamp": "2026-02-06 03:57:54",
   "decision": "WAIT",
   "target": "NONE",
-  "attack_factor": 0.8,
-  "rationale": "Audit failed on Technical Weight 1.0. All monitored assets report Volume Ratio < 0.60, failing the 1.2 requirement. MA5 Bias levels (-1.94 to 0.44) are significantly above the -2.5% trigger threshold, indicating insufficient oversold exhaustion. Macro data is null, triggering a defensive override. No entry signals detected.",
+  "attack_factor": 0.9,
+  "rationale": "量化审计结论：核心技术指标无一触及入场阈值。16罗汉截面中，乖离率最深的‘中概互联’(-1.94%)与‘芯片ETF’(-1.64%)均未达到-2.5%的强力超卖标准，且所有标的量比均处于0.35-0.58的极低区间，远低于1.2的必选门槛。这表明当前市场处于缩量阴跌阶段，缺乏多头动能与恐慌性抛压出清，属于高风险震荡区。宏观VIX报20.74，显示市场情绪不稳。在没有满足权重金字塔第一顺位‘技术面’强制要求的情况下，进攻系数降为0.9，执行避险等待策略。",
   "parameters": {
     "entry": 0.0,
-    "stop_loss": 1.2,
-    "stop_profit": 2.4,
-    "time_limit": "4 Days"
+    "stop_loss": 1.35,
+    "stop_profit": 2.7,
+    "time_limit": "4 天"
   },
   "macro": {
-    "status": "DATA_MISSING",
-    "risk_level": "NEUTRAL_CAUTIOUS"
+    "离岸人民币": "6.9382 (估)",
+    "恐慌指数(VIX)": "20.74",
+    "沪市两融余额": "1.58万亿",
+    "护盘力度": "常规水平"
   },
-  "top_candidates": []
+  "top_candidates": [
+    {
+      "code": "513050",
+      "bias": -1.94,
+      "vol": 0.58
+    },
+    {
+      "code": "159995",
+      "bias": -1.64,
+      "vol": 0.43
+    }
+  ]
 }
