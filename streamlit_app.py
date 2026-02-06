@@ -2,97 +2,82 @@ import streamlit as st
 import json
 import os
 import pandas as pd
-from datetime import datetime
 
+# 🎨 UI Configuration
 st.set_page_config(page_title="Global-Link V13 Dashboard", layout="wide")
 
-# Custom CSS for Premium Look
-st.markdown("""
-    <style>
-    .main {
-        background-color: #0a0b10;
-        color: #e0e0e0;
-    }
-    [data-testid="stMetricValue"] {
-        font-family: 'JetBrains Mono', monospace;
-    }
-    .stMetric {
-        background-color: rgba(255, 255, 255, 0.05);
-        padding: 20px;
-        border-radius: 15px;
-    }
-    .decision-card {
-        padding: 40px;
-        border-radius: 24px;
-        background: linear-gradient(135deg, rgba(0, 242, 255, 0.1), rgba(112, 0, 255, 0.1));
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 30px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# 📂 Data Loading Logic
+def get_data_path():
+    # Attempt to locate the JSON relative to this script
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_dir, 'data', 'audit_result.json')
 
 def load_data():
-    data_path = "data/audit_result.json"
-    if os.path.exists(data_path):
+    path = get_data_path()
+    if os.path.exists(path):
         try:
-            with open(data_path, 'r', encoding='utf-8') as f:
+            with open(path, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except Exception as e:
-            st.error(f"Error loading JSON: {e}")
+            st.error(f"JSON Parsing Error: {e}")
+            return None
     return None
 
-data = load_data()
+# 🚀 Main View
+st.title("🚀 GLOBAL-LINK V13 CLOUD")
+st.write("---")
 
-st.title("🚀 GLOBAL-LINK V13 QUANTUM CLOUD")
-st.markdown(f"**STATUS**: `ACTIVE AUDIT (GEMINI 3 FLASH)`")
-st.markdown("---")
+data = load_data()
 
 if data:
     col1, col2 = st.columns([2, 1])
     
     with col1:
         decision = data.get('decision', 'WAIT')
-        target = data.get('target', 'N/A')
-        rationale = data.get('rationale', 'No rationale provided.')
+        color = "#00f2ff"
+        if decision == "BUY": color = "#00ff88"
+        elif decision == "SELL": color = "#ff3366"
         
         st.markdown(f"""
-            <div class="decision-card">
-                <h1 style='color: #00f2ff; margin-bottom: 0;'>{decision}</h1>
-                <h3 style='color: #888888;'>Target: {target}</h3>
-                <p style='font-size: 1.1rem; margin-top: 20px; line-height: 1.6;'>{rationale}</p>
+            <div style="padding: 30px; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                <h1 style='color: {color}; margin: 0;'>{decision}</h1>
+                <h2 style='color: #888888;'>Target: {data.get('target', 'N/A')}</h2>
+                <p style='font-size: 1.1rem; margin-top: 15px;'>{data.get('rationale', 'No rationale provided.')}</p>
             </div>
             """, unsafe_allow_html=True)
         
+        st.write("### 🛡️ Ironclad Parameters")
         params = data.get('parameters', {})
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Attack Factor", data.get('attack_factor', 1.0))
-        c2.metric("Stop Loss", params.get('stop_loss', 0.0))
-        c3.metric("Stop Profit", params.get('stop_profit', 0.0))
+        p1, p2, p3 = st.columns(3)
+        p1.metric("Factor", data.get('attack_factor', 1.0))
+        p2.metric("Stop Loss", params.get('stop_loss', 0.0))
+        p3.metric("Stop Profit", params.get('stop_profit', 0.0))
 
     with col2:
-        st.subheader("📊 Macro Indicators")
+        st.subheader("📊 Macro Pulse")
         macro = data.get('macro', {})
         if macro:
             for k, v in macro.items():
                 st.write(f"**{k}**: `{v}`")
         else:
-            st.info("Macro data temporarily unavailable")
+            st.info("Macro data empty")
 
-        st.markdown("---")
-        st.subheader("⚔️ Top Candidates")
+        st.subheader("⚔️ Candidates")
         candidates = data.get('top_candidates', [])
         if candidates:
-            df = pd.DataFrame(candidates)
-            st.table(df)
+            st.dataframe(pd.DataFrame(candidates))
         else:
             st.write("No candidates met criteria")
 
-    st.markdown("---")
-    st.caption(f"Last Cloud Sync: {data.get('timestamp', 'Unknown')}")
+    st.write("---")
+    st.caption(f"Sync Timestamp: {data.get('timestamp', 'N/A')}")
 else:
-    st.warning("Waiting for the first Cloud Audit to complete or JSON data missing.")
-
-if st.sidebar.button("Force Cloud Refresh"):
-    st.info("Triggering GitHub Action...")
-    # Triggering action via CLI from my side
-    st.rerun()
+    st.warning("⚠️ CRITICAL: Data file `data/audit_result.json` not found or empty.")
+    st.info("The Cloud Action may still be running for the first time.")
+    
+    # Debug info
+    if st.checkbox("Show System Debug"):
+        st.write("Current Dir:", os.getcwd())
+        st.write("Dir Contents:", os.listdir('.'))
+        if os.path.exists('data'):
+            st.write("Data Dir Contents:", os.listdir('data'))
