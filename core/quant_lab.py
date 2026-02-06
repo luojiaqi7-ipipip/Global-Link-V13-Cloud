@@ -80,12 +80,9 @@ class QuantLab:
         if nb.get('status') == 'SUCCESS':
             nb_val = nb.get('value')
             if nb_val is not None:
-                try:
-                    m['Northbound_Flow_Billion'] = round(float(nb_val) / 1e8, 2)
-                except:
-                    m['Northbound_Flow_Billion'] = 0.0
+                m['Northbound_Flow_Billion'] = round(float(nb_val) / 1e8, 2)
             else:
-                m['Northbound_Flow_Billion'] = None
+                m['Northbound_Flow_Billion'] = 0.0 # 默认为 0
         else:
             m['Northbound_Flow_Billion'] = None
         

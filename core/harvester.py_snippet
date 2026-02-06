@@ -1,0 +1,66 @@
+import akshare as ak
+import json
+import os
+from datetime import datetime, timedelta
+import pytz
+import pandas as pd
+import requests
+
+class Harvester:
+    def __init__(self, data_dir="data/raw"):
+        self.data_dir = data_dir
+        os.makedirs(self.data_dir, exist_ok=True)
+        self.beijing_tz = pytz.timezone('Asia/Shanghai')
+        self.timestamp = datetime.now(self.beijing_tz).strftime("%Y%m%d_%H%M")
+        self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+
+    def _get_macro(self):
+        macro = {}
+        def wrap(data): return {**(data if isinstance(data, dict) else {"value": data}), "status": "SUCCESS" if data is not None else "FAILED", "last_update": self.timestamp}
+
+        # 1. Sina Global (Real-time Macro)
+        sina_map = {"US10Y": "fx_sus10y", "VIX": "gb_vix", "CNH": "fx_susdcnh", "Nasdaq": "gb_ixic", "A50": "hf_CHA50CFD"}
+        try:
+            r = requests.get(f"http://hq.sinajs.cn/list={','.join(sina_map.values())}", headers={"Referer": "http://finance.sina.com.cn"}, timeout=5)
+            lines = r.text.strip().split('\n')
+            inv_map = {v: k for k, v in sina_map.items()}
+            for line in lines:
+                sym = line.split('=')[0].replace('var hq_str_', '').strip()
+                data = line.split('"')[1].split(',')
+                key = inv_map.get(sym)
+                if key and len(data) > 1:
+                    price = float(data[1]) if "hf_" not in sym else float(data[0])
+                    macro[key] = wrap({"price": price})
+        except: pass
+
+        # 2. Northbound (Robust Logic)
+        try:
+            # Try RT first
+            r_rt = requests.get("https://push2.eastmoney.com/api/qt/kamt/get?fields1=f1,f2&fields2=f51,f52", headers=self.headers, timeout=5).json()
+            val = (float(r_rt['data']['hk2sh']['dayNetAmtIn']) + float(r_rt['data']['hk2sz']['dayNetAmtIn'])) * 10000
+            # Fallback to Hist if RT is 0 (likely post-market/closed)
+            if val == 0:
+                r_hist = requests.get("https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPT_MUTUAL_DEAL_HISTORY&columns=ALL&filter=(MUTUAL_TYPE%3D%22001%22)&sortColumns=TRADE_DATE&sortTypes=-1&pageSize=10", headers=self.headers, timeout=5).json()
+                for item in r_hist['result']['data']:
+                    if item['NET_DEAL_AMT'] is not None:
+                        val = float(item['NET_DEAL_AMT']) * 1e8
+                        break
+            macro['Northbound'] = wrap({"value": val})
+        except: macro['Northbound'] = wrap(None)
+
+        # 3. Margin Debt (SH + SZ Total)
+        try:
+            m_sh = ak.stock_margin_sse()
+            m_sz = ak.stock_margin_szse()
+            total = float(m_sh.iloc[-1]['rzye']) + float(m_sz.iloc[-1]['rzye'])
+            macro['Margin_Debt'] = wrap({"value": total, "date": m_sh.iloc[-1]['opDate']})
+        except: macro['Margin_Debt'] = wrap(None)
+
+        # 4. Sector Flow (Top 3)
+        try:
+            r = requests.get("https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=3&po=1&np=1&ut=b2884a51627f511a683671f901ad97a9&fltt=2&invt=2&fid=f62&fs=m:90+t:2+f:!50&fields=f14,f62", timeout=5).json()
+            diff = r.get('data', {}).get('diff', [])
+            macro['Sector_Flow'] = wrap({"top_inflow": [{"名称": d['f14'], "今日净额": d['f62']} for d in diff]})
+        except: macro['Sector_Flow'] = wrap(None)
+
+        return macro
