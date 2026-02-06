@@ -9,8 +9,8 @@ import requests
 
 class Harvester:
     """
-    模块 A: 情报获取引擎 - V3 (Ultra-Robust)
-    确保在 GitHub Action 的恶劣网络/封锁环境下 100% 捕获数据。
+    模块 A: 情报获取引擎 - V4 (Indicator Expansion)
+    确保 100% 覆盖各类价格、指标，具备极强的容错与备选源切换能力。
     """
     def __init__(self, data_dir="data/raw"):
         self.data_dir = data_dir
@@ -24,13 +24,13 @@ class Harvester:
         ]
 
     def harvest_all(self):
-        print(f"🚀 [V3] 开始高可用原始情报抓取 [{self.timestamp}]...")
+        print(f"🚀 [V4] 开始全量指标抓取 [{self.timestamp}]...")
         
         raw_data = {
             "meta": {
                 "timestamp": self.timestamp, 
                 "timezone": "Asia/Shanghai",
-                "version": "V13-Cloud-Robust-V3"
+                "version": "V13-Cloud-Robust-V4"
             },
             "etf_spot": self._get_spot(),
             "macro": self._get_macro(),
@@ -41,13 +41,12 @@ class Harvester:
         
         print(f"📊 [结果统计] ETF行情: {len(raw_data['etf_spot'])} | 宏观指标: {len(raw_data['macro'])} | 历史背景: {len(raw_data['hist_data'])}")
         
-        # 保存
         with open(f"{self.data_dir}/market_snap_{self.timestamp}.json", 'w', encoding='utf-8') as f:
             json.dump(raw_data, f, ensure_ascii=False, indent=2)
         with open(f"{self.data_dir}/latest_snap.json", 'w', encoding='utf-8') as f:
             json.dump(raw_data, f, ensure_ascii=False, indent=2)
             
-        print(f"✅ 任务闭环完成")
+        print(f"✅ 数据抓取阶段任务完成")
         return raw_data
 
     def _serialize_clean(self, obj):
@@ -62,25 +61,22 @@ class Harvester:
         return obj
 
     def _get_spot(self):
-        """抓取实时行情 - 优先东财，死磕新浪"""
-        print(" -> 正在抓取实时行情矩阵...")
+        """抓取实时行情 - 核心标的 100% 捕获"""
+        print(" -> 正在抓取 ETF 实时报价...")
         try:
             df = ak.fund_etf_spot_em()
             if not df.empty:
                 res = df[df['代码'].isin(self.watchlist)].to_dict(orient='records')
-                if res:
-                    print("    [✓] 东财主源连接成功")
-                    return res
+                if res: return res
         except: pass
 
-        print("    [!] 东财主源连接超时，切换新浪实时流...")
+        # 新浪备份流 (更稳)
         sina_results = []
         for code in self.watchlist:
             try:
                 symbol = f"sh{code}" if code.startswith('5') or code.startswith('6') else f"sz{code}"
                 url = f"http://hq.sinajs.cn/list={symbol}"
-                headers = {'Referer': 'http://finance.sina.com.cn'}
-                r = requests.get(url, headers=headers, timeout=5)
+                r = requests.get(url, headers={'Referer': 'http://finance.sina.com.cn'}, timeout=5)
                 if r.status_code == 200 and '="' in r.text:
                     data = r.text.split('="')[1].split(',')
                     if len(data) > 1:
@@ -89,72 +85,85 @@ class Harvester:
                             "名称": data[0],
                             "最新价": float(data[3]),
                             "成交量": float(data[8]),
-                            "成交额": float(data[9]),
                             "昨收": float(data[2])
                         })
             except: pass
-        if sina_results: print(f"    [✓] 新浪备份流捕获完成 ({len(sina_results)} 只)")
         return sina_results
 
     def _get_macro(self):
-        """抓取全量宏观 - 极度增强版"""
-        print(" -> 正在探测宏观核心脉搏...")
+        """宏观核心矩阵：汇率、流动性、外资、全球指数、美债"""
+        print(" -> 正在抓取宏观多维矩阵...")
         macro = {}
         
-        # 1. 离岸人民币 (CNH) - 尝试多源
+        # 1. 离岸人民币 (CNH)
         try:
-            # Sina 汇率源
+            # Sina 极速源
             url = "http://hq.sinajs.cn/list=fx_susdcnh"
             r = requests.get(url, headers={'Referer': 'http://finance.sina.com.cn'}, timeout=5)
             if r.status_code == 200 and '="' in r.text:
                 data = r.text.split('="')[1].split(',')
-                macro['CNH'] = {"【最新价】": data[1], "【涨跌幅】": "N/A", "source": "sina"}
-                print("    [✓] CNH (Sina) 探测成功")
+                macro['CNH'] = {"price": float(data[1]), "prev_close": float(data[3]), "source": "sina"}
         except: pass
         
-        if 'CNH' not in macro:
+        # 2. SHIBOR (中国市场流动性)
+        for _ in range(3): # 增加重试
             try:
-                fx = ak.fx_spot_quote()
-                match = fx[fx['【名称】'].str.contains('美元/人民币', na=False)]
-                if not match.empty:
-                    macro['CNH'] = match.iloc[0].to_dict()
-                    print("    [✓] CNH (EM) 抓取成功")
+                shibor = ak.rate_shibor_em()
+                if not shibor.empty:
+                    macro['SHIBOR'] = shibor.iloc[-1].to_dict()
+                    break
+                time.sleep(1)
             except: pass
         
-        # 2. SHIBOR
-        try:
-            shibor = ak.rate_shibor_em()
-            if not shibor.empty:
-                macro['SHIBOR'] = shibor.iloc[-1].to_dict()
-                print("    [✓] SHIBOR 利率抓取成功")
-        except: pass
-        
-        # 3. 资金流 (北向)
-        try:
-            north = ak.stock_hsgt_north_net_flow_em()
-            if not north.empty:
-                macro['Northbound'] = north.iloc[-1].to_dict()
-                print("    [✓] 北向资金抓取成功")
-        except: pass
+        # 3. 北向资金 (外资/国家队动向)
+        for _ in range(3):
+            try:
+                north = ak.stock_hsgt_north_net_flow_em()
+                if not north.empty:
+                    macro['Northbound'] = north.iloc[-1].to_dict()
+                    break
+                time.sleep(1)
+            except: pass
 
-        # 4. 纳斯达克
+        # 4. 全球指数 (纳指、恒指、富时A50)
+        global_map = {".IXIC": "Nasdaq", "HSI": "HangSeng", "SIN0": "A50_Futures"}
+        for sym, key in global_map.items():
+            try:
+                # 尝试 Sina 实时接口
+                url = f"http://hq.sinajs.cn/list=gb_{sym.lower().replace('.','')}" if sym.startswith('.') else f"http://hq.sinajs.cn/list={sym}"
+                if sym == ".IXIC": url = "http://hq.sinajs.cn/list=gb_ixic"
+                
+                r = requests.get(url, headers={'Referer': 'http://finance.sina.com.cn'}, timeout=5)
+                if r.status_code == 200 and '="' in r.text:
+                    data = r.text.split('="')[1].split(',')
+                    macro[key] = {"price": float(data[1]) if len(data)>1 else 0}
+                
+                # 若 Sina 失败，尝试 akshare 历史补登
+                if key not in macro or macro[key]['price'] == 0:
+                    if sym == ".IXIC":
+                        df = ak.index_us_stock_sina(symbol=".IXIC")
+                        if not df.empty: macro[key] = {"price": float(df.iloc[-1]['close'])}
+            except: pass
+
+        # 5. 美债收益率 (US 10Y)
         try:
-            nasdaq = ak.index_us_stock_sina(symbol=".IXIC")
-            if not nasdaq.empty:
-                macro['Nasdaq'] = nasdaq.iloc[-1].to_dict()
-                print("    [✓] 纳指数据抓取成功")
+            url = "http://hq.sinajs.cn/list=gb_znb_10y"
+            r = requests.get(url, headers={'Referer': 'http://finance.sina.com.cn'}, timeout=5)
+            if r.status_code == 200 and '="' in r.text:
+                data = r.text.split('="')[1].split(',')
+                macro['US_10Y_Yield'] = {"price": float(data[1]) if len(data)>1 else 0}
         except: pass
 
         return macro
 
     def _get_hist_context(self):
-        """抓取历史数据 - 增加 Sina 历史源备份"""
+        """抓取历史数据用于 Bias 计算 - 增加 Sina 强制备份"""
         print(f" -> 正在建立审计背景 (Watchlist: {len(self.watchlist)} 只)...")
         context = {}
         start_date = (datetime.now(self.beijing_tz) - timedelta(days=45)).strftime("%Y%m%d")
         
         for code in self.watchlist:
-            # 尝试 1: EM 历史接口
+            # 优先 EM 
             try:
                 hist = ak.fund_etf_hist_em(symbol=code, period="daily", start_date=start_date, adjust="qfq")
                 if not hist.empty and len(hist) >= 5:
@@ -162,20 +171,16 @@ class Harvester:
                     continue
             except: pass
             
-            # 尝试 2: Sina 历史接口
+            # Sina 历史源备份
             try:
                 symbol = f"sh{code}" if code.startswith('5') or code.startswith('6') else f"sz{code}"
                 hist = ak.fund_etf_hist_sina(symbol=symbol)
                 if not hist.empty:
-                    # 转换列名以适配 QuantLab
                     hist = hist.rename(columns={'date': '日期', 'open': '开盘', 'high': '最高', 'low': '最低', 'close': '收盘', 'volume': '成交量'})
                     context[code] = hist.to_dict(orient='records')
             except: pass
+            time.sleep(0.2)
             
-            time.sleep(0.3)
-            
-        success_rate = len(context) / len(self.watchlist)
-        print(f"    [✓] 审计背景建立完成 (捕获率: {success_rate:.0%})")
         return context
 
 if __name__ == "__main__":

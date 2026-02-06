@@ -39,25 +39,33 @@ class QuantLab:
     def _calc_macro(self, raw_macro):
         """处理宏观矩阵，提取核心变化率"""
         m = {}
-        # 汇率
+        # 1. 汇率
         if 'CNH' in raw_macro:
-            m['CNH_Price'] = raw_macro['CNH'].get('【最新价】', 'N/A')
-            m['CNH_Change'] = raw_macro['CNH'].get('【涨跌幅】', 0)
-        # 流动性
+            p = raw_macro['CNH'].get('price', 0)
+            pc = raw_macro['CNH'].get('prev_close', 0)
+            m['CNH_Price'] = p
+            m['CNH_Change'] = round((p/pc - 1)*100, 3) if pc != 0 else 0
+        
+        # 2. 流动性 (SHIBOR)
         if 'SHIBOR' in raw_macro:
             m['Liquidity_Rate'] = raw_macro['SHIBOR'].get('利率', 'N/A')
             m['Liquidity_Change'] = raw_macro['SHIBOR'].get('涨跌', 0)
-        # 资金流
+        
+        # 3. 资金流 (北向)
         if 'Northbound' in raw_macro:
             m['Northbound_Flow_Billion'] = round(raw_macro['Northbound'].get('value', 0) / 1e8, 2)
-        # 全球指数
-        if 'Nasdaq' in raw_macro:
-            m['Nasdaq_Price'] = raw_macro['Nasdaq'].get('latest_price', 'N/A')
-        elif 'Nasdaq_EM' in raw_macro:
-            m['Nasdaq_Price'] = raw_macro['Nasdaq_EM'].get('最新价', 'N/A')
         
-        if 'China_10Y_Bond' in raw_macro:
-            m['China_10Y_Bond'] = raw_macro['China_10Y_Bond'].get('yield', 'N/A')
+        # 4. 全球指数 (纳指、恒指、富时A50)
+        if 'Nasdaq' in raw_macro:
+            m['Nasdaq_Price'] = raw_macro['Nasdaq'].get('price', 'N/A')
+        if 'HangSeng' in raw_macro:
+            m['HangSeng_Price'] = raw_macro['HangSeng'].get('price', 'N/A')
+        if 'A50_Futures' in raw_macro:
+            m['A50_Futures_Price'] = raw_macro['A50_Futures'].get('price', 'N/A')
+            
+        # 5. 美债收益率
+        if 'US_10Y_Yield' in raw_macro:
+            m['US_10Y_Yield'] = raw_macro['US_10Y_Yield'].get('price', 'N/A')
             
         return m
 
@@ -77,13 +85,16 @@ class QuantLab:
                     df_hist = pd.DataFrame(hist_map[code])
                     if len(df_hist) < 5: continue
                     
-                    closes = df_hist['收盘'].tolist()
+                    # 统一列名（支持 EM 和 Sina 两种格式）
+                    closes = df_hist['收盘'].tolist() if '收盘' in df_hist else df_hist['收盘价'].tolist()
+                    vols = df_hist['成交量'].tolist()
+                    
                     ma5 = sum(closes[-5:]) / 5
                     current_price = float(s.get('最新价', 0))
                     
                     bias = ((current_price - ma5) / ma5) * 100
                     
-                    vol_avg = df_hist['成交量'].iloc[-5:].mean()
+                    vol_avg = sum(vols[-5:]) / 5
                     current_vol = float(s.get('成交量', 0))
                     vol_ratio = current_vol / vol_avg if vol_avg > 0 else 0
                     
