@@ -1,7 +1,7 @@
 {
   "timestamp": "20260206_2148",
   "macro_matrix": {
-    "CNH_Price": 6.9329,
+    "CNH_Price": 6.9332,
     "CNH_Change": null,
     "Liquidity_Rate": null,
     "Liquidity_Change": null,
@@ -13,11 +13,11 @@
     "Northbound_Flow_Billion": 0.0,
     "Inflow_Sectors": null,
     "Outflow_Sectors": null,
-    "Gold_Price": 4952.81,
-    "CrudeOil_Price": 62.816,
+    "Gold_Price": 4953.824,
+    "CrudeOil_Price": 62.782,
     "Nasdaq_Price": 22540.586,
     "HangSeng_Price": 26559.951,
-    "A50_Futures_Price": 14878.48
+    "A50_Futures_Price": 14878.6
   },
   "macro_health": {
     "CNH": {
@@ -69,5 +69,102 @@
       "last_update": "20260206_2148"
     }
   },
-  "technical_matrix": []
+  "technical_matrix": [
+    {
+      "code": "159995",
+      "name": "芯片ETF",
+      "price": 1.85,
+      "bias": -1.64,
+      "vol_ratio": 0.81,
+      "real_time_ma5": 1.881
+    },
+    {
+      "code": "512660",
+      "name": "军工ETF",
+      "price": 1.44,
+      "bias": -1.56,
+      "vol_ratio": 0.81,
+      "real_time_ma5": 1.463
+    },
+    {
+      "code": "513050",
+      "name": "中概互联网ETF易方达",
+      "price": 1.404,
+      "bias": -1.53,
+      "vol_ratio": 0.85,
+      "real_time_ma5": 1.426
+    },
+    {
+      "code": "512760",
+      "name": "芯片ETF",
+      "price": 1.73,
+      "bias": -1.47,
+      "vol_ratio": 0.76,
+      "real_time_ma5": 1.756
+    },
+    {
+      "code": "512480",
+      "name": "半导体ETF",
+      "price": 1.577,
+      "bias": -1.38,
+      "vol_ratio": 0.8,
+      "real_time_ma5": 1.599
+    },
+    {
+      "code": "588000",
+      "name": "科创50ETF",
+      "price": 1.499,
+      "bias": -1.19,
+      "vol_ratio": 0.89,
+      "real_time_ma5": 1.517
+    },
+    {
+      "code": "159915",
+      "name": "创业板ETF易方达",
+      "price": 3.229,
+      "bias": -0.99,
+      "vol_ratio": 0.81,
+      "real_time_ma5": 3.261
+    },
+    {
+      "code": "510500",
+      "name": "中证500ETF",
+      "price": 8.213,
+      "bias": -0.8,
+      "vol_ratio": 0.78,
+      "real_time_ma5": 8.279
+    },
+    {
+      "code": "510300",
+      "name": "沪深300ETF华泰柏瑞",
+      "price": 4.649,
+      "bias": -0.44,
+      "vol_ratio": 0.67,
+      "real_time_ma5": 4.67
+    },
+    {
+      "code": "512880",
+      "name": "证券ETF",
+      "price": 1.186,
+      "bias": 0.0,
+      "vol_ratio": 0.66,
+      "real_time_ma5": 1.186
+    },
+    {
+      "code": "515080",
+      "name": "中证红利ETF",
+      "price": 1.598,
+      "bias": 0.19,
+      "vol_ratio": 0.57,
+      "real_time_ma5": 1.595
+    },
+    {
+      "code": "510880",
+      "name": "红利ETF华泰柏瑞",
+      "price": 3.126,
+      "bias": 0.26,
+      "vol_ratio": 0.55,
+      "real_time_ma5": 3.118
+    }
+  ]
 }

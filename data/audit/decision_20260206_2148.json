@@ -2,7 +2,7 @@
   "decision": "WAIT",
   "target": null,
   "attack_factor": 0.8,
-  "rationale": "[🚨高警戒-核心数据缺失] 铁血 CIO 审计报告：鉴于 technical_matrix 为空，无法进行技术面分析。宏观数据方面，CNH、A50_Futures 和 Nasdaq 数据完整，但 VIX、US10Y、CN10Y、Margin_Debt 和 Sector_Flow 数据缺失，缺失比例过高，数据不全预警。综合考虑，Attack Factor 降至最低 0.8，采取观望策略。",
+  "rationale": "[🚨高警戒-核心数据缺失] 铁血 CIO 审计报告：技术面未触发任何标的的开火条件（Bias < -2.5% 且 Vol Ratio > 1.2）。宏观层面，虽然 CNH 为 SUCCESS，但 VIX, US10Y, CN10Y, Margin_Debt, Sector_Flow 均为 FAILED，宏观数据缺失比例过高，超过30%，存在数据不全预警。A50_Futures 数据正常，但综合考虑，风险过高，维持 WAIT 策略。",
   "parameters": {
     "stop_loss": -1.5,
     "stop_profit": 3.0,
@@ -11,7 +11,7 @@
   "top_candidates": [],
   "timestamp": "20260206_2148",
   "macro_snapshot": {
-    "CNH_Price": 6.9329,
+    "CNH_Price": 6.9332,
     "CNH_Change": null,
     "Liquidity_Rate": null,
     "Liquidity_Change": null,
@@ -23,10 +23,10 @@
     "Northbound_Flow_Billion": 0.0,
     "Inflow_Sectors": null,
     "Outflow_Sectors": null,
-    "Gold_Price": 4952.81,
-    "CrudeOil_Price": 62.816,
+    "Gold_Price": 4953.824,
+    "CrudeOil_Price": 62.782,
     "Nasdaq_Price": 22540.586,
     "HangSeng_Price": 26559.951,
-    "A50_Futures_Price": 14878.48
+    "A50_Futures_Price": 14878.6
   }
 }
