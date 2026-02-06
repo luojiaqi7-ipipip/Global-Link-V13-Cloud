@@ -245,12 +245,16 @@ if audit_data:
 
     def format_val(val, unit="", suffix=""):
         if val is None or val == "N/A" or val == "...":
-            return "N/A"
+            return "等待同步"
+        # 修复：如果是 0，也可能是尚未抓取到有效值，或者真的是 0
+        # 这里根据用户需求，如果不想要 N/A，可以显示具体数值 0 或 "等待同步"
+        if val == 0 or val == 0.0:
+            return f"0{unit}{suffix}"
         return f"{val}{unit}{suffix}"
 
     # 映射宏观指标到 raw 里的 key
     macro_items = [
-        {"label": "离岸人民币", "value": f"{macro.get('CNH_Price', 'N/A')} ({macro.get('CNH_Change', 0)}%)", "key": "CNH"},
+        {"label": "离岸人民币", "value": f"{format_val(macro.get('CNH_Price'))} ({format_val(macro.get('CNH_Change'), unit='%')})", "key": "CNH"},
         {"label": "纳斯达克", "value": format_val(macro.get('Nasdaq_Price')), "key": "Nasdaq"},
         {"label": "恒生指数", "value": format_val(macro.get('HangSeng_Price')), "key": "HangSeng"},
         {"label": "A50 期货", "value": format_val(macro.get('A50_Futures_Price')), "key": "A50_Futures"},
@@ -261,7 +265,7 @@ if audit_data:
         {"label": "原油价格", "value": format_val(macro.get('CrudeOil_Price')), "key": "CrudeOil"},
         {"label": "两融变动 %", "value": format_val(macro.get('Margin_Change_Pct'), unit="%"), "key": "Margin_Debt"},
         {"label": "北向资金 (亿)", "value": format_val(macro.get('Northbound_Flow_Billion')), "key": "Northbound"},
-        {"label": "流入行业", "value": ", ".join(macro.get('Inflow_Sectors', [])) if isinstance(macro.get('Inflow_Sectors'), list) and macro.get('Inflow_Sectors') else "N/A", "key": "Sector_Flow"},
+        {"label": "流入行业", "value": ", ".join(macro.get('Inflow_Sectors', [])) if isinstance(macro.get('Inflow_Sectors'), list) and macro.get('Inflow_Sectors') else "等待同步", "key": "Sector_Flow"},
     ]
     
     # 每行 6 个指标，共两行

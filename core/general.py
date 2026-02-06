@@ -50,6 +50,10 @@ class General:
 - 你必须首先审计 [数据矩阵] 中的 `macro_health` 和 `technical_matrix` 的完整性。
 - 强制指令 1: 若核心技术指标 (technical_matrix) 缺失或为空，Attack Factor 必须强降至 0.8，决策倾向于 WAIT。
 - 强制指令 2: 若宏观背景指标 (macro_matrix) 缺失比例 > 30% (即 FAILED 状态超过 4 项)，Attack Factor 严禁超过 1.0，并须在 Rationale 中明确标注“数据不全预警”。
+- 核心背景缺位指令 (高警戒模式): 若 `CNH`、`A50_Futures` 或 `Nasdaq` 中任一核心指标状态为 FAILED，你必须进入“高警戒模式”：
+  1. Attack Factor 强制降至最低值 0.8。
+  2. Decision 必须为 WAIT。
+  3. 在 Rationale 开头标注 [🚨高警戒-核心数据缺失]。
 - 实时性审计: 若 `macro_health` 中任何关键项的 `status` 为 FAILED 或 `last_update` 距离当前时间过久，必须在审计报告中体现，并据此调低 Attack Factor 或触发 WAIT 指令。
 
 [多标的择优原则]

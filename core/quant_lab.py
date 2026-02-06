@@ -38,63 +38,68 @@ class QuantLab:
         return processed
 
     def _calc_macro(self, raw_macro):
-        """处理宏观矩阵 - V13 Cloud 增强版"""
+        """处理宏观矩阵 - V13 Cloud 增强版 (强类型安全)"""
         m = {}
+        
+        def get_val(key, subkey, default=None):
+            ind = raw_macro.get(key, {})
+            if ind.get('status') == 'SUCCESS':
+                return ind.get(subkey, default)
+            return default
+
         # 1. 核心汇率 (人民币情绪)
-        if 'CNH' in raw_macro:
-            p = raw_macro['CNH'].get('price', 0)
-            pc = raw_macro['CNH'].get('prev_close', 0)
-            m['CNH_Price'] = p
-            m['CNH_Change'] = round((p/pc - 1)*100, 3) if pc != 0 else 0
+        m['CNH_Price'] = get_val('CNH', 'price')
+        m['CNH_Change'] = get_val('CNH', 'change_pct')
         
         # 2. 流动性深度 (国内 SHIBOR + 中美利差背景)
-        if 'SHIBOR' in raw_macro:
-            m['Liquidity_Rate'] = raw_macro['SHIBOR'].get('利率', 'N/A')
-            m['Liquidity_Change'] = raw_macro['SHIBOR'].get('涨跌', 0)
+        shibor = raw_macro.get('SHIBOR', {})
+        if shibor.get('status') == 'SUCCESS':
+            # 适配 AkShare 的 SHIBOR 结构，提取 ON (隔夜利率)
+            m['Liquidity_Rate'] = shibor.get('ON')
+            m['Liquidity_Change'] = 0.0 # 暂时固定，待后续增加同比
+        else:
+            m['Liquidity_Rate'] = None
+            m['Liquidity_Change'] = None
         
-        if 'CN10Y' in raw_macro:
-            m['CN10Y_Yield'] = raw_macro['CN10Y'].get('yield')
-        if 'US10Y' in raw_macro:
-            m['US10Y_Yield'] = raw_macro['US10Y'].get('price')
+        m['CN10Y_Yield'] = get_val('CN10Y', 'yield')
+        # US10Y 在 yfinance 中通常以 price 返回 ^TNX
+        m['US10Y_Yield'] = get_val('US10Y', 'price')
             
         # 3. 风险偏好 (VIX + A股波动率 + 杠杆情绪)
-        if 'VIX' in raw_macro:
-            m['VIX'] = raw_macro['VIX'].get('price')
-        if 'CSI300_Vol' in raw_macro:
-            m['A_Share_Amplitude'] = raw_macro['CSI300_Vol'].get('amplitude')
-        if 'Margin_Debt' in raw_macro:
-            m['Margin_Change_Pct'] = raw_macro['Margin_Debt'].get('change_pct')
+        m['VIX'] = get_val('VIX', 'price')
+        m['A_Share_Amplitude'] = get_val('CSI300_Vol', 'amplitude')
+        m['Margin_Change_Pct'] = get_val('Margin_Debt', 'change_pct')
 
-        # 3. 资金流向 (北向 + 行业热点)
-        if 'Northbound' in raw_macro:
-            nb_val = raw_macro['Northbound'].get('value')
+        # 4. 资金流向 (北向 + 行业热点)
+        nb = raw_macro.get('Northbound', {})
+        if nb.get('status') == 'SUCCESS':
+            nb_val = nb.get('value')
             if nb_val is not None:
-                m['Northbound_Flow_Billion'] = round(float(nb_val) / 1e8, 2)
+                try:
+                    m['Northbound_Flow_Billion'] = round(float(nb_val) / 1e8, 2)
+                except (TypeError, ValueError):
+                    m['Northbound_Flow_Billion'] = None
             else:
-                m['Northbound_Flow_Billion'] = 0.0
+                m['Northbound_Flow_Billion'] = None
+        else:
+            m['Northbound_Flow_Billion'] = None
         
-        if 'Sector_Flow' in raw_macro:
-            m['Inflow_Sectors'] = [s['名称'] for s in raw_macro['Sector_Flow'].get('top_inflow', [])]
-            m['Outflow_Sectors'] = [s['名称'] for s in raw_macro['Sector_Flow'].get('top_outflow', [])]
+        sf = raw_macro.get('Sector_Flow', {})
+        if sf.get('status') == 'SUCCESS':
+            m['Inflow_Sectors'] = [s['名称'] for s in sf.get('top_inflow', [])]
+            m['Outflow_Sectors'] = [s['名称'] for s in sf.get('top_outflow', [])]
+        else:
+            m['Inflow_Sectors'] = None
+            m['Outflow_Sectors'] = None
 
         # 5. 另类数据 (避险与通胀)
-        if 'Gold' in raw_macro:
-            m['Gold_Price'] = raw_macro['Gold'].get('price')
-        if 'CrudeOil' in raw_macro:
-            m['CrudeOil_Price'] = raw_macro['CrudeOil'].get('price')
+        m['Gold_Price'] = get_val('Gold', 'price')
+        m['CrudeOil_Price'] = get_val('CrudeOil', 'price')
 
         # 6. 全球指数
         for key in ['Nasdaq', 'HangSeng', 'A50_Futures']:
-            if key in raw_macro:
-                m[f'{key}_Price'] = raw_macro[key].get('price', 'N/A')
-                # V13 增强：增加变动率输出，供 AI 决策参考
-                if 'change_pct' in raw_macro[key]:
-                    m[f'{key}_Change_Pct'] = raw_macro[key].get('change_pct')
-                elif 'prev_close' in raw_macro[key] and raw_macro[key].get('price') != 'N/A':
-                    p = raw_macro[key].get('price')
-                    pc = raw_macro[key].get('prev_close')
-                    if pc and pc != 0:
-                        m[f'{key}_Change_Pct'] = round((p/pc - 1)*100, 3)
+            m[f'{key}_Price'] = get_val(key, 'price')
+            m[f'{key}_Change_Pct'] = get_val(key, 'change_pct')
             
         return m
 
@@ -103,6 +108,7 @@ class QuantLab:
         V13 Cloud 增强版：
         1. 实时 MA5 重构 (过去 4 日 + 今日当前价)
         2. 成交量单位强校验 (LOT -> SHARE)
+        3. 强类型安全 (None 检查)
         """
         matrix = []
         if not spot: return []
@@ -113,45 +119,55 @@ class QuantLab:
                 if not code or code not in hist_map: continue
                 
                 df_hist = pd.DataFrame(hist_map[code])
-                if len(df_hist) < 4: continue # 至少需要 4 天历史数据来算实时 MA5
+                if len(df_hist) < 4: continue
                 
                 # 1. 价格与实时乖离率 (Bias) 重构
-                # 新公式：实时 MA5 = (过去 4 日收盘价总和 + 今日当前价格) / 5
-                closes_hist = df_hist['收盘'].tolist()
-                current_price = float(s.get('最新价', 0))
+                curr_price_raw = s.get('最新价')
+                if curr_price_raw is None: continue
+                current_price = float(curr_price_raw)
+                
+                closes_hist = df_hist['收盘'].dropna().astype(float).tolist()
+                if len(closes_hist) < 4: continue
                 
                 real_time_ma5 = (sum(closes_hist[-4:]) + current_price) / 5
-                bias = (current_price / real_time_ma5 - 1) * 100 if real_time_ma5 != 0 else 0
+                bias = (current_price / real_time_ma5 - 1) * 100 if real_time_ma5 != 0 else None
                 
                 # 2. 成交量单位强校验 (强制统一为“股”)
-                # 处理历史数据成交量
                 hist_unit = df_hist.iloc[0].get('unit', 'SHARE')
-                vols_hist = df_hist['成交量'].astype(float).tolist()
+                vols_hist = df_hist['成交量'].dropna().astype(float).tolist()
                 if hist_unit == 'LOT':
                     vols_hist = [v * 100 for v in vols_hist]
                 
-                # 处理实时成交量
-                current_vol = float(s.get('成交量', 0))
+                current_vol_raw = s.get('成交量')
+                if current_vol_raw is None: continue
+                current_vol = float(current_vol_raw)
+                
                 spot_unit = s.get('unit', 'SHARE')
                 if spot_unit == 'LOT':
                     current_vol *= 100
                 
                 # 计算量比 (Vol Ratio)
-                vol_avg = sum(vols_hist[-5:]) / 5 if len(vols_hist) >= 5 else sum(vols_hist) / len(vols_hist)
-                vol_ratio = current_vol / vol_avg if vol_avg > 0 else 0
+                if len(vols_hist) >= 5:
+                    vol_avg = sum(vols_hist[-5:]) / 5
+                elif len(vols_hist) > 0:
+                    vol_avg = sum(vols_hist) / len(vols_hist)
+                else:
+                    vol_avg = 0
+                    
+                vol_ratio = current_vol / vol_avg if vol_avg > 0 else None
                 
                 matrix.append({
                     "code": code,
-                    "name": s.get('名称', 'N/A'),
+                    "name": s.get('名称', '等待同步'),
                     "price": current_price,
-                    "bias": round(bias, 2),
-                    "vol_ratio": round(vol_ratio, 2),
+                    "bias": round(bias, 2) if bias is not None else None,
+                    "vol_ratio": round(vol_ratio, 2) if vol_ratio is not None else None,
                     "real_time_ma5": round(real_time_ma5, 3)
                 })
             except Exception as e:
                 print(f"    [!] 指标计算失败 {s.get('代码')}: {e}")
                 
-        return sorted(matrix, key=lambda x: x['bias'])
+        return sorted([m for m in matrix if m['bias'] is not None], key=lambda x: x['bias'])
 
 if __name__ == "__main__":
     lab = QuantLab()
