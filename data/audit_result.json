@@ -2,7 +2,7 @@
   "decision": "WAIT",
   "target": null,
   "attack_factor": 0.8,
-  "rationale": "铁血 CIO 审计报告：当前技术面未触发任何标的的开火条件（Bias < -2.5% 且 Vol Ratio > 1.2）。所有宏观指标健康，但缺乏技术面支撑，故维持观望。当前市场无符合条件的标的。维持高警戒模式，等待更佳时机。",
+  "rationale": "铁血 CIO 审计报告：当前技术面未触发任何标的的开火条件 (Bias < -2.5% 且 Vol Ratio > 1.2)。所有宏观指标健康，但缺乏技术面支持，无法赋予更高的 Attack Factor。维持观望。",
   "parameters": {
     "stop_loss": -1.5,
     "stop_profit": 3.0,
