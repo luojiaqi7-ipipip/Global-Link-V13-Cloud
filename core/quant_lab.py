@@ -1,15 +1,16 @@
 import json
 import os
 import pandas as pd
+from core.intel_engine import IntelEngine
 
 class QuantLab:
     """
-    模块 B: 逻辑计算引擎 - V6 (Consistent Units)
-    假设原始数据成交量单位已由 Harvester 统一为“股”。
+    模块 B: 逻辑计算引擎 - V14 (Intel Engine Integrated)
     """
     def __init__(self, raw_file="data/raw/latest_snap.json", out_dir="data/processed"):
         self.raw_file = raw_file
         self.out_dir = out_dir
+        self.intel = IntelEngine()
         os.makedirs(self.out_dir, exist_ok=True)
 
     def process(self):
@@ -34,66 +35,71 @@ class QuantLab:
         with open(f"{self.out_dir}/latest_metrics.json", 'w', encoding='utf-8') as f:
             json.dump(processed, f, ensure_ascii=False, indent=2)
 
-        print(f"📈 量化矩阵已生成: {out_path}")
+        print(f"📈 量化特征矩阵已生成: {out_path}")
         return processed
 
     def _calc_macro(self, raw_macro):
-        """处理宏观矩阵 - V13 Cloud 增强版 (强类型安全)"""
+        """处理宏观矩阵 - V14 特征全貌版"""
         m = {}
         
-        def get_val(key, subkey, default=None):
+        def get_full_signal(key, subkey='price'):
             ind = raw_macro.get(key, {})
+            val = None
             if ind.get('status') == 'SUCCESS':
                 val = ind.get(subkey)
-                return val if val is not None else default
-            return default
-
-        # 1. 核心汇率 (人民币情绪)
-        m['CNH_Price'] = get_val('CNH', 'price') or get_val('CNH', 'value')
-        m['CNH_Change'] = get_val('CNH', 'change_pct')
-        
-        # 2. 流动性深度 (国内 SHIBOR + 中美利差背景)
-        m['Liquidity_Rate'] = get_val('SHIBOR', 'value')
-        m['Liquidity_Change'] = None 
-        
-        m['CN10Y_Yield'] = get_val('CN10Y', 'yield')
-        # US10Y 可能在 price 或 yield 字段
-        m['US10Y_Yield'] = get_val('US10Y', 'price') or get_val('US10Y', 'yield')
+                if val is None and subkey == 'price':
+                    val = ind.get('value') or ind.get('yield')
             
-        # 3. 风险偏好 (VIX + A股波动率 + 杠杆情绪)
-        m['VIX'] = get_val('VIX', 'price')
-        # 优先取 amplitude，没有则取 pct_change
-        m['A_Share_Amplitude'] = get_val('CSI300_Vol', 'amplitude')
-        m['A_Share_Change'] = get_val('CSI300_Vol', 'pct_change')
-        
-        m['Margin_Change_Pct'] = get_val('Margin_Debt', 'change_pct')
+            # 获取历史特征
+            features = self.intel.get_features(key) or {}
+            
+            return {
+                "value": val if val is not None else features.get("value"),
+                "change_pct": ind.get('change_pct') if ind.get('status') == 'SUCCESS' else None,
+                "p_20d": features.get("p_20d", 50.0),
+                "p_60d": features.get("p_60d", 50.0),
+                "z_score": features.get("z_score", 0.0),
+                "slope": features.get("slope", 0.0)
+            }
 
-        # 4. 资金流向 (南向/跨境 + 行业热点)
+        # 核心指标定义
+        m['CNH'] = get_full_signal('CNH')
+        m['Nasdaq'] = get_full_signal('Nasdaq')
+        m['HangSeng'] = get_full_signal('HangSeng')
+        m['A50_Futures'] = get_full_signal('A50_Futures')
+        m['VIX'] = get_full_signal('VIX')
+        m['Gold'] = get_full_signal('Gold')
+        m['CrudeOil'] = get_full_signal('CrudeOil')
+        m['CN10Y'] = get_full_signal('CN10Y', 'yield')
+        m['US10Y'] = get_full_signal('US10Y')
+        m['SHIBOR'] = get_full_signal('SHIBOR', 'value')
+        
+        # 特殊处理：沪深300振幅
+        csi300_data = raw_macro.get('CSI300_Vol', {})
+        csi300_features = self.intel.get_features('CSI300_Vol') or {}
+        m['A_Share_Vol'] = {
+            "amplitude": csi300_data.get('amplitude'),
+            "pct_change": csi300_data.get('pct_change'),
+            "p_20d": csi300_features.get("p_20d", 50.0),
+            "z_score": csi300_features.get("z_score", 0.0),
+            "slope": csi300_features.get("slope", 0.0)
+        }
+        
+        # 资金流向
         sb = raw_macro.get('Southbound', {})
-        if sb.get('status') == 'SUCCESS':
-            val = sb.get('value')
-            m['Southbound_Flow_Billion'] = round(float(val) / 1e8, 2) if val is not None else 0.0
-        else:
-            m['Southbound_Flow_Billion'] = None
+        sb_features = self.intel.get_features('Southbound') or {}
+        m['Southbound'] = {
+            "value_billion": round(float(sb.get('value', 0)) / 1e8, 2) if sb.get('value') else 0.0,
+            "p_20d": sb_features.get("p_20d", 50.0),
+            "z_score": sb_features.get("z_score", 0.0),
+            "slope": sb_features.get("slope", 0.0)
+        }
         
-        # 5. 另类数据 (避险与通胀)
-        m['Gold_Price'] = get_val('Gold', 'price')
-        m['CrudeOil_Price'] = get_val('CrudeOil', 'price')
-
-        # 6. 全球指数
-        for key in ['Nasdaq', 'HangSeng', 'A50_Futures']:
-            m[f'{key}_Price'] = get_val(key, 'price')
-            m[f'{key}_Change'] = get_val(key, 'change_pct')
+        m['Margin_Debt'] = get_full_signal('Margin_Debt', 'change_pct')
             
         return m
 
     def _calc_tech(self, spot, hist_map):
-        """
-        V13 Cloud 增强版：
-        1. 实时 MA5 重构 (过去 4 日 + 今日当前价)
-        2. 成交量单位强校验 (LOT -> SHARE)
-        3. 强类型安全 (None 检查)
-        """
         matrix = []
         if not spot: return []
             
@@ -105,54 +111,30 @@ class QuantLab:
                 df_hist = pd.DataFrame(hist_map[code])
                 if len(df_hist) < 4: continue
                 
-                # 1. 价格与实时乖离率 (Bias) 重构
-                curr_price_raw = s.get('最新价')
-                if curr_price_raw is None: continue
-                current_price = float(curr_price_raw)
-                
+                current_price = float(s.get('最新价', 0))
                 closes_hist = df_hist['收盘'].dropna().astype(float).tolist()
-                if len(closes_hist) < 4: continue
                 
                 real_time_ma5 = (sum(closes_hist[-4:]) + current_price) / 5
                 bias = (current_price / real_time_ma5 - 1) * 100 if real_time_ma5 != 0 else None
                 
-                # 2. 成交量单位强校验 (强制统一为“股”)
-                hist_unit = df_hist.iloc[0].get('unit', 'SHARE')
                 vols_hist = df_hist['成交量'].dropna().astype(float).tolist()
-                if hist_unit == 'LOT':
+                if df_hist.iloc[0].get('unit') == 'LOT':
                     vols_hist = [v * 100 for v in vols_hist]
                 
-                current_vol_raw = s.get('成交量')
-                if current_vol_raw is None: continue
-                current_vol = float(current_vol_raw)
-                
-                spot_unit = s.get('unit', 'SHARE')
-                if spot_unit == 'LOT':
+                current_vol = float(s.get('成交量', 0))
+                if s.get('unit') == 'LOT':
                     current_vol *= 100
                 
-                # 计算量比 (Vol Ratio)
-                if len(vols_hist) >= 5:
-                    vol_avg = sum(vols_hist[-5:]) / 5
-                elif len(vols_hist) > 0:
-                    vol_avg = sum(vols_hist) / len(vols_hist)
-                else:
-                    vol_avg = 0
-                    
+                vol_avg = sum(vols_hist[-5:]) / 5 if len(vols_hist) >= 5 else (sum(vols_hist) / len(vols_hist) if vols_hist else 0)
                 vol_ratio = current_vol / vol_avg if vol_avg > 0 else None
                 
                 matrix.append({
                     "code": code,
-                    "name": s.get('名称', '等待同步'),
+                    "name": s.get('名称', 'N/A'),
                     "price": current_price,
                     "bias": round(bias, 2) if bias is not None else None,
-                    "vol_ratio": round(vol_ratio, 2) if vol_ratio is not None else None,
-                    "real_time_ma5": round(real_time_ma5, 3)
+                    "vol_ratio": round(vol_ratio, 2) if vol_ratio is not None else None
                 })
-            except Exception as e:
-                print(f"    [!] 指标计算失败 {s.get('代码')}: {e}")
+            except: pass
                 
         return sorted([m for m in matrix if m['bias'] is not None], key=lambda x: x['bias'])
-
-if __name__ == "__main__":
-    lab = QuantLab()
-    lab.process()

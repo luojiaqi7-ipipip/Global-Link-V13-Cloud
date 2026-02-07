@@ -11,16 +11,15 @@ class IntelEngine:
     def update_history(self, raw_macro):
         """
         持久化存储宏观信号历史（CSV格式）。
-        raw_macro structure from Harvester.
         """
-        timestamp = raw_macro.get("meta", {}).get("timestamp", datetime.now().strftime("%Y%m%d_%H%M"))
+        timestamp = raw_macro.get("meta", {}).get("timestamp", datetime.now().strftime("%Y-%m-%d %H:%M"))
         macro_data = raw_macro.get("macro", {})
         
         for key, info in macro_data.items():
             if info.get("status") != "SUCCESS":
                 continue
             
-            # Extract value. Prioritize 'price', then 'value', then 'yield'
+            # 提取值，优先取 price, 然后是 value, 最后是 yield
             val = info.get("price")
             if val is None:
                 val = info.get("value")
@@ -35,8 +34,8 @@ class IntelEngine:
             
             if os.path.exists(file_path):
                 try:
-                    # Check if the last timestamp is the same to avoid duplicates
                     df_existing = pd.read_csv(file_path)
+                    # 避免重复写入相同时间戳的数据
                     if not df_existing.empty and str(df_existing.iloc[-1]["timestamp"]) == str(timestamp):
                         continue
                     new_row.to_csv(file_path, mode='a', header=False, index=False)
@@ -47,35 +46,26 @@ class IntelEngine:
 
     def get_features(self, key):
         """
-        特征包括：Percentile (近20/60日分位)、Z-Score (20日偏离度)、Slope (5日斜率)。
+        计算特征：Percentile (分位)、Z-Score (偏离度)、Slope (斜率)。
         """
         file_path = os.path.join(self.history_dir, f"{key}.csv")
         if not os.path.exists(file_path):
-            return {
-                "current": None,
-                "p_20d": 50.0,
-                "p_60d": 50.0,
-                "z_score_20d": 0.0,
-                "slope_5d": 0.0
-            }
+            return None
         
         try:
             df = pd.read_csv(file_path)
-            if df.empty:
+            if df.empty or len(df) < 1:
                 return None
             
             values = df["value"].astype(float).values
-            if len(values) == 0:
-                return None
-                
             current = values[-1]
             
             return {
-                "current": current,
+                "value": current,
                 "p_20d": self._calc_percentile(values, 20),
                 "p_60d": self._calc_percentile(values, 60),
-                "z_score_20d": self._calc_zscore(values, 20),
-                "slope_5d": self._calc_slope(values, 5)
+                "z_score": self._calc_zscore(values, 20),
+                "slope": self._calc_slope(values, 5)
             }
         except Exception as e:
             print(f"Error calculating features for {key}: {e}")

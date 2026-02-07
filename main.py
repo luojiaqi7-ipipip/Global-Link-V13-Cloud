@@ -1,39 +1,45 @@
 from core.harvester import Harvester
 from core.quant_lab import QuantLab
 from core.general import General
+from core.intel_engine import IntelEngine
 import sys
 import traceback
 
 def main():
-    print("--- V13 架构: 模块化审计开始 ---")
+    print("--- Global-Link V14: 宏观特征驱动审计开始 ---")
     
     try:
-        # 1. 抓取模块
+        # 1. 数据采集
         harvester = Harvester()
         raw_data = harvester.harvest_all()
         
         if not raw_data.get('etf_spot'):
-            print("⚠️ 警告: 实时行情抓取为空，审计可能不准确。")
+            print("⚠️ 警告: 实时行情为空。")
         
-        # 2. 计算模块
+        # 2. 宏观特征引擎更新 (V14)
+        intel = IntelEngine()
+        intel.update_history(raw_data)
+        print("🧠 特征引擎: 历史数据已更新")
+        
+        # 3. 量化分析
         lab = QuantLab()
         lab.process()
         
-        # 3. 决策模块
+        # 4. AI 策略审计
         commander = General()
         decision = commander.audit()
         
         if decision:
-            print(f"✅ 审计决策完成: {decision.get('decision', 'N/A')}")
+            print(f"✅ 策略决策已生成: {decision.get('decision', 'N/A')}")
         else:
-            print("❌ 审计决策失败 (AI 未能生成结果)")
+            print("❌ 策略决策生成失败")
             
     except Exception as e:
-        print(f"💥 系统崩溃: {e}")
+        print(f"💥 系统异常: {e}")
         traceback.print_exc()
         sys.exit(1)
     
-    print("--- V13 架构: 云端闭环完成 ---")
+    print("--- Global-Link V14: 执行任务已完成 ---")
 
 if __name__ == "__main__":
     main()
