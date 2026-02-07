@@ -29,8 +29,13 @@ class IntelEngine:
             if val is None:
                 continue
             
+            # 【重要】单位对齐：将大额数值（亿级）转为“亿”
+            final_val = float(val)
+            if key in ['Southbound', 'Margin_Debt', 'Northbound'] and abs(final_val) > 1e6:
+                final_val = final_val / 1e8
+            
             file_path = os.path.join(self.history_dir, f"{key}.csv")
-            new_row = pd.DataFrame([{"timestamp": timestamp, "value": float(val)}])
+            new_row = pd.DataFrame([{"timestamp": timestamp, "value": round(final_val, 3)}])
             
             if os.path.exists(file_path):
                 try:

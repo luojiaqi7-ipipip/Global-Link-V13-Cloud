@@ -5,7 +5,7 @@ from core.intel_engine import IntelEngine
 
 class QuantLab:
     """
-    模块 B: 逻辑计算引擎 - V14 (Intel Engine Integrated)
+    模块 B: 逻辑计算引擎 - V14.1 (Precision & Unit Robust)
     """
     def __init__(self, raw_file="data/raw/latest_snap.json", out_dir="data/processed"):
         self.raw_file = raw_file
@@ -28,7 +28,7 @@ class QuantLab:
             "technical_matrix": self._calc_tech(raw.get('etf_spot', []), raw.get('hist_data', {}))
         }
 
-        out_path = f"{self.out_dir}/metrics_{processed['timestamp']}.json"
+        out_path = f"{self.out_dir}/metrics_{processed['timestamp'].replace(' ', '_').replace(':', '')}.json"
         with open(out_path, 'w', encoding='utf-8') as f:
             json.dump(processed, f, ensure_ascii=False, indent=2)
         
@@ -39,7 +39,7 @@ class QuantLab:
         return processed
 
     def _calc_macro(self, raw_macro):
-        """处理宏观矩阵 - V14 特征全貌版"""
+        """处理宏观矩阵 - V14 特征全貌版 (带单位鲁棒性)"""
         m = {}
         
         def get_full_signal(key, subkey='price'):
@@ -53,14 +53,18 @@ class QuantLab:
             # 获取历史特征
             features = self.intel.get_features(key) or {}
             
-            # 全量精度控制：保留3位小数
+            # 1. 实时值提取与单位对齐 (Billion Normalization)
+            final_val = val if val is not None else features.get("value")
+            if final_val is not None:
+                final_val = float(final_val)
+                if key in ['Southbound', 'Margin_Debt', 'Northbound'] and abs(final_val) > 1e6:
+                    final_val = final_val / 1e8
+                final_val = round(final_val, 3)
+            
+            # 2. 变动率精度控制
             change_pct = ind.get('change_pct')
             if change_pct is not None:
                 change_pct = round(float(change_pct), 3)
-            
-            final_val = val if val is not None else features.get("value")
-            if final_val is not None:
-                final_val = round(float(final_val), 3)
 
             return {
                 "value": final_val,
@@ -72,14 +76,10 @@ class QuantLab:
                 "slope": round(features.get("slope", 0.0), 3)
             }
 
-        # 核心指标定义
-        m['CNH'] = get_full_signal('CNH')
-        m['Nasdaq'] = get_full_signal('Nasdaq')
-        m['HangSeng'] = get_full_signal('HangSeng')
-        m['A50_Futures'] = get_full_signal('A50_Futures')
-        m['VIX'] = get_full_signal('VIX')
-        m['Gold'] = get_full_signal('Gold')
-        m['CrudeOil'] = get_full_signal('CrudeOil')
+        # 核心指标
+        for k in ['CNH', 'Nasdaq', 'HangSeng', 'A50_Futures', 'VIX', 'Gold', 'CrudeOil']:
+            m[k] = get_full_signal(k)
+            
         m['CN10Y'] = get_full_signal('CN10Y', 'yield')
         m['US10Y'] = get_full_signal('US10Y')
         m['SHIBOR'] = get_full_signal('SHIBOR', 'value')
@@ -97,18 +97,8 @@ class QuantLab:
             "slope": round(csi300_features.get("slope", 0.0), 3)
         }
         
-        # 资金流向
-        sb = raw_macro.get('Southbound', {})
-        sb_features = self.intel.get_features('Southbound') or {}
-        m['Southbound'] = {
-            "value_billion": round(float(sb.get('value', 0)) / 1e8, 3) if sb.get('value') else 0.0,
-            "p_20d": round(sb_features.get("p_20d", 50.0), 3),
-            "p_250d": round(sb_features.get("p_250d", 50.0), 3),
-            "p_1250d": round(sb_features.get("p_1250d", 50.0), 3),
-            "z_score": round(sb_features.get("z_score", 0.0), 3),
-            "slope": round(sb_features.get("slope", 0.0), 3)
-        }
-        
+        # 资金类
+        m['Southbound'] = get_full_signal('Southbound', 'value')
         m['Margin_Debt'] = get_full_signal('Margin_Debt', 'change_pct')
             
         return m
@@ -121,7 +111,6 @@ class QuantLab:
             try:
                 code = s.get('代码')
                 if not code or code not in hist_map: continue
-                
                 df_hist = pd.DataFrame(hist_map[code])
                 if len(df_hist) < 4: continue
                 
@@ -152,3 +141,6 @@ class QuantLab:
             except: pass
                 
         return sorted([m for m in matrix if m['bias'] is not None], key=lambda x: x['bias'])
+
+if __name__ == "__main__":
+    QuantLab().process()
