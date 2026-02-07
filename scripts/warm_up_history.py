@@ -25,55 +25,59 @@ def save_clean_csv(key, df, val_col):
     df = df.dropna()
     
     # 3. Standardize Date
-    df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%Y-%m-%d %H:%M')
+    try:
+        df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%Y-%m-%d %H:%M')
+    except:
+        print(f"[-] Date parsing failed for {key}")
+        
     df = df.sort_values('timestamp').drop_duplicates('timestamp')
     
-    # 4. Unit Normalization (Billions)
+    # 4. Unit Normalization
     if key in ['Southbound', 'Margin_Debt', 'Northbound']:
         if df['value'].abs().max() > 1e6:
             df['value'] = df['value'] / 1e8
     
     df['value'] = df['value'].round(3)
     df.to_csv(f"data/history/{key}.csv", index=False)
-    print(f"[+] {key}: {len(df)} rows")
+    print(f"[+] {key}: {len(df)} rows. Tail:\n{df.tail(1)}")
 
 def main():
-    print("🚀 V14.1 PRO: 深度回溯修正版...")
+    print("🚀 V14.1 PRO: 历史数据精准对齐 (Debug Mode)...")
     
-    # YFinance Indices
-    m = {"Nasdaq": "^IXIC", "Gold": "GC=F", "US10Y": "^TNX", "VIX": "^VIX", "HangSeng": "^HSI", "CNH": "USDCNY=X"}
+    # Global
+    m = {"Nasdaq": "^IXIC", "Gold": "GC=F", "US10Y": "^TNX", "VIX": "^VIX", "HangSeng": "^HSI", "CNH": "USDCNY=X", "A50_Futures": "000001.SS", "CSI300_Vol": "000300.SS"}
     for k, v in m.items():
         try:
             df = yf.download(v, period="5y", progress=False)
-            if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
-            save_clean_csv(k, df, 'Close')
+            if not df.empty:
+                if isinstance(df.columns, pd.MultiIndex): df.columns = df.columns.get_level_values(0)
+                save_clean_csv(k, df, 'Close')
         except: pass
 
-    # A50 Futures Proxy (Use SH Composite as base)
+    # A50 Proxy: Use SSE Composite sh000001
     try:
         df = ak.stock_zh_index_daily_em(symbol="sh000001")
         save_clean_csv("A50_Futures", df, 'close')
-    except: pass
+    except Exception as e: print(f"SSE failed: {e}")
 
-    # CSI300 Vol Proxy
+    # CSI300: sh000300
     try:
         df = ak.stock_zh_index_daily_em(symbol="sh000300")
         save_clean_csv("CSI300_Vol", df, 'close')
-    except: pass
+    except Exception as e: print(f"CSI300 failed: {e}")
 
-    # CN10Y
+    # Fixed income
     try:
         df = ak.bond_zh_us_rate()
         save_clean_csv("CN10Y", df, '中国国债收益率10年')
     except: pass
 
-    # SHIBOR
     try:
         df = ak.macro_china_shibor_all()
         save_clean_csv("SHIBOR", df, 'O/N-定价')
     except: pass
 
-    # Margin Debt (SH + SZ Sum)
+    # Flows
     try:
         sh = ak.macro_china_market_margin_sh()
         sz = ak.macro_china_market_margin_sz()
@@ -83,7 +87,6 @@ def main():
         save_clean_csv("Margin_Debt", df, '融资融券余额')
     except: pass
 
-    # Southbound
     try:
         sh = ak.stock_hsgt_hist_em(symbol="港股通沪")
         sz = ak.stock_hsgt_hist_em(symbol="港股通深")
@@ -93,7 +96,7 @@ def main():
         save_clean_csv("Southbound", df, '当日成交净买额')
     except: pass
 
-    print("🏁 回溯修正完成。")
+    print("🏁 对齐完成。")
 
 if __name__ == "__main__":
     main()
