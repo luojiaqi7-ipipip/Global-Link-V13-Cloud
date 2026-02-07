@@ -99,7 +99,7 @@ class QuantLab:
         
         # 资金类
         m['Southbound'] = get_full_signal('Southbound', 'value')
-        m['Margin_Debt'] = get_full_signal('Margin_Debt', 'change_pct')
+        m['Margin_Debt'] = get_full_signal('Margin_Debt', 'value')
             
         return m
 

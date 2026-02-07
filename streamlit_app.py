@@ -142,7 +142,8 @@ if audit_data:
         val = data.get('value', 'N/A')
         if key == 'A_Share_Vol': val = f"{data.get('amplitude', 'N/A')}%"
         elif key == 'Southbound': val = f"{val}亿"
-        elif key in ['CN10Y', 'US10Y', 'SHIBOR', 'Margin_Debt'] and val != 'N/A': val = f"{val}%"
+        elif key == 'Margin_Debt': val = f"{val}亿"
+        elif key in ['CN10Y', 'US10Y', 'SHIBOR'] and val != 'N/A': val = f"{val}%"
         
         change = data.get('change_pct')
         change_str = f" <span style='font-size:0.8rem; color:{'#00ff88' if (change or 0) >=0 else '#ff3366'}'>({change}%)</span>" if change is not None else ""
