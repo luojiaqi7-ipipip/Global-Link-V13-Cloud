@@ -76,14 +76,6 @@ class QuantLab:
         else:
             m['Southbound_Flow_Billion'] = None
         
-        sf = raw_macro.get('Sector_Flow', {})
-        if sf.get('status') == 'SUCCESS':
-            m['Inflow_Sectors'] = [s['名称'] for s in sf.get('top_inflow', [])]
-            m['Outflow_Sectors'] = [s['名称'] for s in sf.get('top_outflow', [])]
-        else:
-            m['Inflow_Sectors'] = None
-            m['Outflow_Sectors'] = None
-
         # 5. 另类数据 (避险与通胀)
         m['Gold_Price'] = get_val('Gold', 'price')
         m['CrudeOil_Price'] = get_val('CrudeOil', 'price')

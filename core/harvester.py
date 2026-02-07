@@ -141,24 +141,6 @@ class Harvester:
             macro['Southbound'] = wrap({"value": val, "note": "Northbound hidden; using Southbound as proxy"})
         except: pass
 
-        # 4. 行业流入 (东财 Push2 - 使用更稳健的 Token)
-        try:
-            ut = "bd1d9ddb04089700cf9c27f6f7426281"
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Referer": "http://quote.eastmoney.com/center/gridlist.html"
-            }
-            url = f"https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=10&po=1&np=1&ut={ut}&fltt=2&invt=2&fid=f62&fs=m:90+t:2+f:!50&fields=f14,f62"
-            r = requests.get(url, headers=headers, timeout=5).json()
-            diff = r.get('data', {}).get('diff', [])
-            if diff: 
-                macro['Sector_Flow'] = wrap({"top_inflow": [{"名称": d['f14'], "今日净额": d['f62']} for d in diff[:3]]})
-                print(f"✅ Sector Flow Captured: {[d['f14'] for d in diff[:3]]}")
-            else:
-                print("⚠️ Sector Flow Empty")
-        except Exception as e:
-            print(f"⚠️ Sector Flow Error: {e}")
-
         # 5. 两融 (AkShare 宏观两融接口)
         try:
             m_sh = ak.macro_china_market_margin_sh()

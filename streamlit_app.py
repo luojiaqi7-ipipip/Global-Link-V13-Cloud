@@ -264,7 +264,6 @@ if audit_data:
         {"label": "国内隔夜拆借", "value": format_val(macro.get('Liquidity_Rate'), unit="%"), "key": "SHIBOR"},
         {"label": "南向净流入(亿)", "value": format_val(macro.get('Southbound_Flow_Billion')), "key": "Southbound"},
         {"label": "两融变动 %", "value": format_val(macro.get('Margin_Change_Pct'), unit="%"), "key": "Margin_Debt"},
-        {"label": "行业流入", "value": ", ".join(macro.get('Inflow_Sectors', [])) if isinstance(macro.get('Inflow_Sectors'), list) and macro.get('Inflow_Sectors') else "等待同步", "key": "Sector_Flow"},
     ]
     
     # 每行 6 个指标，共两行
