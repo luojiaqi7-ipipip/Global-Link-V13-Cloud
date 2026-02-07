@@ -5,11 +5,10 @@ import pandas as pd
 from datetime import datetime
 import time
 
-# 🎨 UI 全面升级：赛博朋克量化研判看板 - V13 Cloud 汉化精修版
-st.set_page_config(page_title="Global-Link V13 PRO", layout="wide", initial_sidebar_state="expanded")
+# 🎨 UI 全面升级：赛博朋克量化研判看板 - V14 Intel Engine Integrated
+st.set_page_config(page_title="Global-Link V14 PRO", layout="wide", initial_sidebar_state="expanded")
 
 # 自定义风格：深空/赛博朋克风格
-# 霓虹蓝: #00f2ff, 霓虹绿: #00ff88, 警戒红: #ff3366, 背景: #0d1117, 金色: #f1e05a
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
@@ -24,7 +23,6 @@ st.markdown("""
         color: #c9d1d9; 
     }
     
-    /* 标题样式 - 移除 Orbitron，改用现代黑体 */
     .cyber-title {
         font-weight: 700;
         color: #00f2ff;
@@ -36,7 +34,6 @@ st.markdown("""
         letter-spacing: 2px;
     }
 
-    /* 决策卡片 - 发光效果 */
     .decision-card {
         padding: 25px;
         border-radius: 15px;
@@ -46,29 +43,23 @@ st.markdown("""
         margin-bottom: 20px;
         transition: all 0.3s ease;
     }
-    .decision-card:hover {
-        box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
-        transform: translateY(-2px);
-    }
     
     .decision-buy { border-color: #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
     .decision-sell { border-color: #ff3366; box-shadow: 0 0 20px rgba(255, 51, 102, 0.2); }
     .decision-wait { border-color: #8b949e; box-shadow: 0 0 20px rgba(139, 148, 158, 0.1); }
 
-    /* 核心指标数值增强 */
     .highlight-value {
         font-weight: 800;
         letter-spacing: -1px;
     }
 
-    /* 宏观矩阵网格卡片 */
     .macro-card {
         background: #161b22;
         padding: 12px;
         border-radius: 8px;
         border-left: 3px solid #00f2ff;
         margin-bottom: 10px;
-        min-height: 80px;
+        min-height: 90px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -85,7 +76,6 @@ st.markdown("""
         margin-right: 6px;
     }
 
-    /* 系统日志样式 */
     .sys-log {
         background-color: #05070a;
         color: #00ff88;
@@ -93,25 +83,17 @@ st.markdown("""
         border-radius: 8px;
         font-family: 'Consolas', 'Monaco', monospace;
         border: 1px solid #30363d;
-        height: 300px;
+        height: 350px;
         overflow-y: auto;
         font-size: 0.9rem;
         line-height: 1.5;
     }
 
-    /* 侧边栏样式定制 */
     [data-testid="stSidebar"] {
         background-color: #0d1117;
         border-right: 1px solid #30363d;
     }
     
-    /* 数据表格美化 */
-    .stDataFrame {
-        border: 1px solid #30363d;
-        border-radius: 8px;
-    }
-    
-    /* 隐藏 Streamlit 默认页脚 */
     footer {visibility: hidden;}
     header {visibility: hidden;}
     </style>
@@ -124,6 +106,20 @@ def load_data(file_path):
                 return json.load(f)
         except: return None
     return None
+
+def format_beijing_time(ts_str):
+    if not ts_str or ts_str == 'N/A':
+        return 'N/A'
+    try:
+        if '_' in ts_str:
+            dt = datetime.strptime(ts_str, "%Y%m%d_%H%M")
+        elif ' ' in ts_str and '-' in ts_str:
+            dt = datetime.strptime(ts_str, "%Y-%m-%d %H:%M")
+        else:
+            return ts_str
+        return dt.strftime("%Y-%m-%d %H:%M（北京时间）")
+    except:
+        return ts_str
 
 # 路径定位
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -141,10 +137,9 @@ with st.sidebar:
     st.markdown("---")
     st.subheader("📡 数据链路状态")
     
-    # 数据源状态
     sources = [
         {"name": "实时行情 (Sina)", "status": "在线", "icon": "🟢"},
-        {"name": "全球指数 (Yahoo)", "status": "在线", "icon": "🟢"},
+        {"name": "宏观情报引擎 (Intel)", "status": "运行中", "icon": "🟢"},
         {"name": "国内报表 (EM)", "status": "已同步", "icon": "🟢"}
     ]
     
@@ -153,31 +148,29 @@ with st.sidebar:
     
     st.markdown("---")
     st.subheader("🧠 决策审计引擎")
-    st.code("模型: Gemini 3 Flash\n逻辑架构: V13 Cloud\n审计状态: 已激活", language="yaml")
+    st.code("模型: Gemini 3 Flash\n逻辑架构: V14 Intelligence\n审计状态: 已激活", language="yaml")
     
     st.markdown("---")
-    st.subheader("💡 核心技术指标说明")
+    st.subheader("💡 核心特征维度说明")
     st.markdown("""
-    - <span style='color:#ff3366'>乖离率 < -2.5%</span>: 具备技术面入场基础
-    - <span style='color:#00ff88'>量比 > 1.2</span>: 趋势动能增强
-    - <span style='color:#00f2ff'>风险敞口系数</span>: 策略入场激进程度
+    - **历史分位**: 指标在观测窗口内的百分比排名
+    - **趋势斜率**: 5日线性回归趋势向量方向
+    - **乖离率**: 价格偏离 5日移动平均线的比例
     """, unsafe_allow_html=True)
     
     if st.button("🚀 强制刷新决策数据"):
         st.rerun()
 
 # --- 主界面 ---
-st.markdown("<h1 class='cyber-title'>GLOBAL-LINK V13 全球量化策略决策系统</h1>", unsafe_allow_html=True)
+st.markdown("<h1 class='cyber-title'>GLOBAL-LINK V14 全球量化策略决策系统</h1>", unsafe_allow_html=True)
 
 if audit_data:
-    # 顶部核心：当前审计指令 & 风险敞口
     c1, c2 = st.columns([3, 1])
     
     decision = audit_data.get('decision', 'WAIT')
     target = audit_data.get('target', 'CASH_NEUTRAL')
     factor = audit_data.get('attack_factor', 0.0)
     
-    # 决策颜色逻辑
     card_class = "decision-wait"
     d_color = "#8b949e"
     if "BUY" in decision.upper() or "买入" in decision:
@@ -187,7 +180,6 @@ if audit_data:
         card_class = "decision-sell"
         d_color = "#ff3366"
     
-    # 汉化指令显示
     display_decision = decision
     if "WAIT" in decision.upper() or "等待" in decision: display_decision = "⏳ 观望等待"
     elif "BUY" in decision.upper() or "买入" in decision: display_decision = "⚔️ 策略买入"
@@ -225,58 +217,74 @@ if audit_data:
     st.markdown("---")
 
     # 🌐 全球宏观脉搏 (The Macro Pulse)
-    st.markdown("<h3 style='color: #00f2ff; font-weight:600;'>🌐 全球宏观态势矩阵</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='color: #00f2ff; font-weight:600;'>🌐 全球宏观态势矩阵 (V14 Intelligence)</h3>", unsafe_allow_html=True)
     
-    macro = metrics_data.get('macro_matrix', {}) if metrics_data else audit_data.get('macro_snapshot', {})
+    macro = metrics_data.get('macro_matrix', {}) if metrics_data else {}
     health = metrics_data.get('macro_health', {}) if metrics_data else {}
-    ref_time = metrics_data.get('timestamp') if metrics_data else audit_data.get('timestamp')
+    ref_time = metrics_data.get('timestamp', audit_data.get('timestamp', 'N/A'))
 
     def get_status_color(key):
-        if not health or key not in health: return "#ff3366" 
-        h = health[key]
+        h_key = key
+        if key == 'A_Share_Vol': h_key = 'CSI300_Vol'
+        if not health or h_key not in health: return "#ff3366" 
+        h = health[h_key]
         if h.get('status') == 'FAILED': return "#ff3366"
-        
-        try:
-            up_dt = datetime.strptime(h.get('last_update', '20000101_0000'), "%Y%m%d_%H%M")
-            ref_dt = datetime.strptime(ref_time, "%Y%m%d_%H%M")
-            if (ref_dt - up_dt).total_seconds() / 60 > 15: return "#f1e05a" 
-            return "#00ff88" 
-        except: return "#f1e05a"
+        return "#00ff88"
 
-    def format_val(val, unit="", suffix=""):
-        if val is None or val == "N/A" or val == "...":
-            return "等待同步"
-        if (val == 0 or val == 0.0):
-            return "0.0" + unit + suffix
-        return f"{val}{unit}{suffix}"
+    def render_macro_cell(label, key, color):
+        data = macro.get(key, {})
+        if not data or not isinstance(data, dict):
+            return f'<div class="macro-card"><div class="macro-label"><span class="status-light" style="background-color: {color};"></span>{label}</div><div class="macro-value">等待同步</div></div>'
+        
+        val = data.get('value')
+        if val is None:
+            if key == 'A_Share_Vol': val = f"{data.get('amplitude', 'N/A')}%"
+            elif key == 'Southbound': val = f"{data.get('value_billion', 'N/A')}亿"
+            else: val = "N/A"
+        else:
+            if key in ['CN10Y', 'US10Y', 'SHIBOR', 'Margin_Debt']: val = f"{val}%"
+        
+        change = data.get('change_pct')
+        change_str = f"<span style='font-size:0.8rem; color:{'#00ff88' if (change or 0) >=0 else '#ff3366'}'>({change}%)</span>" if change is not None else ""
+        
+        p20 = data.get('p_20d', 50.0)
+        slope = data.get('slope', 0.0)
+        arrow = "→"
+        if slope > 0.0001: arrow = "↑"
+        elif slope < -0.0001: arrow = "↓"
+        
+        return f"""
+            <div class="macro-card">
+                <div class="macro-label">
+                    <span class="status-light" style="background-color: {color};"></span>{label}
+                </div>
+                <div class="macro-value">{val} {change_str}</div>
+                <div style="font-size: 0.75rem; color: #8b949e; margin-top: 4px;">
+                    分位: {p20}% | 趋势: {arrow}
+                </div>
+            </div>
+        """
 
     macro_items = [
-        {"label": "离岸人民币", "value": f"{format_val(macro.get('CNH_Price'))} ({format_val(macro.get('CNH_Change'), unit='%')})", "key": "CNH"},
-        {"label": "纳斯达克", "value": f"{format_val(macro.get('Nasdaq_Price'))} ({format_val(macro.get('Nasdaq_Change'), unit='%')})", "key": "Nasdaq"},
-        {"label": "恒生指数", "value": f"{format_val(macro.get('HangSeng_Price'))} ({format_val(macro.get('HangSeng_Change'), unit='%')})", "key": "HangSeng"},
-        {"label": "A50 指数", "value": f"{format_val(macro.get('A50_Futures_Price'))} ({format_val(macro.get('A50_Futures_Change'), unit='%')})", "key": "A50_Futures"},
-        {"label": "VIX 风险指数", "value": format_val(macro.get('VIX')), "key": "VIX"},
-        {"label": "沪深300振幅", "value": f"{format_val(macro.get('A_Share_Amplitude'), unit='%')} ({format_val(macro.get('A_Share_Change'), unit='%')})", "key": "CSI300_Vol"},
-        {"label": "中债10Y收益率", "value": format_val(macro.get('CN10Y_Yield'), unit="%"), "key": "CN10Y"},
-        {"label": "美债10Y收益率", "value": format_val(macro.get('US10Y_Yield'), unit="%"), "key": "US10Y"},
-        {"label": "国内流动性 (SHIBOR)", "value": format_val(macro.get('Liquidity_Rate'), unit="%"), "key": "SHIBOR"},
-        {"label": "港股通净流入(亿)", "value": format_val(macro.get('Southbound_Flow_Billion')), "key": "Southbound"},
-        {"label": "两融变动 %", "value": format_val(macro.get('Margin_Change_Pct'), unit="%"), "key": "Margin_Debt"},
+        {"label": "离岸人民币", "key": "CNH"},
+        {"label": "纳斯达克", "key": "Nasdaq"},
+        {"label": "恒生指数", "key": "HangSeng"},
+        {"label": "A50 指数", "key": "A50_Futures"},
+        {"label": "VIX 风险指数", "key": "VIX"},
+        {"label": "沪深300振幅", "key": "A_Share_Vol"},
+        {"label": "中债10Y收益率", "key": "CN10Y"},
+        {"label": "美债10Y收益率", "key": "US10Y"},
+        {"label": "国内流动性", "key": "SHIBOR"},
+        {"label": "港股通流入", "key": "Southbound"},
+        {"label": "两融变动", "key": "Margin_Debt"},
+        {"label": "黄金价格", "key": "Gold"},
     ]
     
     cols = st.columns(6)
     for i, item in enumerate(macro_items):
         color = get_status_color(item['key'])
         with cols[i % 6]:
-            st.markdown(f"""
-                <div class="macro-card">
-                    <div class="macro-label">
-                        <span class="status-light" style="background-color: {color}; box-shadow: 0 0 5px {color};"></span>
-                        {item['label']}
-                    </div>
-                    <div class="macro-value">{item['value']}</div>
-                </div>
-                """, unsafe_allow_html=True)
+            st.markdown(render_macro_cell(item['label'], item['key'], color), unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -288,56 +296,19 @@ if audit_data:
         technical = metrics_data.get('technical_matrix', []) if metrics_data else []
         if technical:
             df = pd.DataFrame(technical)
-            df = df.rename(columns={
-                "code": "证券代码", 
-                "name": "证券名称", 
-                "price": "现价", 
-                "bias": "乖离率 %", 
-                "vol_ratio": "量比"
-            })
-            
-            def highlight_cells(s):
-                styles = ['' for _ in s]
-                if s.name == '乖离率 %':
-                    for i, v in enumerate(s):
-                        try:
-                            if float(v) < -2.5: styles[i] = 'background-color: rgba(255, 51, 102, 0.2); color: #ff3366; font-weight: bold;'
-                        except: pass
-                elif s.name == '量比':
-                    for i, v in enumerate(s):
-                        try:
-                            if float(v) > 1.2: styles[i] = 'background-color: rgba(0, 255, 136, 0.2); color: #00ff88; font-weight: bold;'
-                        except: pass
-                return styles
-
-            st.dataframe(
-                df.style.apply(highlight_cells),
-                use_container_width=True,
-                hide_index=True
-            )
+            df = df.rename(columns={"code": "证券代码", "name": "证券名称", "price": "现价", "bias": "乖离率 %", "vol_ratio": "量比"})
+            st.dataframe(df, use_container_width=True, hide_index=True)
         else:
-            st.info("数据链路同步中，请稍候...")
+            st.info("正在计算特征向量...")
 
     with l_col:
-        st.markdown("<h3 style='color: #00f2ff; font-weight:600;'>📜 AI 决策审计报告 (CIO Executive Summary)</h3>", unsafe_allow_html=True)
-        rationale = audit_data.get('rationale', "正在初始化决策神经链路...")
-        
-        log_content = f"""
-[系统运行日志]
-[决策引擎已连接: GEMINI-3-FLASH]
-[执行数据集交叉审计]
----------------------------------
-{rationale}
----------------------------------
-[审计任务已闭环]
-[当前系统状态: 待命]
-        """
-        st.markdown(f"<div class='sys-log'>{log_content.replace('\n', '<br>')}</div>", unsafe_allow_html=True)
+        st.markdown("<h3 style='color: #00f2ff; font-weight:600;'>📜 策略决策审计报告 (CSO Summary)</h3>", unsafe_allow_html=True)
+        rationale = audit_data.get('rationale', "正在初始化引擎...")
+        log_content = f"""[运行日志]<br>[决策引擎已连接: GEMINI-3-FLASH]<br>[执行特征全貌审计]<br>---------------------------------<br>{rationale}<br>---------------------------------<br>[审计闭环]<br>[系统待命]"""
+        st.markdown(f"<div class='sys-log'>{log_content}</div>", unsafe_allow_html=True)
 
-    # 底部页脚
     st.markdown("---")
-    st.markdown(f"<p style='text-align: center; color: #8b949e; font-size: 0.8rem;'>V13-Cloud 企业级云端决策引擎 | 数据最后同步: {audit_data.get('timestamp', 'N/A')} | 亚洲/上海</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align: center; color: #8b949e; font-size: 0.8rem;'>V14-Intelligence 全球决策引擎 | 数据同步: {format_beijing_time(ref_time)} | 亚太/上海</p>", unsafe_allow_html=True)
 
 else:
     st.error("❌ 数据链路连接异常")
-    st.info("请检查 GitHub Actions 运行状态。")

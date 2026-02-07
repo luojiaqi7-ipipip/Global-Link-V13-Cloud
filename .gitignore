@@ -1,0 +1,5 @@
+data/raw/market_snap_*.json
+data/processed/metrics_*.json
+data/audit/decision_*.json
+__pycache__/
+*.pyc

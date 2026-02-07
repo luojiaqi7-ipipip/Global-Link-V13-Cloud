@@ -13,7 +13,7 @@ class Harvester:
         self.data_dir = data_dir
         os.makedirs(self.data_dir, exist_ok=True)
         self.beijing_tz = pytz.timezone('Asia/Shanghai')
-        self.timestamp = datetime.now(self.beijing_tz).strftime("%Y%m%d_%H%M")
+        self.timestamp = datetime.now(self.beijing_tz).strftime("%Y-%m-%d %H:%M")
         self.watchlist = ["159995", "513050", "512760", "512480", "588000", "159915", "510500", "510300", "512660", "512880", "510880", "515080", "512010", "512800", "512690", "159928"]
 
     def harvest_all(self):
