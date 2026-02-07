@@ -153,7 +153,7 @@ with st.sidebar:
     st.markdown("---")
     st.subheader("💡 核心特征维度说明")
     st.markdown("""
-    - **历史分位 (p_20d)**: 指标在观测窗口内的百分比排名。
+    - **历史分位 (20D | 1Y | 5Y)**: 指标在 20天 / 1年 / 5年 窗口内的百分比排名。
     - **趋势斜率 (Slope)**: 5日线性回归趋势向量。
     - **偏离度 (Z-Score)**: 价格/指标偏离均值的标准差倍数。
     """, unsafe_allow_html=True)
@@ -248,6 +248,8 @@ if audit_data:
         change_str = f"<span style='font-size:0.8rem; color:{'#00ff88' if (change or 0) >=0 else '#ff3366'}'>({change}%)</span>" if change is not None else ""
         
         p20 = data.get('p_20d', 50.0)
+        p250 = data.get('p_250d', 50.0)
+        p1250 = data.get('p_1250d', 50.0)
         slope = data.get('slope', 0.0)
         arrow = "→"
         if slope > 0.0001: arrow = "↑"
@@ -260,7 +262,10 @@ if audit_data:
                 </div>
                 <div class="macro-value">{val} {change_str}</div>
                 <div style="font-size: 0.75rem; color: #8b949e; margin-top: 4px;">
-                    分位: {p20}% | 趋势: {arrow}
+                    20D|1Y|5Y: {p20}|{p250}|{p1250}
+                </div>
+                <div style="font-size: 0.7rem; color: #8b949e;">
+                    趋势: {arrow} ({slope})
                 </div>
             </div>
         """

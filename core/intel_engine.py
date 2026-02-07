@@ -63,7 +63,8 @@ class IntelEngine:
             return {
                 "value": current,
                 "p_20d": self._calc_percentile(values, 20),
-                "p_60d": self._calc_percentile(values, 60),
+                "p_250d": self._calc_percentile(values, 250),
+                "p_1250d": self._calc_percentile(values, 1250),
                 "z_score": self._calc_zscore(values, 20),
                 "slope": self._calc_slope(values, 5)
             }
@@ -74,8 +75,10 @@ class IntelEngine:
     def _calc_percentile(self, values, window):
         lookback = values[-window:]
         if len(lookback) < 1: return 50.0
-        count = (lookback <= lookback[-1]).sum()
-        return round(float(count / len(lookback)) * 100, 2)
+        # 优化大样本下的计算效率
+        current_val = lookback[-1]
+        count = np.count_nonzero(lookback <= current_val)
+        return round(float(count / len(lookback)) * 100, 3)
 
     def _calc_zscore(self, values, window):
         lookback = values[-window:]

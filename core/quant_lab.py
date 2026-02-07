@@ -53,13 +53,23 @@ class QuantLab:
             # 获取历史特征
             features = self.intel.get_features(key) or {}
             
+            # 全量精度控制：保留3位小数
+            change_pct = ind.get('change_pct')
+            if change_pct is not None:
+                change_pct = round(float(change_pct), 3)
+            
+            final_val = val if val is not None else features.get("value")
+            if final_val is not None:
+                final_val = round(float(final_val), 3)
+
             return {
-                "value": val if val is not None else features.get("value"),
-                "change_pct": ind.get('change_pct') if ind.get('status') == 'SUCCESS' else None,
-                "p_20d": features.get("p_20d", 50.0),
-                "p_60d": features.get("p_60d", 50.0),
-                "z_score": features.get("z_score", 0.0),
-                "slope": features.get("slope", 0.0)
+                "value": final_val,
+                "change_pct": change_pct,
+                "p_20d": round(features.get("p_20d", 50.0), 3),
+                "p_250d": round(features.get("p_250d", 50.0), 3),
+                "p_1250d": round(features.get("p_1250d", 50.0), 3),
+                "z_score": round(features.get("z_score", 0.0), 3),
+                "slope": round(features.get("slope", 0.0), 3)
             }
 
         # 核心指标定义
@@ -78,21 +88,25 @@ class QuantLab:
         csi300_data = raw_macro.get('CSI300_Vol', {})
         csi300_features = self.intel.get_features('CSI300_Vol') or {}
         m['A_Share_Vol'] = {
-            "amplitude": csi300_data.get('amplitude'),
-            "pct_change": csi300_data.get('pct_change'),
-            "p_20d": csi300_features.get("p_20d", 50.0),
-            "z_score": csi300_features.get("z_score", 0.0),
-            "slope": csi300_features.get("slope", 0.0)
+            "amplitude": round(float(csi300_data.get('amplitude', 0)), 3) if csi300_data.get('amplitude') else 0.0,
+            "pct_change": round(float(csi300_data.get('pct_change', 0)), 3) if csi300_data.get('pct_change') else 0.0,
+            "p_20d": round(csi300_features.get("p_20d", 50.0), 3),
+            "p_250d": round(csi300_features.get("p_250d", 50.0), 3),
+            "p_1250d": round(csi300_features.get("p_1250d", 50.0), 3),
+            "z_score": round(csi300_features.get("z_score", 0.0), 3),
+            "slope": round(csi300_features.get("slope", 0.0), 3)
         }
         
         # 资金流向
         sb = raw_macro.get('Southbound', {})
         sb_features = self.intel.get_features('Southbound') or {}
         m['Southbound'] = {
-            "value_billion": round(float(sb.get('value', 0)) / 1e8, 2) if sb.get('value') else 0.0,
-            "p_20d": sb_features.get("p_20d", 50.0),
-            "z_score": sb_features.get("z_score", 0.0),
-            "slope": sb_features.get("slope", 0.0)
+            "value_billion": round(float(sb.get('value', 0)) / 1e8, 3) if sb.get('value') else 0.0,
+            "p_20d": round(sb_features.get("p_20d", 50.0), 3),
+            "p_250d": round(sb_features.get("p_250d", 50.0), 3),
+            "p_1250d": round(sb_features.get("p_1250d", 50.0), 3),
+            "z_score": round(sb_features.get("z_score", 0.0), 3),
+            "slope": round(sb_features.get("slope", 0.0), 3)
         }
         
         m['Margin_Debt'] = get_full_signal('Margin_Debt', 'change_pct')
