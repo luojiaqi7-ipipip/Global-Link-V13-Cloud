@@ -2,33 +2,115 @@
   "decision": "WAIT",
   "target": null,
   "attack_factor": 0.8,
-  "rationale": "CIO 决策审计报告：技术面未触发入场条件，所有 ETF 的 Bias 均未低于 -2.5%，且 Vol Ratio 未高于 1.2。宏观环境方面，CNH 汇率稳定，A50 期货上涨，纳斯达克表现强势，但技术面是绝对优先级。因此，维持观望，风险敞口系数降至最低 0.8。",
+  "rationale": "策略决策审计报告：当前技术面未触发入场条件，乖离率 (Bias) 普遍高于 -2.5% 或量比 (Vol Ratio) 低于 1.2。宏观层面，虽然VIX指数的p_20d处于低位，且slope为负，显示市场恐慌情绪缓解，但其他指标如纳斯达克、A50期货、黄金和原油的p_20d均处于100，存在过热风险。人民币汇率(CNH)虽然有升值趋势 (slope为负)，但力度不足以抵消整体宏观风险。因此，维持观望。",
   "parameters": {
     "stop_loss": -1.5,
     "stop_profit": 3.0,
     "time_limit": "4天"
   },
   "top_candidates": [],
-  "timestamp": "20260207_0946",
+  "timestamp": "2026-02-07 09:52",
   "macro_snapshot": {
-    "CNH_Price": 6.9274,
-    "CNH_Change": -0.13999999999999999,
-    "Liquidity_Rate": 1.277,
-    "Liquidity_Change": null,
-    "CN10Y_Yield": 1.8102,
-    "US10Y_Yield": 4.22,
-    "VIX": 19.177,
-    "A_Share_Amplitude": 1.534,
-    "A_Share_Change": -0.574,
-    "Margin_Change_Pct": -0.4447612167194803,
-    "Southbound_Flow_Billion": 148.59,
-    "Gold_Price": 4989.37,
-    "CrudeOil_Price": 63.597,
-    "Nasdaq_Price": 25075.7723,
-    "Nasdaq_Change": 2.15,
-    "HangSeng_Price": 26354.34,
-    "HangSeng_Change": -1.974696749986471,
-    "A50_Futures_Price": 14960.45,
-    "A50_Futures_Change": 1.0363341662727121
+    "CNH": {
+      "value": 6.9274,
+      "change_pct": -0.13999999999999999,
+      "p_20d": 33.33,
+      "p_60d": 33.33,
+      "z_score": -1.41,
+      "slope": -0.0026
+    },
+    "Nasdaq": {
+      "value": 25075.7723,
+      "change_pct": 2.15,
+      "p_20d": 100.0,
+      "p_60d": 100.0,
+      "z_score": 2.45,
+      "slope": 760.5547
+    },
+    "HangSeng": {
+      "value": 26354.34,
+      "change_pct": -1.974696749986471,
+      "p_20d": 14.29,
+      "p_60d": 14.29,
+      "z_score": -2.45,
+      "slope": -61.6828
+    },
+    "A50_Futures": {
+      "value": 14960.45,
+      "change_pct": 1.0363341662727121,
+      "p_20d": 100.0,
+      "p_60d": 100.0,
+      "z_score": 1.41,
+      "slope": 31.103
+    },
+    "VIX": {
+      "value": 19.177,
+      "change_pct": -8.02398081534773,
+      "p_20d": 14.29,
+      "p_60d": 14.29,
+      "z_score": -2.25,
+      "slope": -0.2729
+    },
+    "Gold": {
+      "value": 4989.37,
+      "change_pct": 2.0425401370283147,
+      "p_20d": 100.0,
+      "p_60d": 100.0,
+      "z_score": 2.15,
+      "slope": 23.481
+    },
+    "CrudeOil": {
+      "value": 63.597,
+      "change_pct": 0.4850687312371704,
+      "p_20d": 100.0,
+      "p_60d": 100.0,
+      "z_score": 1.57,
+      "slope": 0.0741
+    },
+    "CN10Y": {
+      "value": 1.8102,
+      "change_pct": null,
+      "p_20d": 100.0,
+      "p_60d": 100.0,
+      "z_score": -1.0,
+      "slope": -0.0
+    },
+    "US10Y": {
+      "value": 4.22,
+      "change_pct": null,
+      "p_20d": 100.0,
+      "p_60d": 100.0,
+      "z_score": 2.45,
+      "slope": 0.003
+    },
+    "SHIBOR": {
+      "value": 1.277,
+      "change_pct": null,
+      "p_20d": 100.0,
+      "p_60d": 100.0,
+      "z_score": 0.0,
+      "slope": 0.0
+    },
+    "A_Share_Vol": {
+      "amplitude": 1.534,
+      "pct_change": -0.574,
+      "p_20d": 50.0,
+      "z_score": 0.0,
+      "slope": 0.0
+    },
+    "Southbound": {
+      "value_billion": 148.59,
+      "p_20d": 100.0,
+      "z_score": 0.0,
+      "slope": -0.0
+    },
+    "Margin_Debt": {
+      "value": -0.4447612167194803,
+      "change_pct": -0.4447612167194803,
+      "p_20d": 100.0,
+      "p_60d": 100.0,
+      "z_score": 0.0,
+      "slope": -0.0
+    }
   }
 }
