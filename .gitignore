@@ -3,3 +3,16 @@ data/processed/metrics_*.json
 data/audit/decision_*.json
 __pycache__/
 *.pyc
+
+# Security & Environment
+.env
+.env.*
+.venv
+venv/
+env/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+*.log
