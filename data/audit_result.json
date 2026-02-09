@@ -2,23 +2,23 @@
   "decision": "WAIT",
   "target": null,
   "attack_factor": 1.0,
-  "rationale": "策略决策审计报告：当前技术面未触发入场条件，所有标的的乖离率 (Bias) 均未低于-2.5%，量比 (Vol Ratio) 也未高于1.2。宏观层面，虽然CNH汇率的p_20d为15.0，且slope为负，显示人民币升值趋势，但整体市场并未形成明确的共振信号。因此，维持观望。",
+  "rationale": "策略决策审计报告：当前技术面未触发入场条件，无标的满足 Bias < -2.5% 且 Vol Ratio > 1.2 的要求。宏观层面，虽然 CNH 的 p_20d 为 20.0 且 slope 为负，显示人民币有升值趋势，但A股成交量A_Share_Vol的p_20d仅为10，显示市场情绪仍然低迷，因此选择观望。",
   "parameters": {
     "stop_loss": -1.5,
     "stop_profit": 3.0,
     "time_limit": "4天"
   },
   "top_candidates": [],
-  "timestamp": "2026-02-09 10:54",
+  "timestamp": "2026-02-09 12:11",
   "macro_snapshot": {
     "CNH": {
       "value": 6.931,
-      "change_pct": 0.25,
-      "p_20d": 15.0,
-      "p_250d": 1.2,
+      "change_pct": 0.17,
+      "p_20d": 20.0,
+      "p_250d": 1.6,
       "p_1250d": 36.0,
-      "z_score": -1.47,
-      "slope": -0.002
+      "z_score": -1.33,
+      "slope": -0.001
     },
     "Nasdaq": {
       "value": 25075.772,
@@ -26,84 +26,84 @@
       "p_20d": 100.0,
       "p_250d": 100.0,
       "p_1250d": 100.0,
-      "z_score": 2.12,
-      "slope": 711.492
+      "z_score": 1.82,
+      "slope": 408.912
     },
     "HangSeng": {
       "value": 26982.49,
       "change_pct": 1.591,
       "p_20d": 80.0,
       "p_250d": 96.8,
-      "p_1250d": 90.26,
+      "p_1250d": 90.268,
       "z_score": 0.24,
-      "slope": -2636.545
+      "slope": 147.323
     },
     "A50_Futures": {
-      "value": 14998.64,
-      "change_pct": 1.294,
-      "p_20d": 100.0,
-      "p_250d": 100.0,
-      "p_1250d": 100.0,
-      "z_score": 2.39,
-      "slope": 3275.474
+      "value": 14978.64,
+      "change_pct": 1.159,
+      "p_20d": 95.0,
+      "p_250d": 99.6,
+      "p_1250d": 99.918,
+      "z_score": 2.0,
+      "slope": 2186.43
     },
     "VIX": {
-      "value": 18.636,
-      "change_pct": -2.633,
-      "p_20d": 75.0,
-      "p_250d": 65.6,
-      "p_1250d": 56.24,
+      "value": 18.732,
+      "change_pct": -2.132,
+      "p_20d": 80.0,
+      "p_250d": 66.4,
+      "p_1250d": 57.44,
       "z_score": 0.62,
-      "slope": -0.823
+      "slope": -0.382
     },
     "Gold": {
-      "value": 5033.672,
-      "change_pct": 1.082,
+      "value": 5040.94,
+      "change_pct": 1.228,
       "p_20d": 75.0,
       "p_250d": 98.0,
       "p_1250d": 99.6,
-      "z_score": 0.61,
-      "slope": 39.866
+      "z_score": 0.57,
+      "slope": 14.898
     },
     "CrudeOil": {
-      "value": 63.009,
-      "change_pct": -0.851,
-      "p_20d": 15.789,
-      "p_250d": 15.789,
-      "p_1250d": 15.789,
-      "z_score": -1.68,
-      "slope": -0.155
+      "value": 62.994,
+      "change_pct": -0.875,
+      "p_20d": 15.0,
+      "p_250d": 15.0,
+      "p_1250d": 15.0,
+      "z_score": -1.59,
+      "slope": -0.179
     },
     "CN10Y": {
       "value": 1.81,
       "change_pct": null,
-      "p_20d": 20.0,
+      "p_20d": 25.0,
       "p_250d": 53.6,
-      "p_1250d": 13.92,
-      "z_score": -1.12,
-      "slope": -0.001
+      "p_1250d": 14.0,
+      "z_score": -1.09,
+      "slope": -0.0
     },
     "US10Y": {
       "value": 4.22,
       "change_pct": null,
       "p_20d": 40.0,
-      "p_250d": 46.4,
+      "p_250d": 46.8,
       "p_1250d": 70.16,
-      "z_score": -0.31,
+      "z_score": -0.51,
       "slope": 0.003
     },
     "SHIBOR": {
-      "value": 1.277,
+      "value": 1.27,
       "change_pct": null,
-      "p_20d": 15.0,
-      "p_250d": 8.4,
-      "p_1250d": 12.4,
-      "z_score": -1.61,
-      "slope": -0.012
+      "p_20d": 5.0,
+      "p_250d": 4.4,
+      "p_1250d": 11.28,
+      "z_score": -1.57,
+      "slope": -0.01
     },
     "A_Share_Vol": {
-      "amplitude": 0.586,
-      "pct_change": 1.327,
+      "amplitude": 0.703,
+      "pct_change": 1.424,
       "p_20d": 10.0,
       "p_250d": 84.8,
       "p_1250d": 78.476,
@@ -111,22 +111,22 @@
       "slope": 8.555
     },
     "Southbound": {
-      "value": 14.555,
+      "value": 12.822,
       "change_pct": null,
-      "p_20d": 45.0,
-      "p_250d": 30.0,
-      "p_1250d": 41.6,
-      "z_score": -0.47,
-      "slope": -61.903
+      "p_20d": 40.0,
+      "p_250d": 26.8,
+      "p_1250d": 39.12,
+      "z_score": -0.52,
+      "slope": -40.558
     },
     "Margin_Debt": {
       "value": 26549.982,
       "change_pct": -0.643,
-      "p_20d": 10.0,
+      "p_20d": 15.0,
       "p_250d": 92.0,
       "p_1250d": 98.4,
-      "z_score": -2.05,
-      "slope": -75.442
+      "z_score": -1.81,
+      "slope": -51.567
     }
   }
 }
