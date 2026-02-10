@@ -16,9 +16,8 @@ class General:
         self.out_dir = out_dir
         os.makedirs(self.out_dir, exist_ok=True)
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-        # 修正模型名称: gemini-3-flash -> gemini-2.0-flash-exp (或根据官方文档)
-        # 目前 3-flash 尚未在 Python SDK 这种调用方式下普及，改回稳定的 2.0 flash
-        self.model_id = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+        # 官方确认的模型 ID 完整名称为: gemini-3-flash-preview
+        self.model_id = os.getenv("GEMINI_MODEL", "gemini-3-flash-preview")
 
     def audit(self):
         if not os.path.exists(self.metrics_file):
