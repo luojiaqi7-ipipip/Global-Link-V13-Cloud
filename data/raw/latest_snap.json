@@ -154,8 +154,8 @@
       "last_update": "2026-02-10 15:38"
     },
     "A50_Futures": {
-      "price": 14996.72,
-      "change_pct": -0.008534471262844345,
+      "price": 14995.0,
+      "change_pct": -0.020002667022267495,
       "status": "SUCCESS",
       "last_update": "2026-02-10 15:38"
     },
@@ -166,8 +166,8 @@
       "last_update": "2026-02-10 15:38"
     },
     "Gold": {
-      "price": 5048.35,
-      "change_pct": -0.611292672362862,
+      "price": 5045.621,
+      "change_pct": -0.6650194904909923,
       "status": "SUCCESS",
       "last_update": "2026-02-10 15:38"
     },
