@@ -1,94 +1,94 @@
 {
-  "timestamp": "2026-02-10 17:00",
+  "timestamp": "2026-02-11 07:29",
   "macro_matrix": {
     "CNH": {
-      "value": 6.91,
-      "change_pct": -0.44,
-      "p_20d": 55.0,
-      "p_250d": 4.4,
-      "p_1250d": 34.16,
-      "z_score": -0.76,
+      "value": 6.911,
+      "change_pct": -0.13,
+      "p_20d": 60.0,
+      "p_250d": 4.8,
+      "p_1250d": 34.64,
+      "z_score": -0.59,
       "slope": 0.0
     },
     "Nasdaq": {
-      "value": 25268.141,
-      "change_pct": 0.77,
-      "p_20d": 100.0,
-      "p_250d": 100.0,
-      "p_1250d": 100.0,
-      "z_score": 0.39,
-      "slope": -0.0
+      "value": 25127.638,
+      "change_pct": -0.56,
+      "p_20d": 45.0,
+      "p_250d": 95.6,
+      "p_1250d": 99.12,
+      "z_score": -0.6,
+      "slope": -28.101
     },
     "HangSeng": {
       "value": 27202.96,
       "change_pct": 0.65,
       "p_20d": 100.0,
       "p_250d": 98.4,
-      "p_1250d": 90.785,
+      "p_1250d": 90.793,
       "z_score": 0.25,
       "slope": -0.0
     },
     "A50_Futures": {
-      "value": 15001.78,
-      "change_pct": -0.035,
-      "p_20d": 80.0,
-      "p_250d": 98.4,
-      "p_1250d": 99.675,
-      "z_score": 0.23,
-      "slope": 1.246
+      "value": 15016.53,
+      "change_pct": 0.064,
+      "p_20d": 95.0,
+      "p_250d": 99.6,
+      "p_1250d": 99.919,
+      "z_score": 1.19,
+      "slope": 4.68
     },
     "VIX": {
-      "value": 18.388,
-      "change_pct": 0.481,
-      "p_20d": 5.0,
-      "p_250d": 60.4,
-      "p_1250d": 53.92,
-      "z_score": -0.7,
-      "slope": -0.01
+      "value": 18.65,
+      "change_pct": -0.851,
+      "p_20d": 70.0,
+      "p_250d": 68.4,
+      "p_1250d": 57.36,
+      "z_score": 0.27,
+      "slope": 0.025
     },
     "Gold": {
-      "value": 5066.813,
-      "change_pct": -0.248,
+      "value": 5068.76,
+      "change_pct": 0.751,
       "p_20d": 100.0,
       "p_250d": 98.4,
       "p_1250d": 99.68,
-      "z_score": 1.3,
-      "slope": 5.741
+      "z_score": 1.43,
+      "slope": 6.494
     },
     "CrudeOil": {
-      "value": 64.604,
-      "change_pct": 0.379,
-      "p_20d": 100.0,
-      "p_250d": 100.0,
-      "p_1250d": 100.0,
-      "z_score": 1.32,
-      "slope": 0.023
+      "value": 64.285,
+      "change_pct": 0.508,
+      "p_20d": 65.0,
+      "p_250d": 80.556,
+      "p_1250d": 80.556,
+      "z_score": 0.76,
+      "slope": 0.013
     },
     "CN10Y": {
-      "value": 1.811,
+      "value": 1.809,
       "change_pct": null,
-      "p_20d": 100.0,
-      "p_250d": 54.4,
-      "p_1250d": 15.36,
-      "z_score": 0.9,
-      "slope": 0.0
+      "p_20d": 5.0,
+      "p_250d": 44.8,
+      "p_1250d": 13.44,
+      "z_score": -2.54,
+      "slope": -0.0
     },
     "US10Y": {
-      "value": 4.22,
+      "value": 4.16,
       "change_pct": null,
-      "p_20d": 100.0,
-      "p_250d": 52.0,
-      "p_1250d": 70.16,
-      "z_score": 0.23,
-      "slope": 0.0
+      "p_20d": 5.0,
+      "p_250d": 31.6,
+      "p_1250d": 62.88,
+      "z_score": -4.36,
+      "slope": -0.012
     },
     "SHIBOR": {
       "value": 1.362,
       "change_pct": null,
       "p_20d": 100.0,
-      "p_250d": 46.8,
-      "p_1250d": 24.72,
-      "z_score": 0.95,
+      "p_250d": 47.2,
+      "p_1250d": 24.8,
+      "z_score": 0.88,
       "slope": -0.0
     },
     "A_Share_Vol": {
@@ -103,74 +103,74 @@
     "Southbound": {
       "value": 0.847,
       "change_pct": null,
-      "p_20d": 50.0,
-      "p_250d": 20.8,
-      "p_1250d": 26.32,
-      "z_score": -0.42,
-      "slope": 0.058
+      "p_20d": 55.0,
+      "p_250d": 21.2,
+      "p_1250d": 26.4,
+      "z_score": -0.35,
+      "slope": 0.482
     },
     "Margin_Debt": {
       "value": 26556.133,
       "change_pct": 0.023,
-      "p_20d": 90.0,
+      "p_20d": 95.0,
       "p_250d": 92.0,
       "p_1250d": 98.4,
-      "z_score": -0.29,
+      "z_score": -0.17,
       "slope": -0.0
     }
   },
   "macro_health": {
     "CNH": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "Nasdaq": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "HangSeng": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "A50_Futures": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "VIX": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "Gold": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "CrudeOil": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "CSI300_Vol": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "CN10Y": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "US10Y": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "Southbound": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "Margin_Debt": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     },
     "SHIBOR": {
       "status": "SUCCESS",
-      "last_update": "2026-02-10 17:00"
+      "last_update": "2026-02-11 07:29"
     }
   },
   "technical_matrix": [
