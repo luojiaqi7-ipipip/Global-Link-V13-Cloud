@@ -8,7 +8,7 @@ load_dotenv()
 
 class General:
     """
-    模块 C: AI 决策审计中心 - V16 (特征全貌审计)
+    模块 C: AI 决策审计中心 - V17 (特征全貌审计)
     基于最新 Gemini 模型，对量化特征矩阵进行深度审计与策略输出。
     """
     def __init__(self, metrics_file="data/processed/latest_metrics.json", out_dir="data/audit"):
@@ -26,7 +26,9 @@ class General:
         with open(self.metrics_file, 'r') as f:
             metrics = json.load(f)
 
-        # 优化 Token: 仅保留失败的健康状态，成功的忽略以节省空间
+        data_time = metrics.get('timestamp', 'unknown')
+
+        # 优化 Token: 仅保留失败的健康状态
         if 'macro_health' in metrics:
             health = metrics['macro_health']
             failed_keys = {k: v for k, v in health.items() if v.get('status') != 'SUCCESS'}
@@ -36,19 +38,21 @@ class General:
 
         prompt = f"""
 你现在是 Global-Link V14-Cloud 的“首席策略官 (CSO)”。
-你必须遵循“技术面触发 + 宏观面特征验证”的严密逻辑进行审计。你的决策决定了投资组合的配置方向。
+你必须遵循“技术面触发 + 宏观面特征验证”的严密逻辑进行审计。
+
+[关键信息]
+数据采集时刻 (TIMESTAMP): {data_time}
+(你必须在 rationale 的开头明确提到这个数据时间，例如：“基于 {data_time} 的实时行情数据...”)
 
 [V14 宏观特征引擎说明]
 现在的 macro_matrix 中，每个指标都包含以下多维特征：
 1. value: 实时数值。
 2. p_20d / p_60d: 该指标在过去 20/60 个采样点的历史分位（0-100）。
-   - p_20d > 80: 指标处于近期高位。
-   - p_20d < 20: 指标处于近期低位。
-3. z_score:偏离度。
+3. z_score: 偏离度。
 4. slope: 5日趋势斜率。
 
 [数据完整性说明]
-如果 macro_health_alerts 中包含某个指标，说明该指标采集失败，请在 rationale 中说明该缺失对决策的影响。
+如果 macro_health_alerts 中包含某个指标，说明该指标采集失败，请说明其对决策的影响。
 
 [核心审计逻辑]
 1. 技术触发: 乖离率 (Bias) < -2.5% 且 量比 (Vol Ratio) > 1.2。
@@ -60,6 +64,7 @@ class General:
 
 [审计要求]
 - 必须返回纯 JSON。
+- rationale 必须展现专业策略官风格，开头必须声明数据时间戳，并点名引用关键特征进行论证。
 - Decision: BUY / WAIT / HOLD / SELL。
 
 [输出 JSON 格式]
@@ -67,7 +72,7 @@ class General:
   "decision": "...",
   "target": "...",
   "attack_factor": 1.0,
-  "rationale": "...",
+  "rationale": "基于 {data_time} 的数据，审计报告显示...",
   "parameters": {{ "stop_loss": -1.5, "stop_profit": 3.0, "time_limit": "4天" }},
   "top_candidates": []
 }}
@@ -83,7 +88,7 @@ class General:
             )
             
             res_json = json.loads(response.text)
-            res_json['timestamp'] = metrics.get('timestamp', 'unknown')
+            res_json['timestamp'] = data_time
             res_json['macro_snapshot'] = metrics.get('macro_matrix', {})
 
             out_path = f"{self.out_dir}/decision_{res_json['timestamp']}.json"
