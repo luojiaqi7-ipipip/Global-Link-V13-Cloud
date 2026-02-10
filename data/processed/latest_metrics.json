@@ -2,12 +2,12 @@
   "timestamp": "2026-02-10 15:38",
   "macro_matrix": {
     "CNH": {
-      "value": 6.91,
-      "change_pct": -0.48,
-      "p_20d": 35.0,
-      "p_250d": 2.8,
-      "p_1250d": 34.16,
-      "z_score": -1.08,
+      "value": 6.909,
+      "change_pct": -0.5,
+      "p_20d": 25.0,
+      "p_250d": 2.0,
+      "p_1250d": 33.92,
+      "z_score": -1.14,
       "slope": -0.0
     },
     "Nasdaq": {
@@ -29,13 +29,13 @@
       "slope": -0.0
     },
     "A50_Futures": {
-      "value": 14995.0,
-      "change_pct": -0.02,
+      "value": 14996.72,
+      "change_pct": -0.009,
       "p_20d": 65.0,
       "p_250d": 97.2,
       "p_1250d": 99.43,
       "z_score": 0.58,
-      "slope": -2.81
+      "slope": -2.466
     },
     "VIX": {
       "value": 18.463,

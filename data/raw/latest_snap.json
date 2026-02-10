@@ -136,8 +136,8 @@
   ],
   "macro": {
     "CNH": {
-      "price": 6.9096,
-      "change_pct": -0.48,
+      "price": 6.9094,
+      "change_pct": -0.5,
       "status": "SUCCESS",
       "last_update": "2026-02-10 15:38"
     },
@@ -154,8 +154,8 @@
       "last_update": "2026-02-10 15:38"
     },
     "A50_Futures": {
-      "price": 14995.0,
-      "change_pct": -0.020002667022267495,
+      "price": 14996.72,
+      "change_pct": -0.008534471262844345,
       "status": "SUCCESS",
       "last_update": "2026-02-10 15:38"
     },
