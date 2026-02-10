@@ -29,14 +29,6 @@ class General:
 
         data_time = metrics.get('timestamp', 'unknown')
 
-        # 优化 Token: 仅保留失败的健康状态
-        if 'macro_health' in metrics:
-            health = metrics['macro_health']
-            failed_keys = {k: v for k, v in health.items() if v.get('status') != 'SUCCESS'}
-            if failed_keys:
-                metrics['macro_health_alerts'] = failed_keys
-            del metrics['macro_health']
-
         prompt = f"""
 你现在是 Global-Link V13-Cloud 的“首席策略官 (CSO)”。
 你必须遵循“技术面触发 + 宏观面特征验证”的严密逻辑进行审计。
@@ -52,8 +44,13 @@ class General:
 3. z_score: 偏离度。
 4. slope: 5日趋势斜率。
 
-[数据完整性说明]
-如果 macro_health_alerts 中包含某个指标，说明该指标采集失败，请说明其对决策的影响。
+[数据健康审计 (Critical)]
+你必须首先检查 macro_health 中的 status 和 last_update：
+- 如果 status 为 FAILED，对应的 macro_matrix 数据可能是过期的。
+- 如果 last_update 与当前数据时间 {data_time} 偏差过大（超过 24 小时或跨交易日），说明该指标采集停滞。
+- 对于过期数据，其 slope 和 z_score 的参考权重必须大幅下调，严禁基于过期数据做出激进决策。
+
+你必须利用这些特征判断宏观环境是在“改善”还是“恶化”，而不仅仅看绝对值。
 
 [核心审计逻辑]
 1. 技术触发: 乖离率 (Bias) < -2.5% 且 量比 (Vol Ratio) > 1.2。
