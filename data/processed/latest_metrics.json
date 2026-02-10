@@ -29,13 +29,13 @@
       "slope": -0.0
     },
     "A50_Futures": {
-      "value": 14996.72,
-      "change_pct": -0.009,
+      "value": 14995.8,
+      "change_pct": -0.015,
       "p_20d": 65.0,
       "p_250d": 97.2,
       "p_1250d": 99.43,
       "z_score": 0.58,
-      "slope": -2.466
+      "slope": -2.65
     },
     "VIX": {
       "value": 18.463,
