@@ -5,8 +5,8 @@ import pandas as pd
 from datetime import datetime
 import time
 
-# 🎨 UI 全面升级：V14.1 PRO+ 机构级量化决策看板
-st.set_page_config(page_title="Global-Link V14.1 PRO+", layout="wide", initial_sidebar_state="expanded")
+# 🎨 UI 全面升级：V13 PRO+ 机构级量化决策看板
+st.set_page_config(page_title="Global-Link V13 PRO+", layout="wide", initial_sidebar_state="expanded")
 
 st.markdown("""
     <style>
@@ -99,11 +99,11 @@ with st.sidebar:
     for s in sources: st.markdown(f"🟢 **{s['name']}**: `{s['s']}`")
     st.markdown("---")
     st.subheader("🧠 策略引擎")
-    st.code("模型: Gemini 3 Flash\n架构: V14.1 PRO+\n分位回溯: 5年 (1250D)", language="yaml")
+    st.code("模型: Gemini 3 Flash\n架构: V13 PRO+\n分位回溯: 5年 (1250D)", language="yaml")
     if st.button("🚀 强制刷新"): st.rerun()
 
 # --- 主界面 ---
-st.markdown("<h1 class='cyber-title'>GLOBAL-LINK V14.1 PRO+ 宏观全貌研判系统</h1>", unsafe_allow_html=True)
+st.markdown("<h1 class='cyber-title'>GLOBAL-LINK V13 PRO+ 宏观全貌研判系统</h1>", unsafe_allow_html=True)
 
 if audit_data:
     c1, c2 = st.columns([3, 1])
@@ -228,6 +228,6 @@ if audit_data:
         st.markdown(f"<div class='sys-log'>{log_content}</div>", unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown(f"<p style='text-align: center; color: #8b949e; font-size: 0.8rem;'>V14.1 PRO+ 机构级决策引擎 | 最后同步时间: {format_beijing_time(ref_time)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align: center; color: #8b949e; font-size: 0.8rem;'>V13 PRO+ 机构级决策引擎 | 最后同步时间: {format_beijing_time(ref_time)}</p>", unsafe_allow_html=True)
 else:
     st.error("❌ 数据链路异常")
