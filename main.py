@@ -6,7 +6,7 @@ import sys
 import traceback
 
 def main():
-    print("--- Global-Link V14: 宏观特征驱动审计开始 ---")
+    print("--- Global-Link V13: 宏观特征驱动审计开始 ---")
     
     try:
         # 1. 数据采集
@@ -39,7 +39,7 @@ def main():
         traceback.print_exc()
         sys.exit(1)
     
-    print("--- Global-Link V14: 执行任务已完成 ---")
+    print("--- Global-Link V13: 执行任务已完成 ---")
 
 if __name__ == "__main__":
     main()
