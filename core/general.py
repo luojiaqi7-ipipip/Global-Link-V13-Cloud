@@ -8,7 +8,7 @@ load_dotenv()
 
 class General:
     """
-    模块 C: AI 决策审计 center - V14 (特征全貌审计)
+    模块 C: AI 决策审计中心 - V16 (特征全貌审计)
     基于最新 Gemini 模型，对量化特征矩阵进行深度审计与策略输出。
     """
     def __init__(self, metrics_file="data/processed/latest_metrics.json", out_dir="data/audit"):
@@ -26,8 +26,12 @@ class General:
         with open(self.metrics_file, 'r') as f:
             metrics = json.load(f)
 
-        # 优化 Token: 移除 AI 不需要看的健康状态数据
+        # 优化 Token: 仅保留失败的健康状态，成功的忽略以节省空间
         if 'macro_health' in metrics:
+            health = metrics['macro_health']
+            failed_keys = {k: v for k, v in health.items() if v.get('status') != 'SUCCESS'}
+            if failed_keys:
+                metrics['macro_health_alerts'] = failed_keys
             del metrics['macro_health']
 
         prompt = f"""
@@ -40,35 +44,30 @@ class General:
 2. p_20d / p_60d: 该指标在过去 20/60 个采样点的历史分位（0-100）。
    - p_20d > 80: 指标处于近期高位。
    - p_20d < 20: 指标处于近期低位。
-3. z_score: 偏离度。反映指标相对于均线的偏离程度。
-4. slope: 5日趋势斜率。反映指标近期的变动趋势。
+3. z_score:偏离度。
+4. slope: 5日趋势斜率。
 
-你必须利用这些特征判断宏观环境是在“改善”还是“恶化”，而不仅仅看绝对值。
+[数据完整性说明]
+如果 macro_health_alerts 中包含某个指标，说明该指标采集失败，请在 rationale 中说明该缺失对决策的影响。
 
 [核心审计逻辑]
-1. 技术触发: 
-   - 核心准则: 只有当 乖离率 (Bias) < -2.5% 且 量比 (Vol Ratio) > 1.2 时，才具备“策略入场”基础。
-2. 宏观验证:
-   - 利用历史分位和趋势斜率判断宏观共振。
-   - 例如：汇率 (CNH) 绝对值虽高，但若 slope 为负（升值趋势）且 p_20d 从高位回落，则视为利好。
-3. 风险控制:
-   - 风险敞口系数 (Attack Factor): 限制在 [0.8, 1.2] 之间。
-   - 只有技术面与宏观面形成共振，才能赋予 > 1.0 的风险敞口。
+1. 技术触发: 乖离率 (Bias) < -2.5% 且 量比 (Vol Ratio) > 1.2。
+2. 宏观验证: 利用历史分位和趋势斜率判断宏观共振。
+3. 风险控制: 风险敞口系数 (Attack Factor): [0.8, 1.2]。
 
 [数据矩阵]
 {json.dumps(metrics, ensure_ascii=False, indent=2)}
 
 [审计要求]
-- 必须返回纯 JSON 对象。
-- Rationale (策略综述): 展现专业策略官风格，点名引用 p_20d 和 slope 等关键特征进行论证。
-- Decision: BUY (策略买入) / WAIT (观望等待) / HOLD (坚定持有) / SELL (策略卖出)。
+- 必须返回纯 JSON。
+- Decision: BUY / WAIT / HOLD / SELL。
 
 [输出 JSON 格式]
 {{
   "decision": "...",
   "target": "...",
   "attack_factor": 1.0,
-  "rationale": "策略决策审计报告：鉴于...",
+  "rationale": "...",
   "parameters": {{ "stop_loss": -1.5, "stop_profit": 3.0, "time_limit": "4天" }},
   "top_candidates": []
 }}
