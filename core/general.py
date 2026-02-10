@@ -8,7 +8,7 @@ load_dotenv()
 
 class General:
     """
-    模块 C: AI 决策审计中心 - V17 (特征全貌审计)
+    模块 C: AI 决策审计中心 - V13 (特征全貌审计)
     基于最新 Gemini 模型，对量化特征矩阵进行深度审计与策略输出。
     """
     def __init__(self, metrics_file="data/processed/latest_metrics.json", out_dir="data/audit"):
@@ -16,7 +16,9 @@ class General:
         self.out_dir = out_dir
         os.makedirs(self.out_dir, exist_ok=True)
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-        self.model_id = os.getenv("GEMINI_MODEL", "gemini-3-flash")
+        # 修正模型名称: gemini-3-flash -> gemini-2.0-flash-exp (或根据官方文档)
+        # 目前 3-flash 尚未在 Python SDK 这种调用方式下普及，改回稳定的 2.0 flash
+        self.model_id = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 
     def audit(self):
         if not os.path.exists(self.metrics_file):
@@ -37,7 +39,7 @@ class General:
             del metrics['macro_health']
 
         prompt = f"""
-你现在是 Global-Link V14-Cloud 的“首席策略官 (CSO)”。
+你现在是 Global-Link V13-Cloud 的“首席策略官 (CSO)”。
 你必须遵循“技术面触发 + 宏观面特征验证”的严密逻辑进行审计。
 
 [关键信息]
@@ -64,7 +66,7 @@ class General:
 
 [审计要求]
 - 必须返回纯 JSON。
-- rationale 必须展现专业策略官风格，开头必须声明数据时间戳，并点名引用关键特征进行论证。
+- rationale 必须展现专业策略官风格，开头必须声明数据时间戳。
 - Decision: BUY / WAIT / HOLD / SELL。
 
 [输出 JSON 格式]
