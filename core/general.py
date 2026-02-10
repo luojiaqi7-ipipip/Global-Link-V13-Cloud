@@ -8,7 +8,7 @@ load_dotenv()
 
 class General:
     """
-    模块 C: AI 决策审计中心 - V14 (特征全貌审计)
+    模块 C: AI 决策审计 center - V14 (特征全貌审计)
     基于最新 Gemini 模型，对量化特征矩阵进行深度审计与策略输出。
     """
     def __init__(self, metrics_file="data/processed/latest_metrics.json", out_dir="data/audit"):
@@ -16,7 +16,7 @@ class General:
         self.out_dir = out_dir
         os.makedirs(self.out_dir, exist_ok=True)
         self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-        self.model_id = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+        self.model_id = os.getenv("GEMINI_MODEL", "gemini-3-flash")
 
     def audit(self):
         if not os.path.exists(self.metrics_file):
@@ -25,6 +25,10 @@ class General:
             
         with open(self.metrics_file, 'r') as f:
             metrics = json.load(f)
+
+        # 优化 Token: 移除 AI 不需要看的健康状态数据
+        if 'macro_health' in metrics:
+            del metrics['macro_health']
 
         prompt = f"""
 你现在是 Global-Link V14-Cloud 的“首席策略官 (CSO)”。
