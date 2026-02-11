@@ -3,7 +3,7 @@
   "macro_matrix": {
     "CNH": {
       "value": 6.913,
-      "change_pct": 0.14,
+      "change_pct": 0.15,
       "p_20d": 65.0,
       "p_250d": 5.2,
       "p_1250d": 34.64,
@@ -29,13 +29,13 @@
       "slope": 8.644
     },
     "A50_Futures": {
-      "value": 14933.36,
-      "change_pct": -0.491,
+      "value": 14936.8,
+      "change_pct": -0.468,
       "p_20d": 5.0,
       "p_250d": 92.0,
       "p_1250d": 98.378,
-      "z_score": -3.1,
-      "slope": -10.317
+      "z_score": -3.01,
+      "slope": -9.629
     },
     "VIX": {
       "value": 18.692,
@@ -56,13 +56,13 @@
       "slope": 5.966
     },
     "CrudeOil": {
-      "value": 64.363,
-      "change_pct": 0.63,
+      "value": 64.354,
+      "change_pct": 0.616,
       "p_20d": 80.0,
       "p_250d": 89.189,
       "p_1250d": 89.189,
-      "z_score": 0.81,
-      "slope": 0.034
+      "z_score": 0.79,
+      "slope": 0.032
     },
     "CN10Y": {
       "value": 1.809,
@@ -93,7 +93,7 @@
     },
     "A_Share_Vol": {
       "amplitude": 0.308,
-      "pct_change": -0.278,
+      "pct_change": -0.286,
       "p_20d": 10.0,
       "p_250d": 84.8,
       "p_1250d": 78.476,
@@ -177,8 +177,8 @@
     {
       "code": "512690",
       "name": "酒ETF",
-      "price": 0.544,
-      "bias": -1.52,
+      "price": 0.543,
+      "bias": -1.67,
       "vol_ratio": 0.12
     },
     {
@@ -191,8 +191,8 @@
     {
       "code": "512880",
       "name": "证券ETF",
-      "price": 1.192,
-      "bias": -0.07,
+      "price": 1.191,
+      "bias": -0.13,
       "vol_ratio": 0.16
     },
     {
@@ -203,11 +203,25 @@
       "vol_ratio": 0.22
     },
     {
+      "code": "513050",
+      "name": "中概互联网ETF易方达",
+      "price": 1.425,
+      "bias": 0.27,
+      "vol_ratio": 0.16
+    },
+    {
       "code": "159915",
       "name": "创业板ETF易方达",
-      "price": 3.287,
-      "bias": 0.3,
+      "price": 3.286,
+      "bias": 0.27,
       "vol_ratio": 0.27
+    },
+    {
+      "code": "512760",
+      "name": "芯片ETF",
+      "price": 1.771,
+      "bias": 0.28,
+      "vol_ratio": 0.17
     },
     {
       "code": "159995",
@@ -215,20 +229,6 @@
       "price": 1.898,
       "bias": 0.32,
       "vol_ratio": 0.19
-    },
-    {
-      "code": "513050",
-      "name": "中概互联网ETF易方达",
-      "price": 1.426,
-      "bias": 0.32,
-      "vol_ratio": 0.16
-    },
-    {
-      "code": "512760",
-      "name": "芯片ETF",
-      "price": 1.772,
-      "bias": 0.33,
-      "vol_ratio": 0.17
     },
     {
       "code": "510880",
@@ -242,7 +242,7 @@
       "name": "半导体ETF",
       "price": 1.616,
       "bias": 0.4,
-      "vol_ratio": 0.17
+      "vol_ratio": 0.18
     },
     {
       "code": "510300",
@@ -261,8 +261,8 @@
     {
       "code": "588000",
       "name": "科创50ETF",
-      "price": 1.535,
-      "bias": 0.63,
+      "price": 1.534,
+      "bias": 0.58,
       "vol_ratio": 0.2
     },
     {
@@ -275,15 +275,15 @@
     {
       "code": "512010",
       "name": "医药ETF易方达",
-      "price": 0.389,
-      "bias": 0.93,
+      "price": 0.39,
+      "bias": 1.14,
       "vol_ratio": 0.22
     },
     {
       "code": "510500",
       "name": "中证500ETF",
-      "price": 8.43,
-      "bias": 1.24,
+      "price": 8.428,
+      "bias": 1.23,
       "vol_ratio": 0.12
     }
   ]
