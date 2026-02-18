@@ -1,6 +1,6 @@
 {
   "meta": {
-    "timestamp": "2026-02-18 11:33",
+    "timestamp": "2026-02-18 13:19",
     "timezone": "Asia/Shanghai",
     "version": "V13-Final-Robust"
   },
@@ -136,74 +136,79 @@
   ],
   "macro": {
     "CNH": {
-      "price": 6.8853,
-      "change_pct": 0.22999999999999998,
+      "price": 6.8848,
+      "change_pct": 0.18,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "Nasdaq": {
       "price": 24701.5965,
       "change_pct": -0.13,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "HangSeng": {
       "price": 26501.2,
       "change_pct": -0.24812250059932373,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "A50_Futures": {
-      "price": 14801.81,
-      "change_pct": 0.12724074950956066,
+      "price": 14829.2,
+      "change_pct": 0.31252113914632673,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "VIX": {
-      "price": 20.254,
-      "change_pct": 0.16815034619190872,
+      "price": 20.145,
+      "change_pct": -0.37091988130563136,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "Gold": {
-      "price": 4937.516,
-      "change_pct": 0.6444485211683837,
+      "price": 4952.692,
+      "change_pct": 0.9537903340875342,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "CrudeOil": {
-      "price": 62.372,
-      "change_pct": 0.17989078059750252,
+      "price": 62.373,
+      "change_pct": 0.18149694828140106,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "CSI300_Vol": {
       "amplitude": 0.958,
       "pct_change": -1.254,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "CN10Y": {
       "yield": 1.7899,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "US10Y": {
       "price": 4.05,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "Southbound": {
       "value": 20219141100.0,
       "note": "Northbound hidden; using Southbound as proxy",
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
     },
     "Margin_Debt": {
       "value": 2606810333560.0,
       "change_pct": -1.261744981729107,
       "status": "SUCCESS",
-      "last_update": "2026-02-18 11:33"
+      "last_update": "2026-02-18 13:19"
+    },
+    "SHIBOR": {
+      "value": 1.3156,
+      "status": "SUCCESS",
+      "last_update": "2026-02-18 13:19"
     }
   },
   "hist_data": {
