@@ -2,12 +2,12 @@
   "timestamp": "2026-02-25 11:31",
   "macro_matrix": {
     "CNH": {
-      "value": 6.867,
-      "change_pct": -1.1,
+      "value": 6.868,
+      "change_pct": -1.09,
       "p_20d": 5.0,
       "p_250d": 0.4,
-      "p_1250d": 24.88,
-      "z_score": -2.22,
+      "p_1250d": 25.12,
+      "z_score": -2.13,
       "slope": -0.003
     },
     "Nasdaq": {
@@ -29,13 +29,13 @@
       "slope": -33.696
     },
     "A50_Futures": {
-      "value": 14953.11,
-      "change_pct": 1.563,
+      "value": 14956.0,
+      "change_pct": 1.583,
       "p_20d": 100.0,
       "p_250d": 91.6,
       "p_1250d": 98.32,
-      "z_score": 1.84,
-      "slope": 52.886
+      "z_score": 1.87,
+      "slope": 53.464
     },
     "VIX": {
       "value": 20.261,
@@ -47,22 +47,22 @@
       "slope": -0.169
     },
     "Gold": {
-      "value": 5205.77,
-      "change_pct": 0.569,
+      "value": 5206.304,
+      "change_pct": 0.58,
       "p_20d": 95.0,
       "p_250d": 98.8,
       "p_1250d": 99.76,
-      "z_score": 0.7,
-      "slope": 2.93
+      "z_score": 0.71,
+      "slope": 3.037
     },
     "CrudeOil": {
-      "value": 66.331,
-      "change_pct": 1.068,
-      "p_20d": 45.0,
-      "p_250d": 84.375,
-      "p_1250d": 84.375,
-      "z_score": 0.08,
-      "slope": 0.005
+      "value": 66.362,
+      "change_pct": 1.115,
+      "p_20d": 50.0,
+      "p_250d": 85.417,
+      "p_1250d": 85.417,
+      "z_score": 0.15,
+      "slope": 0.011
     },
     "CN10Y": {
       "value": 1.802,
@@ -101,13 +101,13 @@
       "slope": 8.555
     },
     "Southbound": {
-      "value": -11.977,
+      "value": -12.238,
       "change_pct": null,
-      "p_20d": 10.0,
-      "p_250d": 10.0,
-      "p_1250d": 16.4,
-      "z_score": -0.73,
-      "slope": -8.595
+      "p_20d": 5.0,
+      "p_250d": 9.6,
+      "p_1250d": 16.08,
+      "z_score": -0.74,
+      "slope": -8.647
     },
     "Margin_Debt": {
       "value": 26142.388,

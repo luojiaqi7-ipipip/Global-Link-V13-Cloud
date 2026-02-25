@@ -136,8 +136,8 @@
   ],
   "macro": {
     "CNH": {
-      "price": 6.8675,
-      "change_pct": -1.0999999999999999,
+      "price": 6.8676,
+      "change_pct": -1.09,
       "status": "SUCCESS",
       "last_update": "2026-02-25 11:31"
     },
@@ -154,8 +154,8 @@
       "last_update": "2026-02-25 11:31"
     },
     "A50_Futures": {
-      "price": 14953.11,
-      "change_pct": 1.5629287509339118,
+      "price": 14956.0,
+      "change_pct": 1.582557902601378,
       "status": "SUCCESS",
       "last_update": "2026-02-25 11:31"
     },
@@ -166,14 +166,14 @@
       "last_update": "2026-02-25 11:31"
     },
     "Gold": {
-      "price": 5205.77,
-      "change_pct": 0.5693255800475194,
+      "price": 5206.304,
+      "change_pct": 0.5796418291057259,
       "status": "SUCCESS",
       "last_update": "2026-02-25 11:31"
     },
     "CrudeOil": {
-      "price": 66.331,
-      "change_pct": 1.0681090964498097,
+      "price": 66.362,
+      "change_pct": 1.1153435928691113,
       "status": "SUCCESS",
       "last_update": "2026-02-25 11:31"
     },
@@ -194,7 +194,7 @@
       "last_update": "2026-02-25 11:31"
     },
     "Southbound": {
-      "value": -1197729699.9999998,
+      "value": -1223786800.0,
       "note": "Northbound hidden; using Southbound as proxy",
       "status": "SUCCESS",
       "last_update": "2026-02-25 11:31"
