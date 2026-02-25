@@ -1,0 +1,19 @@
+{
+  "last_run": "2026-02-25T14:01:00+08:00",
+  "run_id": "22384402206",
+  "decision": "WAIT",
+  "target": "NONE",
+  "status": "success",
+  "macro_health": "SUCCESS",
+  "key_metrics": {
+    "cnh": 6.867,
+    "cnh_p250d": 0.4,
+    "shibor_p20d": 100.0,
+    "margin_debt_p20d": 100.0,
+    "a50_slope": -15.032,
+    "top_candidate": "513050",
+    "candidate_bias": -2.72,
+    "candidate_vol_ratio": 0.72
+  },
+  "next_scheduled_run": "2026-02-25T18:00:00+08:00"
+}
