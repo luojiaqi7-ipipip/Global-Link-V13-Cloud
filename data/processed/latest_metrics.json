@@ -1,14 +1,14 @@
 {
-  "timestamp": "2026-02-25 11:31",
+  "timestamp": "2026-02-25 13:01",
   "macro_matrix": {
     "CNH": {
-      "value": 6.868,
-      "change_pct": -1.09,
-      "p_20d": 5.0,
-      "p_250d": 0.4,
-      "p_1250d": 25.12,
-      "z_score": -2.13,
-      "slope": -0.003
+      "value": 6.869,
+      "change_pct": -0.99,
+      "p_20d": 10.0,
+      "p_250d": 0.8,
+      "p_1250d": 25.2,
+      "z_score": -1.83,
+      "slope": -0.002
     },
     "Nasdaq": {
       "value": 24977.044,
@@ -16,84 +16,84 @@
       "p_20d": 75.0,
       "p_250d": 86.0,
       "p_1250d": 97.2,
-      "z_score": 0.95,
-      "slope": 53.62
+      "z_score": 0.87,
+      "slope": -0.0
     },
     "HangSeng": {
       "value": 26745.2,
       "change_pct": 0.582,
       "p_20d": 25.0,
       "p_250d": 73.6,
-      "p_1250d": 90.48,
-      "z_score": -1.15,
-      "slope": -33.696
+      "p_1250d": 90.56,
+      "z_score": -1.33,
+      "slope": -0.0
     },
     "A50_Futures": {
-      "value": 14956.0,
-      "change_pct": 1.583,
-      "p_20d": 100.0,
-      "p_250d": 91.6,
-      "p_1250d": 98.32,
-      "z_score": 1.87,
-      "slope": 53.464
+      "value": 14906.48,
+      "change_pct": 1.246,
+      "p_20d": 80.0,
+      "p_250d": 88.0,
+      "p_1250d": 97.6,
+      "z_score": 1.13,
+      "slope": 44.892
     },
     "VIX": {
-      "value": 20.261,
-      "change_pct": 0.054,
-      "p_20d": 20.0,
-      "p_250d": 78.8,
-      "p_1250d": 66.56,
-      "z_score": -1.46,
-      "slope": -0.169
+      "value": 20.241,
+      "change_pct": -0.044,
+      "p_20d": 15.0,
+      "p_250d": 77.6,
+      "p_1250d": 66.32,
+      "z_score": -1.39,
+      "slope": 0.01
     },
     "Gold": {
-      "value": 5206.304,
-      "change_pct": 0.58,
-      "p_20d": 95.0,
-      "p_250d": 98.8,
-      "p_1250d": 99.76,
-      "z_score": 0.71,
-      "slope": 3.037
+      "value": 5203.537,
+      "change_pct": 0.526,
+      "p_20d": 90.0,
+      "p_250d": 98.4,
+      "p_1250d": 99.68,
+      "z_score": 0.95,
+      "slope": 0.743
     },
     "CrudeOil": {
-      "value": 66.362,
-      "change_pct": 1.115,
-      "p_20d": 50.0,
-      "p_250d": 85.417,
-      "p_1250d": 85.417,
-      "z_score": 0.15,
-      "slope": 0.011
+      "value": 66.004,
+      "change_pct": 0.57,
+      "p_20d": 30.0,
+      "p_250d": 80.412,
+      "p_1250d": 80.412,
+      "z_score": -0.6,
+      "slope": 0.022
     },
     "CN10Y": {
       "value": 1.802,
       "change_pct": null,
       "p_20d": 100.0,
       "p_250d": 47.2,
-      "p_1250d": 17.52,
-      "z_score": 2.0,
-      "slope": 0.002
+      "p_1250d": 17.6,
+      "z_score": 1.73,
+      "slope": -0.0
     },
     "US10Y": {
       "value": 4.04,
       "change_pct": null,
-      "p_20d": 70.0,
-      "p_250d": 16.8,
+      "p_20d": 75.0,
+      "p_250d": 17.2,
       "p_1250d": 51.12,
-      "z_score": -0.32,
-      "slope": 0.002
+      "z_score": -0.24,
+      "slope": -0.0
     },
     "SHIBOR": {
       "value": 1.378,
       "change_pct": null,
       "p_20d": 100.0,
-      "p_250d": 79.6,
-      "p_1250d": 32.08,
-      "z_score": 1.37,
-      "slope": 0.003
+      "p_250d": 80.0,
+      "p_1250d": 32.16,
+      "z_score": 1.25,
+      "slope": 0.005
     },
     "A_Share_Vol": {
-      "amplitude": 1.117,
-      "pct_change": 1.237,
+      "amplitude": 1.13,
+      "pct_change": 1.089,
       "p_20d": 10.0,
       "p_250d": 84.8,
       "p_1250d": 78.476,
@@ -101,13 +101,13 @@
       "slope": 8.555
     },
     "Southbound": {
-      "value": -12.238,
+      "value": -17.039,
       "change_pct": null,
       "p_20d": 5.0,
-      "p_250d": 9.6,
-      "p_1250d": 16.08,
-      "z_score": -0.74,
-      "slope": -8.647
+      "p_250d": 7.6,
+      "p_1250d": 13.44,
+      "z_score": -0.71,
+      "slope": -5.123
     },
     "Margin_Debt": {
       "value": 26142.388,
@@ -115,176 +115,176 @@
       "p_20d": 100.0,
       "p_250d": 77.6,
       "p_1250d": 95.52,
-      "z_score": 1.28,
-      "slope": 68.962
+      "z_score": 1.22,
+      "slope": -0.0
     }
   },
   "macro_health": {
     "CNH": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "Nasdaq": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "HangSeng": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "A50_Futures": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "VIX": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "Gold": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "CrudeOil": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "CSI300_Vol": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "CN10Y": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "US10Y": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "Southbound": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "Margin_Debt": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     },
     "SHIBOR": {
       "status": "SUCCESS",
-      "last_update": "2026-02-25 11:31"
+      "last_update": "2026-02-25 13:01"
     }
   },
   "technical_matrix": [
     {
       "code": "513050",
       "name": "中概互联网ETF易方达",
-      "price": 1.345,
-      "bias": -2.25,
-      "vol_ratio": 0.56
+      "price": 1.343,
+      "bias": -2.37,
+      "vol_ratio": 0.59
     },
     {
       "code": "512800",
       "name": "银行ETF",
-      "price": 0.779,
-      "bias": -0.51,
-      "vol_ratio": 0.5
+      "price": 0.775,
+      "bias": -0.92,
+      "vol_ratio": 0.6
     },
     {
       "code": "512010",
       "name": "医药ETF易方达",
       "price": 0.383,
       "bias": -0.31,
-      "vol_ratio": 0.45
+      "vol_ratio": 0.5
     },
     {
       "code": "512690",
       "name": "酒ETF",
       "price": 0.535,
       "bias": -0.15,
-      "vol_ratio": 0.47
+      "vol_ratio": 0.48
     },
     {
       "code": "159928",
       "name": "消费ETF",
       "price": 0.781,
       "bias": 0.18,
-      "vol_ratio": 0.93
-    },
-    {
-      "code": "588000",
-      "name": "科创50ETF",
-      "price": 1.552,
-      "bias": 0.32,
-      "vol_ratio": 0.65
+      "vol_ratio": 0.97
     },
     {
       "code": "512880",
       "name": "证券ETF",
-      "price": 1.188,
-      "bias": 0.46,
-      "vol_ratio": 1.04
+      "price": 1.185,
+      "bias": 0.25,
+      "vol_ratio": 1.09
     },
     {
-      "code": "159995",
-      "name": "芯片ETF",
-      "price": 1.953,
-      "bias": 1.03,
-      "vol_ratio": 0.74
-    },
-    {
-      "code": "512760",
-      "name": "芯片ETF",
-      "price": 1.832,
-      "bias": 1.13,
-      "vol_ratio": 0.75
+      "code": "588000",
+      "name": "科创50ETF",
+      "price": 1.556,
+      "bias": 0.53,
+      "vol_ratio": 0.68
     },
     {
       "code": "510300",
       "name": "沪深300ETF华泰柏瑞",
-      "price": 4.777,
-      "bias": 1.15,
-      "vol_ratio": 0.66
-    },
-    {
-      "code": "512480",
-      "name": "半导体ETF",
-      "price": 1.673,
-      "bias": 1.3,
-      "vol_ratio": 0.91
-    },
-    {
-      "code": "159915",
-      "name": "创业板ETF易方达",
-      "price": 3.343,
-      "bias": 1.33,
-      "vol_ratio": 0.65
+      "price": 4.772,
+      "bias": 1.06,
+      "vol_ratio": 0.67
     },
     {
       "code": "515080",
       "name": "中证红利ETF",
-      "price": 1.644,
-      "bias": 1.37,
-      "vol_ratio": 0.94
+      "price": 1.641,
+      "bias": 1.22,
+      "vol_ratio": 1.0
+    },
+    {
+      "code": "159995",
+      "name": "芯片ETF",
+      "price": 1.96,
+      "bias": 1.32,
+      "vol_ratio": 0.78
     },
     {
       "code": "510880",
       "name": "红利ETF华泰柏瑞",
-      "price": 3.233,
-      "bias": 1.52,
-      "vol_ratio": 1.15
+      "price": 3.225,
+      "bias": 1.32,
+      "vol_ratio": 1.19
+    },
+    {
+      "code": "512760",
+      "name": "芯片ETF",
+      "price": 1.839,
+      "bias": 1.43,
+      "vol_ratio": 0.82
+    },
+    {
+      "code": "159915",
+      "name": "创业板ETF易方达",
+      "price": 3.347,
+      "bias": 1.43,
+      "vol_ratio": 0.68
+    },
+    {
+      "code": "512480",
+      "name": "半导体ETF",
+      "price": 1.678,
+      "bias": 1.54,
+      "vol_ratio": 0.96
     },
     {
       "code": "510500",
       "name": "中证500ETF",
-      "price": 8.614,
-      "bias": 1.63,
-      "vol_ratio": 0.75
+      "price": 8.617,
+      "bias": 1.65,
+      "vol_ratio": 0.76
     },
     {
       "code": "512660",
       "name": "军工ETF",
       "price": 1.511,
       "bias": 1.67,
-      "vol_ratio": 0.76
+      "vol_ratio": 0.77
     }
   ]
 }
