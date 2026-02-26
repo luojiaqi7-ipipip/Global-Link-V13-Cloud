@@ -1,8 +1,8 @@
 {
   "decision": "WAIT",
-  "target": "None",
-  "attack_factor": 0.9,
-  "rationale": "基于 2026-02-26 10:31 的实时行情数据，审计报告显示：1. 数据健康审计：macro_health 状态均为 SUCCESS，last_update 与当前时间完全同步，数据具有极高参考权重。2. 宏观特征验证：全球风险偏好呈现显著背离，Nasdaq 与恒生指数均处于 20 日分位的 100% 极强区间（z_score > 2.0），而 A50 期货则处于 5% 的极低分位（z_score -2.4），显示国内资产短期严重超卖。3. 技术面触发审计：中概互联网 ETF (513050) 的乖离率 (Bias) 为 -2.88%，已进入技术超卖触发区，但其量比 (Vol Ratio) 仅为 0.5，远未达到 1.2 的放量验证标准，表明市场当前处于缩量阴跌状态，缺乏多头反扑的动能确认。4. 风险控制：虽然 CNH 走强 (slope -0.007) 且融资余额 (Margin Debt) 处于高位斜率向上，宏观环境具备改善潜力，但由于技术面‘量价比’共振失败，不符合 V13-Cloud 的严密买入逻辑。建议等待量比放大至 1.2 以上再行介入。",
+  "target": "NONE",
+  "attack_factor": 0.8,
+  "rationale": "基于 2026-02-26 10:32 的实时行情数据，审计报告显示：1. 数据健康度：macro_health 状态均为 SUCCESS 且时间戳同步，数据具有极高置信度。2. 宏观环境：Nasdaq 与 HangSeng 处于 p_20d=100 的极强区间，CNH 汇率走强（z_score -2.26），宏观背景整体偏向风险偏好扩张；然而 A50 期货出现短期剧烈回调（p_20d=5.0, slope -44.806），显示内资情绪与外盘存在背离。3. 技术面审计：虽然 513050 (中概互联网ETF) 乖离率 (Bias) 为 -2.83%，已触发价格超跌阈值，但其量比 (Vol Ratio) 仅为 0.5，远低于 1.2 的触发标准，说明当前下跌缺乏放量支撑或止跌信号，未形成技术面共振。4. 策略结论：宏观虽暖但技术面动能不足，建议继续观望，等待量比放大后的右侧机会。",
   "parameters": {
     "stop_loss": -1.5,
     "stop_profit": 3.0,
@@ -12,28 +12,27 @@
     {
       "code": "513050",
       "name": "中概互联网ETF易方达",
-      "reason": "Bias -2.88% 触发超卖，等待量比回升"
+      "bias": -2.83,
+      "vol_ratio": 0.5,
+      "status": "WAIT_FOR_VOLUME"
     },
     {
       "code": "512690",
       "name": "酒ETF",
-      "reason": "Bias -1.02%，随大盘缩量调整中"
-    },
-    {
-      "code": "512800",
-      "name": "银行ETF",
-      "reason": "低波动避险品种，Bias 相对稳定"
+      "bias": -1.02,
+      "vol_ratio": 0.38,
+      "status": "OBSERVING"
     }
   ],
-  "timestamp": "2026-02-26 10:31",
+  "timestamp": "2026-02-26 10:32",
   "macro_snapshot": {
     "CNH": {
-      "value": 6.842,
-      "change_pct": -1.18,
+      "value": 6.843,
+      "change_pct": -1.08,
       "p_20d": 10.0,
       "p_250d": 0.8,
       "p_1250d": 23.12,
-      "z_score": -2.33,
+      "z_score": -2.26,
       "slope": -0.007
     },
     "Nasdaq": {
@@ -55,13 +54,13 @@
       "slope": 82.362
     },
     "A50_Futures": {
-      "value": 14608.01,
-      "change_pct": -1.197,
+      "value": 14611.8,
+      "change_pct": -1.171,
       "p_20d": 5.0,
       "p_250d": 62.8,
       "p_1250d": 92.56,
-      "z_score": -2.4,
-      "slope": -45.564
+      "z_score": -2.37,
+      "slope": -44.806
     },
     "VIX": {
       "value": 19.71,
@@ -73,22 +72,22 @@
       "slope": -0.154
     },
     "Gold": {
-      "value": 5199.416,
-      "change_pct": -0.512,
+      "value": 5197.852,
+      "change_pct": -0.542,
       "p_20d": 15.0,
       "p_250d": 92.0,
       "p_1250d": 98.4,
-      "z_score": -1.2,
-      "slope": -2.705
+      "z_score": -1.39,
+      "slope": -3.018
     },
     "CrudeOil": {
-      "value": 65.448,
-      "change_pct": 0.043,
+      "value": 65.43,
+      "change_pct": 0.015,
       "p_20d": 5.0,
       "p_250d": 64.545,
       "p_1250d": 64.545,
-      "z_score": -2.14,
-      "slope": -0.123
+      "z_score": -2.19,
+      "slope": -0.127
     },
     "CN10Y": {
       "value": 1.816,
@@ -119,7 +118,7 @@
     },
     "A_Share_Vol": {
       "amplitude": 0.749,
-      "pct_change": -0.544,
+      "pct_change": -0.529,
       "p_20d": 10.0,
       "p_250d": 84.8,
       "p_1250d": 78.476,
@@ -127,13 +126,13 @@
       "slope": 8.555
     },
     "Southbound": {
-      "value": -26.083,
+      "value": -26.632,
       "change_pct": null,
       "p_20d": 30.0,
       "p_250d": 8.8,
-      "p_1250d": 10.4,
-      "z_score": -0.44,
-      "slope": 7.996
+      "p_1250d": 10.32,
+      "z_score": -0.47,
+      "slope": 7.886
     },
     "Margin_Debt": {
       "value": 26381.041,
